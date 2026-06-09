@@ -14,13 +14,10 @@ import com.paymentslab.core.protocol.PaymentStatusResponse
 import com.paymentslab.core.protocol.VerifyRequest
 import com.paymentslab.core.protocol.VerifyResponse
 
-/**
- * Pure, side-effect-free translation between the `core:protocol` wire DTOs and the `core:payments-api`
- * domain types. This is the mapping boundary the whole architecture leans on: the orchestrator never
- * sees a DTO or an HTTP concern, so every DTO<->domain conversion lives here and nowhere else.
- *
- * These functions are deliberately trivial to unit-test — no I/O, no client, no coroutines.
- */
+// Pure, side-effect-free translation between the `core:protocol` wire DTOs and the
+// `core:payments-api` domain types. This is the mapping boundary the whole architecture leans on:
+// the orchestrator never sees a DTO or an HTTP concern, so every DTO<->domain conversion lives here
+// and nowhere else. These functions are deliberately trivial to unit-test — no I/O, no coroutines.
 
 /** Server-authoritative status: wire enum → domain enum. Total (every DTO value maps). */
 fun PaymentStatusDto.toDomain(): PaymentStatus =

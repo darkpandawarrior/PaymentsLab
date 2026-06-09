@@ -14,13 +14,14 @@ import org.koin.dsl.module
  * [PaymentGateway] contributed by the `provider:*` modules via Koin's `getAll()` — so adding a
  * provider is a matter of including its module, with no edit here.
  */
-val orchestrationModule: Module = module {
-    single<PaymentGatewayRegistry> { DefaultPaymentGatewayRegistry(getAll<PaymentGateway>()) }
-    single {
-        PaymentOrchestrator(
-            registry = get<PaymentGatewayRegistry>(),
-            backend = get<PaymentBackend>(),
-            journal = get<PendingPaymentJournal>(),
-        )
+val orchestrationModule: Module =
+    module {
+        single<PaymentGatewayRegistry> { DefaultPaymentGatewayRegistry(getAll<PaymentGateway>()) }
+        single {
+            PaymentOrchestrator(
+                registry = get<PaymentGatewayRegistry>(),
+                backend = get<PaymentBackend>(),
+                journal = get<PendingPaymentJournal>(),
+            )
+        }
     }
-}

@@ -12,7 +12,9 @@ data class RedactedPayload(
     companion object {
         val EMPTY = RedactedPayload(label = "", entries = emptyList())
 
-        fun of(label: String, vararg entries: Pair<String, String>): RedactedPayload =
-            RedactedPayload(label, entries.toList())
+        fun of(
+            label: String,
+            vararg entries: Pair<String, String>,
+        ): RedactedPayload = RedactedPayload(label, entries.toList())
     }
 }

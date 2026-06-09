@@ -1,5 +1,7 @@
 package com.paymentslab.core.paymentsapi
 
+import kotlin.jvm.JvmInline
+
 /** Stable identifier for a payment provider, e.g. `razorpay`, `upi_intent`, `stripe`. */
 @JvmInline
 value class GatewayId(val value: String)
@@ -64,7 +66,10 @@ interface PaymentGateway {
     suspend fun prepare(created: CreatedOrder): PreparedPayment
 
     /** Launch the provider UI/intent and suspend until the user reaches a terminal state. */
-    suspend fun pay(host: PaymentHost, prepared: PreparedPayment): PaymentResult
+    suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult
 }
 
 /** Thrown by [PaymentGateway.prepare] when the order/session could not be created. */

@@ -9,12 +9,15 @@ import kotlinx.coroutines.flow.Flow
  * against the server. Implemented by `core:data` (Room).
  */
 interface PendingPaymentJournal {
-
     /** Record an in-flight payment before launching the gateway. */
     suspend fun record(entry: PendingPayment)
 
     /** Mark a payment resolved with its server-authoritative terminal status. */
-    suspend fun markResolved(orderId: String, status: PaymentStatus, paymentId: String?)
+    suspend fun markResolved(
+        orderId: String,
+        status: PaymentStatus,
+        paymentId: String?,
+    )
 
     /** Payments written but not yet resolved — the recovery work list on cold start. */
     suspend fun unresolved(): List<PendingPayment>

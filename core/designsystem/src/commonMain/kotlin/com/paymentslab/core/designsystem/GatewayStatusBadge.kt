@@ -1,5 +1,7 @@
 package com.paymentslab.core.designsystem
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 
 /** UI-level gateway availability, mapped to a coloured pill by [GatewayStatusBadge]. */
 enum class GatewayStatusUi {
@@ -48,17 +48,19 @@ fun GatewayStatusBadge(
         shape = CircleShape,
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = DesignTokens.Spacing.md,
-                vertical = DesignTokens.Spacing.xs,
-            ),
+            modifier =
+                Modifier.padding(
+                    horizontal = DesignTokens.Spacing.md,
+                    vertical = DesignTokens.Spacing.xs,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier
-                    .size(DesignTokens.Spacing.sm)
-                    .clip(CircleShape)
-                    .background(spec.color),
+                modifier =
+                    Modifier
+                        .size(DesignTokens.Spacing.sm)
+                        .clip(CircleShape)
+                        .background(spec.color),
             )
             Text(
                 text = spec.label,

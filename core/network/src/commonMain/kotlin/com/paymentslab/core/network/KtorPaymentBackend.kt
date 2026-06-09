@@ -33,7 +33,6 @@ class KtorPaymentBackend(
     private val client: HttpClient,
     private val config: PaymentApiConfig,
 ) : PaymentBackend {
-
     private val base: String = config.baseUrl.trimEnd('/')
 
     override suspend fun createOrder(

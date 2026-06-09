@@ -3,11 +3,9 @@ package com.paymentslab.core.protocol
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * The wire contract between the app and the `backend/` Ktor server. These `@Serializable` types live
- * in a KMP module with a JVM target so the exact same classes compile into both the Android client
- * and the JVM server — the DTOs can never drift.
- */
+// The wire contract between the app and the `backend/` Ktor server. These `@Serializable` types live
+// in a KMP module with a JVM target so the exact same classes compile into both the Android client
+// and the JVM server — the DTOs can never drift.
 
 /** Terminal + intermediate payment states, server-authoritative. */
 @Serializable

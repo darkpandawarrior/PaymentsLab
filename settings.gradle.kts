@@ -19,6 +19,11 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
+        // Cashfree nextgen SDK (com.cashfree.pg:api / :ui) is published only to Cashfree's own repo.
+        maven {
+            url = uri("https://maven.cashfree.com/release")
+            content { includeGroup("com.cashfree.pg") }
+        }
     }
 }
 
@@ -29,16 +34,21 @@ include(":core:payments-api")
 include(":core:protocol")
 include(":core:common")
 include(":core:orchestration")
-// -- BELOW MODULES ADDED AS AGENTS CREATE THEM (temporarily scoped for core validation) --
 include(":core:network")
 include(":core:data")
 include(":core:designsystem")
-// include(":provider:upi-intent")
-// include(":provider:razorpay")
-// include(":provider:cashfree")
-// include(":provider:stripe")
-// include(":feature:lab")
-// include(":feature:checkout-demo")
-// include(":feature:history")
-// include(":app")
-// include(":backend")
+
+// ── Providers (Android libraries; one per gateway) ──────────────────────────
+include(":provider:upi-intent")
+include(":provider:razorpay")
+include(":provider:cashfree")
+include(":provider:stripe")
+
+// ── Features ────────────────────────────────────────────────────────────────
+include(":feature:lab")
+include(":feature:checkout-demo")
+include(":feature:history")
+
+// ── App + backend ───────────────────────────────────────────────────────────
+include(":app")
+include(":backend")

@@ -12,7 +12,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class DtoMappersTest {
-
     @Test
     fun statusDto_roundTrips_domainToDtoToDomain_forEveryValue() {
         for (status in PaymentStatus.entries) {

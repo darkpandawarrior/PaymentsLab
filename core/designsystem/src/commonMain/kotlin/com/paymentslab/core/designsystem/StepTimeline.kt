@@ -90,17 +90,19 @@ private fun StepTimelineRow(
             modifier = Modifier.width(NodeGutterWidth),
         ) {
             Box(
-                modifier = Modifier
-                    .width(RailWidth)
-                    .height(DesignTokens.Spacing.sm)
-                    .background(if (isFirst) Color.Transparent else railColor),
+                modifier =
+                    Modifier
+                        .width(RailWidth)
+                        .height(DesignTokens.Spacing.sm)
+                        .background(if (isFirst) Color.Transparent else railColor),
             )
             StepNode(state = step.state, color = nodeColor)
             Box(
-                modifier = Modifier
-                    .width(RailWidth)
-                    .weight(1f)
-                    .background(if (isLast) Color.Transparent else railColor),
+                modifier =
+                    Modifier
+                        .width(RailWidth)
+                        .weight(1f)
+                        .background(if (isLast) Color.Transparent else railColor),
             )
         }
 
@@ -108,19 +110,21 @@ private fun StepTimelineRow(
 
         // Step content.
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = if (isLast) 0.dp else DesignTokens.Spacing.lg),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(bottom = if (isLast) 0.dp else DesignTokens.Spacing.lg),
         ) {
             Text(
                 text = step.title,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = if (step.state == StepState.PENDING) {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
+                color =
+                    if (step.state == StepState.PENDING) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
             )
             if (step.subtitle != null) {
                 Text(
@@ -155,25 +159,28 @@ private fun StepNode(
             val pulse by transition.animateFloat(
                 initialValue = 0.9f,
                 targetValue = 1.7f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1100),
-                    repeatMode = RepeatMode.Reverse,
-                ),
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(durationMillis = 1100),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
                 label = "pulseScale",
             )
             Box(
-                modifier = Modifier
-                    .size(NodeSize)
-                    .scale(pulse)
-                    .clip(CircleShape)
-                    .background(animatedColor.copy(alpha = 0.22f)),
+                modifier =
+                    Modifier
+                        .size(NodeSize)
+                        .scale(pulse)
+                        .clip(CircleShape)
+                        .background(animatedColor.copy(alpha = 0.22f)),
             )
         }
         Box(
-            modifier = Modifier
-                .size(NodeSize)
-                .clip(CircleShape)
-                .background(animatedColor),
+            modifier =
+                Modifier
+                    .size(NodeSize)
+                    .clip(CircleShape)
+                    .background(animatedColor),
             contentAlignment = Alignment.Center,
         ) {
             when (state) {
@@ -193,10 +200,11 @@ private fun StepNode(
                     )
                 StepState.ACTIVE ->
                     Box(
-                        modifier = Modifier
-                            .size(NodeInnerDotSize)
-                            .clip(CircleShape)
-                            .background(Color.White),
+                        modifier =
+                            Modifier
+                                .size(NodeInnerDotSize)
+                                .clip(CircleShape)
+                                .background(Color.White),
                     )
                 StepState.PENDING -> Unit
             }
@@ -211,11 +219,12 @@ private fun StepPayload(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(DesignTokens.Radius.sm))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .padding(DesignTokens.Spacing.md),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(DesignTokens.Radius.sm))
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .padding(DesignTokens.Spacing.md),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
     ) {
         entries.forEach { (key, value) ->
