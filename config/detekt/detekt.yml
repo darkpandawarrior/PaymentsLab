@@ -12,8 +12,10 @@ complexity:
     threshold: 80
   LongParameterList:
     active: true
-    functionThreshold: 8
+    # Compose entry-point composables legitimately take host + nav callbacks + modifier + VM default.
+    functionThreshold: 10
     constructorThreshold: 10
+    ignoreDefaultParameters: true
   TooManyFunctions:
     active: false
   CyclomaticComplexMethod:
@@ -47,6 +49,10 @@ naming:
     ignoreAnnotated: [ 'Composable' ]
   TopLevelPropertyNaming:
     active: true
+  # We intentionally group small related declarations per file (e.g. a composable + its UI enum,
+  # a catalog + its item type) — consistent with the disabled ktlint filename rule.
+  MatchingDeclarationName:
+    active: false
 
 exceptions:
   TooGenericExceptionCaught:

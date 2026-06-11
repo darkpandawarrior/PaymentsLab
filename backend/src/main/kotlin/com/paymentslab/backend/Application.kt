@@ -39,7 +39,12 @@ val BackendJson: Json =
  * gets an isolated in-memory store per run.
  *
  * The entrypoint [main] binds Netty; tests call `application { module() }` with no bound port.
+ *
+ * LongMethod/ThrowsCount are suppressed by design: this is a framework wiring function (plugin
+ * installation + route table), and the throw-count is from per-route request validation nested in
+ * routing lambdas, which is idiomatic Ktor rather than a complexity smell.
  */
+@Suppress("LongMethod", "ThrowsCount")
 fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
     val store = PaymentStore()
     val catalog = CatalogService()

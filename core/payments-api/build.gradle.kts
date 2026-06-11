@@ -3,13 +3,11 @@ plugins {
 }
 
 kotlin {
+    // Toolchain 17 so the JVM target compiles to Java 17 bytecode (see core:protocol for rationale).
+    jvmToolchain(17)
+
     // JVM target so the backend can reuse Money/OrderRef value types without duplication.
-    // Pinned to 21 to match the backend's jvmToolchain(21) (see core:protocol for the rationale).
-    jvm {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-    }
+    jvm()
 
     android {
         namespace = "com.paymentslab.core.paymentsapi"

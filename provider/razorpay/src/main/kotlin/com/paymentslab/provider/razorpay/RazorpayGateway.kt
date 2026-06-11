@@ -127,7 +127,9 @@ class RazorpayGateway(
                 checkout.open(androidHost.activity, options)
             } catch (e: Exception) {
                 AppLog.e(TAG, "Checkout.open failed", e)
-                finishOnce(failure(FailureCode.SDK_ERROR, "Could not open Razorpay checkout", e.message ?: "open_failed"))
+                finishOnce(
+                    failure(FailureCode.SDK_ERROR, "Could not open Razorpay checkout", e.message ?: "open_failed"),
+                )
             }
         }
     }

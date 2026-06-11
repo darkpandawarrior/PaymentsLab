@@ -137,7 +137,6 @@ private fun StepTimelineRow(
             if (step.payload.isNotEmpty()) {
                 StepPayload(
                     entries = step.payload,
-                    accent = nodeColor,
                     modifier = Modifier.padding(top = DesignTokens.Spacing.sm),
                 )
             }
@@ -215,7 +214,6 @@ private fun StepNode(
 @Composable
 private fun StepPayload(
     entries: ImmutableList<Pair<String, String>>,
-    accent: Color,
     modifier: Modifier = Modifier,
 ) {
     Column(
