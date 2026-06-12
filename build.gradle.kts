@@ -76,8 +76,12 @@ tasks.register("fastGate") {
     dependsOn("ktlintCheck", "detekt")
     findProject(":backend")?.let { dependsOn(":backend:test") }
     listOf(
-        ":core:orchestration", ":core:data", ":core:network",
-        ":feature:lab", ":feature:history", ":feature:checkout-demo",
+        ":core:orchestration",
+        ":core:data",
+        ":core:network",
+        ":feature:lab",
+        ":feature:history",
+        ":feature:checkout-demo",
     ).forEach { path -> findProject(path)?.let { dependsOn("$path:testAndroidHostTest") } }
     listOf(":provider:upi-intent", ":provider:razorpay", ":provider:cashfree").forEach { path ->
         findProject(path)?.let { dependsOn("$path:testDebugUnitTest") }
