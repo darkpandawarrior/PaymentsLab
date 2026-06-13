@@ -25,7 +25,7 @@ detekt {
     allRules = false
 }
 
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "17" }
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
 
 dependencies {
     // Guarded so the project still configures while modules are being scaffolded in.
@@ -66,8 +66,8 @@ subprojects {
     }
     // Detekt 1.23.x cannot run on JDK 23+; the daemon is pinned to JDK 17 via
     // gradle/gradle-daemon-jvm.properties so detekt runs normally.
-    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "17" }
-    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach { jvmTarget = "17" }
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
+    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach { jvmTarget = "21" }
 }
 
 // ── Workflow task aliases: the local dev + CI verification loop ──────────────

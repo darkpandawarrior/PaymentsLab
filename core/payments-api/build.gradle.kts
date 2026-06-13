@@ -3,8 +3,8 @@ plugins {
 }
 
 kotlin {
-    // Toolchain 17 so the JVM target compiles to Java 17 bytecode (see core:protocol for rationale).
-    jvmToolchain(17)
+    // Toolchain 21 so the JVM target compiles to Java 21 bytecode (see core:protocol for rationale).
+    jvmToolchain(21)
 
     // JVM target so the backend can reuse Money/OrderRef value types without duplication.
     jvm()

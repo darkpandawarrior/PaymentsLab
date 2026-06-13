@@ -3,8 +3,8 @@ plugins {
 }
 
 kotlin {
-    // Toolchain 17 for JVM-consumer bytecode consistency (see core:protocol for the rationale).
-    jvmToolchain(17)
+    // Toolchain 21 for JVM-consumer bytecode consistency (see core:protocol for the rationale).
+    jvmToolchain(21)
 
     jvm()
 
