@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, test & lint
+    runs-on: ubuntu-latest
+
+    env:
+      # No daemon in CI — each run is a fresh environment, so daemon lifecycle savings don't apply
+      # and orphaned daemons just add overhead.
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # detekt 1.23.x can't run on JDK 23+, so the whole build is pinned to JDK 21.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # gradle.properties pins org.gradle.java.home / installations.paths to a local machine JDK 21
+      # (keg-only Homebrew) for local dev. In CI, drop those lines so Gradle uses the runner's
+      # JAVA_HOME (the JDK 21 provisioned above) for the daemon and toolchains.
+      - name: Use CI JDK 21 (strip machine-specific java.home)
+        run: sed -i '/^org\.gradle\.java\.home/d; /^org\.gradle\.java\.installations\.paths/d' gradle.properties
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+      # Kotlin/Native toolchain (~1 GB) lives outside ~/.gradle; cache it separately, keyed on the
+      # version catalog so it invalidates when the Kotlin/KMP version changes.
+      - name: Cache Kotlin/Native toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: ${{ runner.os }}-konan-v1-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-konan-v1-
+            ${{ runner.os }}-konan-
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # compileSdk 37 + build-tools 37 (bleeding-edge, matching AGP 9.2). If a fresh runner image
+      # lacks them, install explicitly. Adjust the versions/channel here if a run reports them missing.
+      - name: Install SDK 37 platform & build-tools
+        run: |
+          yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || \
+            echo "::warning::Could not install android-37 from the default channel — the runner image may need a newer SDK or the canary channel."
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # fastGate = ktlint + detekt (all modules, incl. KMP commonMain) + backend + core/feature/
+      # provider unit tests. No emulator required.
+      - name: Verification gate (lint + tests)
+        run: ./gradlew fastGate
+
+      - name: Assemble debug APK
+        run: ./gradlew :app:assembleDebug
+
+      - name: Upload debug APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
