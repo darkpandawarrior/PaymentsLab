@@ -1,6 +1,13 @@
 plugins {
     id("paymentslab.android.application")
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.dependency.guard)
+}
+
+// Locks the app's runtime dependency graph. A silent transitive version bump fails
+// `./gradlew :app:dependencyGuard`; re-baseline intentionally with `:app:dependencyGuardBaseline`.
+dependencyGuard {
+    configuration("debugRuntimeClasspath")
 }
 
 android {

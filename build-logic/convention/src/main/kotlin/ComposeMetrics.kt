@@ -8,10 +8,16 @@ import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginE
  * unstable parameters / unnecessary recompositions.
  */
 internal fun Project.configureComposeCompilerMetrics() {
-    if (!providers.gradleProperty("compose.metrics").isPresent) return
-
     extensions.configure<ComposeCompilerGradlePluginExtension> {
-        metricsDestination.set(layout.buildDirectory.dir("compose-metrics"))
-        reportsDestination.set(layout.buildDirectory.dir("compose-reports"))
+        // Always applied: tell the compiler which external types are stable (fewer recompositions).
+        val stabilityConfig = rootProject.layout.projectDirectory.file("compose_stability.conf")
+        if (stabilityConfig.asFile.exists()) {
+            stabilityConfigurationFiles.add(stabilityConfig)
+        }
+        // Opt-in metrics/reports (zero cost otherwise): pass -Pcompose.metrics.
+        if (providers.gradleProperty("compose.metrics").isPresent) {
+            metricsDestination.set(layout.buildDirectory.dir("compose-metrics"))
+            reportsDestination.set(layout.buildDirectory.dir("compose-reports"))
+        }
     }
 }

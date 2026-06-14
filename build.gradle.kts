@@ -28,8 +28,14 @@ detekt {
 tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
 
 dependencies {
-    // Guarded so the project still configures while modules are being scaffolded in.
-    findProject(":app")?.let { kover(it) }
+    // Aggregate coverage from the logic-bearing modules (skip UI-only + generated-heavy ones,
+    // which would just dilute the number). Guarded so the project still configures if a module moves.
+    listOf(
+        ":core:orchestration",
+        ":core:network",
+        ":core:data",
+        ":backend",
+    ).forEach { path -> findProject(path)?.let { kover(it) } }
 }
 
 kover {
@@ -37,6 +43,13 @@ kover {
         filters {
             excludes {
                 packages("*.BuildConfig", "*.R")
+                classes("*Fake*", "*Test*")
+            }
+        }
+        verify {
+            rule {
+                // Coverage floor across the aggregated logic modules — fails the build on regression.
+                minBound(50)
             }
         }
     }
@@ -45,6 +58,7 @@ kover {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "org.jetbrains.kotlinx.kover")
     extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         // Never lint generated code (Room KSP, etc.).
         filter { exclude { entry -> entry.file.path.contains("${"/build/"}") } }
@@ -64,16 +78,16 @@ subprojects {
             "src/main/java",
         )
     }
-    // Detekt 1.23.x cannot run on JDK 23+; the daemon is pinned to JDK 17 via
-    // gradle/gradle-daemon-jvm.properties so detekt runs normally.
+    // Detekt 1.23.x cannot run on JDK 23+; the whole build is pinned to JDK 21 (see gradle.properties).
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
     tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach { jvmTarget = "21" }
 }
 
 // ── Workflow task aliases: the local dev + CI verification loop ──────────────
 tasks.register("fastGate") {
-    description = "ktlint + detekt + JVM/common unit tests: the fast CI gate (no emulator)."
-    dependsOn("ktlintCheck", "detekt")
+    description = "ktlint + detekt + unit tests + coverage floor + dependency lock: the fast CI gate."
+    dependsOn("ktlintCheck", "detekt", "koverVerify")
+    findProject(":app")?.let { dependsOn(":app:dependencyGuard") }
     findProject(":backend")?.let { dependsOn(":backend:test") }
     listOf(
         ":core:orchestration",
