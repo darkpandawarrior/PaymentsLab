@@ -67,6 +67,12 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.napier)
 
+    // WorkManager — background reconciliation of pending payments (process-death recovery)
+    implementation(libs.workmanager.runtime)
+
+    // Security suite (Keystore store, FLAG_SECURE, device-integrity, pinning config)
+    implementation(project(":core:security"))
+
     // Provider SDKs referenced directly by MainActivity's Activity-level callback wiring
     // (providers depend on these via `implementation`, so the types aren't transitive here).
     implementation(libs.razorpay.checkout)

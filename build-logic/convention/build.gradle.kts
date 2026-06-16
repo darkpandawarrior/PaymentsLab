@@ -49,6 +49,10 @@ gradlePlugin {
             id = "paymentslab.android.provider"
             implementationClass = "AndroidProviderConventionPlugin"
         }
+        register("androidLibrary") {
+            id = "paymentslab.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
         register("test") {
             id = "paymentslab.test"
             implementationClass = "TestConventionPlugin"
