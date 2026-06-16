@@ -2,6 +2,12 @@ package com.paymentslab.core.orchestration
 
 import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.common.UiText
+import com.paymentslab.core.orchestration.fsm.FsmPollConfig
+import com.paymentslab.core.orchestration.fsm.PaymentEffect
+import com.paymentslab.core.orchestration.fsm.PaymentEvent
+import com.paymentslab.core.orchestration.fsm.PaymentPhase
+import com.paymentslab.core.orchestration.fsm.PaymentReducer
+import com.paymentslab.core.orchestration.fsm.PaymentState
 import com.paymentslab.core.paymentsapi.CreatedOrder
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentBackend
@@ -23,18 +29,18 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 /**
- * The tested heart of the app. Coordinates one payment across four collaborators — registry (which
- * gateway), backend (server truth), the gateway SDK (client hint), and the journal (crash insurance)
- * — and emits a [PaymentStep] stream the Lab renders as a live timeline.
+ * The effectful shell around the pure [PaymentReducer]. The reducer decides *what* to do next; this
+ * class *does* it — creating orders, journaling, launching the gateway, verifying and polling — feeds
+ * each result back into the reducer as an event, and emits a [PaymentStep] the Lab renders as a
+ * live timeline. It holds no branching decisions of its own; that logic is the (fully unit-tested)
+ * reducer's job. See `core/orchestration/.../fsm/PaymentFsm.kt`.
  *
- * Two invariants it exists to enforce:
- *  1. **Journal before launch.** The pending row is written *before* the SDK opens, so a process
- *     death mid-payment is always recoverable.
- *  2. **Server is truth.** A client `Success` is never terminal on its own; it is always confirmed
- *     via [PaymentBackend.verify] (and polled if still `PENDING`) before the payment is settled.
+ * Invariants (enforced by the reducer + this interpreter):
+ *  1. **Journal before launch** — the pending row is written before the SDK opens (process-death insurance).
+ *  2. **Server is truth** — a client `Success` is never terminal on its own; it is always confirmed
+ *     via [PaymentBackend.verify] (and polled if still `PENDING`) before the payment settles.
  *
- * All collaborators are interfaces, so the whole flow is exercised in `commonTest` with fakes —
- * no Android, no network, no real SDK.
+ * Every collaborator is an interface, so the whole flow is exercised in `commonTest` with fakes.
  */
 class PaymentOrchestrator(
     private val registry: PaymentGatewayRegistry,
@@ -55,127 +61,143 @@ class PaymentOrchestrator(
                 return@flow
             }
 
-            var orderId: String? = null
+            val fsmPoll = FsmPollConfig(maxAttempts = pollConfig.maxAttempts)
+            var transition = PaymentReducer.start(catalogItemId, gatewayId)
+            var created: CreatedOrder? = null
+
             try {
-                // 1. Server creates the order (price resolved server-side).
-                val created: CreatedOrder = backend.createOrder(catalogItemId, gatewayId)
-                orderId = created.order.orderId
-                emit(
-                    PaymentStep.OrderCreated(
-                        orderId = created.order.orderId,
-                        amount = created.order.amount,
-                        payload =
-                            Redactor.redact(
-                                "order",
-                                created.providerParams + mapOf("order_id" to created.order.orderId),
-                            ),
-                    ),
-                )
+                // Drive the machine: execute the current effect, feed its result back as an event, repeat.
+                while (transition.state.phase != PaymentPhase.TERMINAL) {
+                    val effect = transition.effects.single()
+                    val event =
+                        when (effect) {
+                            PaymentEffect.CreateOrder -> {
+                                val c = backend.createOrder(catalogItemId, gatewayId)
+                                created = c
+                                emit(
+                                    PaymentStep.OrderCreated(
+                                        orderId = c.order.orderId,
+                                        amount = c.order.amount,
+                                        payload =
+                                            Redactor.redact(
+                                                "order",
+                                                c.providerParams + mapOf("order_id" to c.order.orderId),
+                                            ),
+                                    ),
+                                )
+                                PaymentEvent.OrderCreated(c.order.orderId)
+                            }
 
-                // 2. Journal BEFORE launch — the process-death insurance.
-                journal.record(
-                    PendingPayment(
-                        orderId = created.order.orderId,
-                        catalogItemId = catalogItemId,
-                        gatewayId = gatewayId,
-                        amount = created.order.amount,
-                        createdAtEpochMs = now(),
-                        status = PaymentStatus.CREATED,
-                    ),
-                )
-                emit(PaymentStep.Launching(gatewayId))
+                            PaymentEffect.RecordJournalAndLaunch -> {
+                                val c = requireNotNull(created)
+                                // Journal BEFORE launch — the process-death insurance.
+                                journal.record(
+                                    PendingPayment(
+                                        orderId = c.order.orderId,
+                                        catalogItemId = catalogItemId,
+                                        gatewayId = gatewayId,
+                                        amount = c.order.amount,
+                                        createdAtEpochMs = now(),
+                                        status = PaymentStatus.CREATED,
+                                    ),
+                                )
+                                emit(PaymentStep.Launching(gatewayId))
+                                val prepared = gateway.prepare(c)
+                                val result = gateway.pay(host, prepared)
+                                emit(PaymentStep.ClientResult(result, result.raw))
+                                PaymentEvent.ClientReturned(result)
+                            }
 
-                // 3. Hand off to the provider SDK / UPI chooser; suspend until a client-side result.
-                val prepared = gateway.prepare(created)
-                val result = gateway.pay(host, prepared)
-                emit(PaymentStep.ClientResult(result, result.raw))
+                            is PaymentEffect.Verify -> {
+                                emit(PaymentStep.Verifying())
+                                val snapshot =
+                                    backend.verify(
+                                        verificationRequest(gatewayId, transition.state.orderId!!, effect.result),
+                                    )
+                                PaymentEvent.ServerAnswered(snapshot)
+                            }
 
-                // 4. Reconcile the client hint against the server.
-                val settled = reconcile(gatewayId, created.order.orderId, result) { emit(it) }
-                journal.markResolved(created.order.orderId, settled.status, settled.paymentId)
-                emit(
-                    PaymentStep.Settled(
-                        status = settled.status,
-                        snapshot = settled,
-                        payload =
-                            Redactor.redact(
-                                "settled",
-                                mapOf(
-                                    "order_id" to settled.orderId,
-                                    "status" to settled.status.name,
-                                    "payment_id" to settled.paymentId,
-                                ),
-                            ),
-                    ),
-                )
+                            PaymentEffect.CheckStatus -> {
+                                val orderId = transition.state.orderId!!
+                                val snapshot =
+                                    if (transition.state.phase == PaymentPhase.POLLING) {
+                                        // Polling loop — back off, then ask the server for authoritative state.
+                                        delay(backoffDelayMs(transition.state.pollAttempts))
+                                        backend.status(orderId)
+                                    } else {
+                                        // First server consult after a client-reported failure (server can disagree).
+                                        emit(PaymentStep.Verifying())
+                                        backend.status(orderId)
+                                    }
+                                PaymentEvent.ServerAnswered(snapshot)
+                            }
+
+                            is PaymentEffect.Settle -> error("Settle is terminal and handled after the loop")
+                        }
+                    transition = PaymentReducer.reduce(transition.state, event, fsmPoll)
+                }
+
+                settle(transition.state) { emit(it) }
             } catch (ce: CancellationException) {
                 throw ce
             } catch (t: Throwable) {
-                AppLog.e(TAG, "Payment flow failed for order=$orderId", t)
-                orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
+                AppLog.e(TAG, "Payment flow failed for order=${transition.state.orderId}", t)
+                transition.state.orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
                 emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
             }
         }
 
-    /**
-     * Turn a client-side [PaymentResult] into a server-authoritative [PaymentSnapshot].
-     * Cancellations short-circuit; success/pending go through verification and (if still pending)
-     * backoff polling; a client failure is confirmed against the server too (the SDK can lie either way).
-     */
-    private suspend fun reconcile(
+    /** Run the terminal [PaymentEffect.Settle]: resolve the journal and emit the final step. */
+    private suspend fun settle(
+        state: PaymentState,
+        emit: suspend (PaymentStep) -> Unit,
+    ) {
+        val status = requireNotNull(state.terminalStatus)
+        val orderId = state.orderId
+        orderId?.let { journal.markResolved(it, status, state.paymentId) }
+        val snapshot = PaymentSnapshot(orderId ?: "", state.paymentId, status)
+        emit(
+            PaymentStep.Settled(
+                status = status,
+                snapshot = snapshot,
+                payload =
+                    Redactor.redact(
+                        "settled",
+                        mapOf("order_id" to orderId, "status" to status.name, "payment_id" to state.paymentId),
+                    ),
+            ),
+        )
+    }
+
+    private fun verificationRequest(
         gatewayId: GatewayId,
         orderId: String,
         result: PaymentResult,
-        emit: suspend (PaymentStep) -> Unit,
-    ): PaymentSnapshot {
-        if (result is PaymentResult.Cancelled) {
-            return PaymentSnapshot(orderId, paymentId = null, status = PaymentStatus.CANCELLED)
+    ): VerificationRequest =
+        when (result) {
+            is PaymentResult.Success ->
+                VerificationRequest(
+                    gatewayId = gatewayId,
+                    orderId = orderId,
+                    paymentId = result.paymentId,
+                    signature = result.verification["signature"],
+                    extra = result.verification,
+                )
+            is PaymentResult.Pending ->
+                VerificationRequest(gatewayId = gatewayId, orderId = orderId, extra = result.verification)
+            else -> VerificationRequest(gatewayId = gatewayId, orderId = orderId)
         }
 
-        emit(PaymentStep.Verifying())
-        val verified =
-            when (result) {
-                is PaymentResult.Success ->
-                    backend.verify(
-                        VerificationRequest(
-                            gatewayId = gatewayId,
-                            orderId = orderId,
-                            paymentId = result.paymentId,
-                            signature = result.verification["signature"],
-                            extra = result.verification,
-                        ),
-                    )
-                is PaymentResult.Pending ->
-                    backend.verify(
-                        VerificationRequest(gatewayId = gatewayId, orderId = orderId, extra = result.verification),
-                    )
-                is PaymentResult.Failure -> backend.status(orderId)
-                is PaymentResult.Cancelled -> error("unreachable")
-            }
-
-        return if (verified.status == PaymentStatus.PENDING) pollUntilTerminal(orderId, verified) else verified
-    }
-
-    /** Poll `GET /payments/{id}` with exponential backoff until terminal or attempts exhausted. */
-    private suspend fun pollUntilTerminal(
-        orderId: String,
-        initial: PaymentSnapshot,
-    ): PaymentSnapshot {
-        var snapshot = initial
+    private fun backoffDelayMs(attempt: Int): Long {
         var delayMs = pollConfig.initialDelayMs
-        var attempts = 0
-        while (!snapshot.status.isTerminal && attempts < pollConfig.maxAttempts) {
-            delay(delayMs)
-            snapshot = backend.status(orderId)
-            delayMs = (delayMs * 2).coerceAtMost(pollConfig.maxDelayMs)
-            attempts++
-        }
-        return snapshot
+        repeat((attempt - 1).coerceAtLeast(0)) { delayMs = (delayMs * 2).coerceAtMost(pollConfig.maxDelayMs) }
+        return delayMs
     }
 
     /**
      * Cold-start recovery: for every payment written to the journal but never resolved (app died
-     * mid-flight), ask the server what actually happened and settle the row. Called on app launch.
+     * mid-flight), ask the server what actually happened and settle the row. Called on app launch
+     * and by the WorkManager reconciliation worker.
      */
     suspend fun recoverPending(): List<PaymentSnapshot> {
         val recovered = mutableListOf<PaymentSnapshot>()
