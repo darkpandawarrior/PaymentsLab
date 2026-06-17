@@ -1,0 +1,57 @@
+name: Screenshots
+
+# Records the Roborazzi baselines on Linux and uploads them as an artifact for review. Kept separate
+# from the blocking CI gate on purpose: Robolectric's native text rendering differs subtly across
+# OSes, so a strict cross-platform `verify` would be flaky. The committed baselines (recorded locally)
+# are the visual reference; this job shows the current Linux render on demand.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'core/designsystem/**'
+      - 'app/src/test/kotlin/com/paymentslab/app/screenshot/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Record screenshots
+    runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Use CI JDK 21 (strip machine-specific java.home)
+        run: sed -i '/^org\.gradle\.java\.home/d; /^org\.gradle\.java\.installations\.paths/d' gradle.properties
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK 37 platform & build-tools
+        run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
+
+      - run: chmod +x ./gradlew
+
+      - name: Record Roborazzi screenshots
+        run: ./gradlew :app:recordRoborazziDebug
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: docs/screenshots/*.png
+          if-no-files-found: warn
