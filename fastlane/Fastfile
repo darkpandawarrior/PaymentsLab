@@ -1,0 +1,57 @@
+# Fastlane for PaymentsLab. Versioning is single-source (repo-root VERSION + BUILD_NUMBER); the app's
+# build.gradle.kts reads them. Distribution lanes (Play/Firebase) are documented but require signing
+# config + a service-account JSON that a public sandbox repo intentionally doesn't ship — see the
+# comments in `deploy_internal`.
+
+default_platform(:android)
+
+VERSION_FILE = "../VERSION"
+BUILD_NUMBER_FILE = "../BUILD_NUMBER"
+
+platform :android do
+  desc "Run the full verification gate (ktlint + detekt + coverage floor + dependency lock + tests)"
+  lane :test do
+    gradle(task: "fastGate")
+  end
+
+  desc "Assemble the debug APK"
+  lane :build do
+    gradle(task: ":app:assembleDebug")
+  end
+
+  desc "Record Roborazzi screenshot baselines into docs/screenshots/"
+  lane :screenshots do
+    gradle(task: ":app:recordRoborazziDebug")
+  end
+
+  desc "Bump the build number (and optionally the semver: `fastlane bump version:1.1.0`)"
+  lane :bump do |options|
+    build = File.read(BUILD_NUMBER_FILE).strip.to_i + 1
+    File.write(BUILD_NUMBER_FILE, "#{build}\n")
+    if options[:version]
+      File.write(VERSION_FILE, "#{options[:version]}\n")
+    end
+    version = File.read(VERSION_FILE).strip
+    UI.success("Bumped to #{version} (build #{build})")
+  end
+
+  desc "Build a release AAB (unsigned unless a keystore is configured)"
+  lane :bundle do
+    gradle(task: "fastGate")
+    gradle(task: ":app:bundleRelease")
+  end
+
+  # ── Distribution (needs config a public sandbox repo doesn't ship) ─────────────────────────────
+  #
+  # To enable Play Store upload:
+  #   1. Add a signing config to app/build.gradle.kts (keystore from env, never committed).
+  #   2. Provide a Google Play service-account JSON (base64 in CI secret PLAY_SERVICE_ACCOUNT_JSON).
+  #   3. Uncomment and use the lane below.
+  #
+  # desc "Upload the signed AAB to the Play Store internal track"
+  # lane :deploy_internal do
+  #   gradle(task: "fastGate")
+  #   gradle(task: ":app:bundleRelease")   # with signingConfig
+  #   upload_to_play_store(track: "internal", aab: "app/build/outputs/bundle/release/app-release.aab")
+  # end
+end

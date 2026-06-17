@@ -32,5 +32,13 @@ kotlin-js-store/
 # Detekt baseline is generated per-module; keep tracked baselines but ignore reports
 **/build/reports/
 
+# Fastlane
+fastlane/report.xml
+fastlane/README.md
+fastlane/Preview.html
+**/.fastlane/
+Gemfile.lock
+vendor/bundle/
+
 # AI-agent planning artifacts (not for public repo)
 docs/superpowers/

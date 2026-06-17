@@ -1,0 +1,5 @@
+package_name("com.paymentslab.app")
+
+# The Play service-account JSON is intentionally NOT shipped (public sandbox repo). Provide it via an
+# env var / CI secret before enabling the Play distribution lanes in the Fastfile.
+# json_key_file(ENV["PLAY_SERVICE_ACCOUNT_JSON_PATH"])
