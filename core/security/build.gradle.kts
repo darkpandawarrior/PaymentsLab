@@ -17,6 +17,7 @@ dependencies {
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.kotlinx.coroutines.core)
 
     // OkHttp CertificatePinner (the Ktor Android engine already pulls OkHttp; used for the pinning config).
     implementation(libs.ktor.client.okhttp)

@@ -1,6 +1,7 @@
 package com.paymentslab.app
 
 import android.os.Bundle
+import android.view.MotionEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.DisposableEffect
@@ -10,6 +11,7 @@ import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback
 import com.cashfree.pg.core.api.utils.CFErrorResponse
 import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.designsystem.PaymentsLabTheme
+import com.paymentslab.core.security.AppSecurityManager
 import com.paymentslab.provider.cashfree.CashfreeCheckoutRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackResult
@@ -41,9 +43,14 @@ class MainActivity :
 
     private val stripeHost: StripePaymentLauncherHost by inject()
     private val cashfreeRelay: CashfreeCheckoutRelay by inject()
+    private val appSecurity: AppSecurityManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // VAPT screen defenses: FLAG_SECURE (no screenshots/recording) + tapjacking (drop obscured
+        // touches). Whole-activity here; SecureScreen additionally guards the payment routes.
+        appSecurity.applySecurityToActivity(this)
 
         // Cashfree re-attaches its callback on recreation, so this must run in onCreate.
         runCatching { CFPaymentGatewayService.getInstance().setCheckoutCallback(this) }
@@ -66,6 +73,13 @@ class MainActivity :
                 AppNavHost(paymentHost = host)
             }
         }
+    }
+
+    // Belt-and-suspenders tapjacking guard: swallow touches delivered while an overlay is on top,
+    // in addition to the view-level filterTouchesWhenObscured set by applySecurityToActivity.
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (appSecurity.shouldBlockObscuredTouch(ev)) return false
+        return super.dispatchTouchEvent(ev)
     }
 
     // ── Razorpay (PaymentResultWithDataListener) ────────────────────────────
