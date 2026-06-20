@@ -190,7 +190,10 @@ build-logic/               convention plugins (kmp.library / kmp.compose / cmp.f
 | Background | WorkManager (payment reconciliation), Koin-backed WorkerFactory |
 | Testing | JUnit, MockK, Turbine, kotlinx-coroutines-test, Koin-Test, **Roborazzi** screenshots; fake-first |
 | Quality | detekt **1.23.8**, ktlint, **dependency-guard**, **Kover** coverage floor, Compose stability config |
-| Release | Fastlane (versioning + build lanes), `release.yml` (tag → GitHub Release) |
+| Shrinking | **R8** full-mode (release minify + resource shrink; APK 42M→13M), payment-SDK keep rules, mapping.txt |
+| Observability | `CrashReporter` abstraction (Napier default; Crashlytics/Sentry = one-line DI swap) |
+| Variants | `debug` / `release` / **`vapt`** (flips security bypass flags); per-env `BACKEND_URL` |
+| Release | Fastlane (versioning + build lanes), `release.yml` (tag → GitHub Release + R8 mapping) |
 | Targets | Android (compileSdk **37**, minSdk **24**) + iOS-ready KMP core; **JDK 21** |
 
 ## Getting started
