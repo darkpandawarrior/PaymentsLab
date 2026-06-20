@@ -14,14 +14,15 @@ import org.koin.dsl.module
  * root.
  *
  * Bindings:
- *  - [PaymentApiConfig] — default base URL; override at the composition root for other environments.
+ *  - [PaymentApiConfig] — passed in ([config]); the app supplies the per-environment base URL from
+ *    `BuildConfig.BACKEND_URL` (localhost for debug/vapt, the real host for release).
  *  - [HttpClient] — one shared client built from the platform engine via [HttpClientFactory].
  *  - [PaymentBackend] — the [KtorPaymentBackend], bound to the interface so the orchestrator depends
  *    only on `core:payments-api` and never on this Ktor implementation.
  */
-val networkModule: Module =
+fun networkModule(config: PaymentApiConfig = PaymentApiConfig()): Module =
     module {
-        single { PaymentApiConfig() }
+        single { config }
         single<HttpClient> { HttpClientFactory().create() }
         single<PaymentBackend> { KtorPaymentBackend(get(), get()) }
     }
