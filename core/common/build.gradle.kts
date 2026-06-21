@@ -19,6 +19,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
             api(libs.napier)
+            api(libs.koin.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -27,6 +27,25 @@ interface GatewayAdapter {
 
     /** Verify the client's proof. Returns the resolved server-authoritative status. */
     fun verify(req: VerifyRequest): PaymentStatusDto
+
+    /**
+     * Verify an inbound webhook's authenticity from its raw body + headers. Default accepts
+     * unconditionally — correct for demo/no-signature providers (UPI intent, hosted-webview, mobile
+     * money); a real signature scheme (Razorpay's HMAC, Stripe's `Stripe-Signature`, Cashfree's
+     * `x-webhook-signature`) overrides this. Replaces the old razorpay-only special case that used to
+     * live directly in the `/webhooks/{provider}` route.
+     */
+    fun verifyWebhook(
+        rawBody: String,
+        headers: Map<String, String>,
+    ): WebhookVerification = WebhookVerification.Accepted
+}
+
+/** Outcome of [GatewayAdapter.verifyWebhook]. */
+sealed interface WebhookVerification {
+    data object Accepted : WebhookVerification
+
+    data class Rejected(val reason: String) : WebhookVerification
 }
 
 /**

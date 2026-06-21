@@ -13,4 +13,5 @@ internal object StatusColors {
     val Warning = Color(0xFFB57900) // KYC gated / attention
     val Danger = Color(0xFFCE3B3B) // failed / error
     val Neutral = Color(0xFF8A8894) // pending / coming soon
+    val Info = Color(0xFF3B6FCE) // mock mode — real code, simulated end-to-end
 }

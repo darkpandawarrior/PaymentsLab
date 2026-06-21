@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 /** UI-level gateway availability, mapped to a coloured pill by [GatewayStatusBadge]. */
 enum class GatewayStatusUi {
     SANDBOX_READY,
+    MOCK_MODE,
     KYC_GATED,
     COMING_SOON,
 }
@@ -28,6 +29,7 @@ private data class BadgeSpec(val label: String, val color: Color)
 private fun GatewayStatusUi.spec(): BadgeSpec =
     when (this) {
         GatewayStatusUi.SANDBOX_READY -> BadgeSpec("Sandbox ready", StatusColors.Success)
+        GatewayStatusUi.MOCK_MODE -> BadgeSpec("Mock mode", StatusColors.Info)
         GatewayStatusUi.KYC_GATED -> BadgeSpec("KYC gated", StatusColors.Warning)
         GatewayStatusUi.COMING_SOON -> BadgeSpec("Coming soon", StatusColors.Neutral)
     }

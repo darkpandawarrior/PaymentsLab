@@ -27,6 +27,12 @@ enum class GatewayStatus {
     /** Fully runnable in sandbox with no business KYC. */
     SANDBOX_READY,
 
+    /**
+     * Real integration code, but no solo-accessible sandbox — the full lifecycle runs against a
+     * mock backend so the Lab is demoable end-to-end without live credentials.
+     */
+    MOCK_MODE,
+
     /** Requires business onboarding / partner credentials — catalog + docs only. */
     KYC_GATED,
 

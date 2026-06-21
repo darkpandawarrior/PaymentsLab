@@ -16,6 +16,7 @@ import com.paymentslab.core.protocol.VerifyRequest
 class RazorpayAdapter(
     private val keyId: String,
     private val secret: String,
+    private val webhookSecret: String,
 ) : GatewayAdapter {
     override val gatewayId: String = "razorpay"
 
@@ -40,6 +41,22 @@ class RazorpayAdapter(
             PaymentStatusDto.SUCCESS
         } else {
             PaymentStatusDto.FAILED
+        }
+    }
+
+    /** REAL HMAC-SHA256 over the raw webhook body, compared to `X-Razorpay-Signature`. */
+    override fun verifyWebhook(
+        rawBody: String,
+        headers: Map<String, String>,
+    ): WebhookVerification {
+        val sigHeader =
+            headers["X-Razorpay-Signature"]
+                ?: return WebhookVerification.Rejected("missing X-Razorpay-Signature header")
+        val expected = Crypto.hmacSha256Hex(webhookSecret, rawBody)
+        return if (Crypto.constantTimeEquals(expected, sigHeader)) {
+            WebhookVerification.Accepted
+        } else {
+            WebhookVerification.Rejected("signature mismatch")
         }
     }
 }
@@ -141,4 +158,55 @@ class CashfreeAdapter(
         val marker = req.extra["order_status"] ?: req.extra["marker"]
         return if (marker == "PAID" || marker == "succeeded") PaymentStatusDto.SUCCESS else PaymentStatusDto.PENDING
     }
+}
+
+/**
+ * Config for one archetype-C (hosted-webview) or archetype-D (mobile-money) gateway. One backend
+ * adapter class serves every gateway of that archetype — matches `provider:hosted-webview`'s
+ * one-module-N-configs shape (plan Part C/B4) instead of a backend class per gateway.
+ */
+data class HostedGatewayServerConfig(
+    val gatewayId: String,
+    val displayName: String,
+)
+
+/**
+ * Archetype-C adapter: `createProviderOrder` hands the client a `checkout_url` pointing at
+ * `GET /mock/checkout/{provider}` (see `MockCheckoutRoutes.kt`) instead of SDK session material.
+ *
+ * `verify` mirrors [UpiIntentAdapter]'s honesty: a client-reported return-URL redirect is NOT
+ * cryptographically verifiable the way a signed HMAC is — it's just "the browser landed on our
+ * success page", which anyone could forge by hand-crafting the URL. So this always answers PENDING;
+ * the mock webhook/momo-flip (or, later, a real provider webhook) is what actually resolves it.
+ */
+class HostedWebViewAdapter(
+    private val config: HostedGatewayServerConfig,
+    private val baseUrl: String,
+) : GatewayAdapter {
+    override val gatewayId: String = config.gatewayId
+
+    override fun createProviderOrder(
+        orderId: String,
+        item: CatalogItemDto,
+    ): Map<String, String> = mapOf("checkout_url" to "$baseUrl/mock/checkout/${config.gatewayId}?orderId=$orderId")
+
+    override fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
+}
+
+/**
+ * Archetype-D adapter (async mobile money: M-Pesa push, MTN MoMo poll). There is no synchronous
+ * client result at all — `createProviderOrder` returns a reference the client polls
+ * `GET /payments/{id}` against, and only a (mock or real) webhook / momo-flip ever resolves it.
+ */
+class MobileMoneyAdapter(
+    private val config: HostedGatewayServerConfig,
+) : GatewayAdapter {
+    override val gatewayId: String = config.gatewayId
+
+    override fun createProviderOrder(
+        orderId: String,
+        item: CatalogItemDto,
+    ): Map<String, String> = mapOf("momo_ref" to "momo_$orderId")
+
+    override fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
 }

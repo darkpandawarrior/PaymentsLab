@@ -47,11 +47,16 @@ val BackendJson: Json =
 @Suppress("LongMethod", "ThrowsCount")
 fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
     val store = PaymentStore()
+    val actor = PaymentActor(store, this)
     val catalog = CatalogService()
     val gateways =
         GatewayRegistry(
             listOf(
-                RazorpayAdapter(keyId = config.razorpayKeyId, secret = config.razorpaySecret),
+                RazorpayAdapter(
+                    keyId = config.razorpayKeyId,
+                    secret = config.razorpaySecret,
+                    webhookSecret = config.razorpayWebhookSecret,
+                ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
                     payeeName = "PaymentsLab",
@@ -148,8 +153,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 gateways.find(req.gatewayId)
                     ?: throw BadRequestException("unknown_gateway", "No gateway: ${req.gatewayId}")
 
-            val status = adapter.verify(req.copy(orderId = orderId))
-            store.recordVerification(orderId, status, req.paymentId, providerRef = req.paymentId)
+            val status = actor.verify(req.copy(orderId = orderId), adapter)
             call.application.log.info("[verify] order=$orderId gw=${req.gatewayId} status=$status")
 
             val message =
@@ -167,29 +171,22 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
             val provider =
                 call.parameters["provider"]
                     ?: throw BadRequestException("missing_provider", "provider path param required")
+            val adapter =
+                gateways.find(provider)
+                    ?: throw BadRequestException("unknown_gateway", "No gateway: $provider")
             val rawBody = call.receiveText()
+            val headers = call.request.headers.names().associateWith { call.request.headers[it].orEmpty() }
 
-            // Signature verification. For razorpay: REAL HMAC-SHA256 over the raw body with the
-            // webhook secret, compared to the X-Razorpay-Signature header. Others: accepted for demo.
-            if (provider == "razorpay") {
-                val sigHeader =
-                    call.request.headers["X-Razorpay-Signature"]
-                        ?: throw UnauthorizedException("missing_signature", "X-Razorpay-Signature header required")
-                val expected = Crypto.hmacSha256Hex(config.razorpayWebhookSecret, rawBody)
-                if (!Crypto.constantTimeEquals(expected, sigHeader)) {
-                    throw UnauthorizedException("bad_signature", "Webhook signature mismatch")
-                }
+            // Dispatched through the adapter — no more razorpay-only special case. Every provider
+            // decides its own webhook authenticity rule (default: accept, see GatewayAdapter).
+            when (val verification = adapter.verifyWebhook(rawBody, headers)) {
+                is WebhookVerification.Rejected ->
+                    throw UnauthorizedException("bad_signature", verification.reason)
+                WebhookVerification.Accepted -> Unit
             }
 
             val event = BackendJson.decodeFromString(WebhookEvent.serializer(), rawBody)
-            val result =
-                store.applyWebhook(
-                    eventId = event.eventId,
-                    orderId = event.orderId,
-                    status = event.status,
-                    paymentId = event.paymentId,
-                    providerRef = event.paymentId,
-                )
+            val result = actor.applyWebhook(event)
             call.application.log.info(
                 "[webhook] provider=$provider event=${event.eventId} " +
                     "duplicate=${result.duplicate} status=${event.status}",
@@ -197,6 +194,8 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
 
             call.respond(WebhookAck(received = true, eventId = event.eventId, duplicate = result.duplicate))
         }
+
+        mockCheckoutRoutes(actor)
 
         // ── Poll payment status ─────────────────────────────────────────────
         get("/payments/{orderId}") {
