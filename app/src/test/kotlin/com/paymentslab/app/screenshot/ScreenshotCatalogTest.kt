@@ -14,15 +14,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.paymentslab.core.designsystem.AnimatedAmount
 import com.paymentslab.core.designsystem.DesignTokens
+import com.paymentslab.core.designsystem.FailureShake
+import com.paymentslab.core.designsystem.FlowHop
 import com.paymentslab.core.designsystem.GatewayStatusBadge
 import com.paymentslab.core.designsystem.GatewayStatusUi
+import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PaymentsLabTheme
 import com.paymentslab.core.designsystem.PayloadCard
 import com.paymentslab.core.designsystem.PrimaryButton
+import com.paymentslab.core.designsystem.RedactionReveal
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.StepTimeline
+import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.designsystem.TimelineStep
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Rule
@@ -131,5 +137,32 @@ class ScreenshotCatalogTest {
     fun primaryButton() =
         snapshot("primary_button") {
             PrimaryButton(text = "Pay ₹499 (sandbox)", onClick = {}, modifier = Modifier.fillMaxWidth())
+        }
+
+    @Test
+    fun mockModeBadgeShimmer() = snapshot("mock_mode_badge_shimmer") { GatewayStatusBadge(GatewayStatusUi.MOCK_MODE) }
+
+    @Test
+    fun successBurst() = snapshot("success_burst") { SuccessBurst() }
+
+    @Test
+    fun failureShake() = snapshot("failure_shake") { FailureShake() }
+
+    @Test
+    fun animatedAmount() = snapshot("animated_amount") { AnimatedAmount(amountMinor = 49_900L, currency = "INR") }
+
+    @Test
+    fun redactionReveal() = snapshot("redaction_reveal") { RedactionReveal(value = "9f••••3a") }
+
+    @Test
+    fun paymentFlowDiagram_unverified() =
+        snapshot("payment_flow_diagram_unverified") {
+            PaymentFlowDiagram(activeHop = FlowHop.GATEWAY, verified = false)
+        }
+
+    @Test
+    fun paymentFlowDiagram_verified() =
+        snapshot("payment_flow_diagram_verified") {
+            PaymentFlowDiagram(activeHop = FlowHop.WEBHOOK, verified = true)
         }
 }
