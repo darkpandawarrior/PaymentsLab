@@ -12,11 +12,17 @@ sealed class ApiException(
     override val message: String,
 ) : RuntimeException(message)
 
-class BadRequestException(code: String, message: String) :
-    ApiException(HttpStatusCode.BadRequest, code, message)
+class BadRequestException(
+    code: String,
+    message: String,
+) : ApiException(HttpStatusCode.BadRequest, code, message)
 
-class NotFoundException(code: String, message: String) :
-    ApiException(HttpStatusCode.NotFound, code, message)
+class NotFoundException(
+    code: String,
+    message: String,
+) : ApiException(HttpStatusCode.NotFound, code, message)
 
-class UnauthorizedException(code: String, message: String) :
-    ApiException(HttpStatusCode.Unauthorized, code, message)
+class UnauthorizedException(
+    code: String,
+    message: String,
+) : ApiException(HttpStatusCode.Unauthorized, code, message)

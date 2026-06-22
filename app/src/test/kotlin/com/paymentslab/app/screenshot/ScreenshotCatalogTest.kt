@@ -10,9 +10,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.unit.dp
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.paymentslab.core.designsystem.AnimatedAmount
 import com.paymentslab.core.designsystem.DesignTokens
@@ -20,9 +20,9 @@ import com.paymentslab.core.designsystem.FailureShake
 import com.paymentslab.core.designsystem.FlowHop
 import com.paymentslab.core.designsystem.GatewayStatusBadge
 import com.paymentslab.core.designsystem.GatewayStatusUi
+import com.paymentslab.core.designsystem.PayloadCard
 import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PaymentsLabTheme
-import com.paymentslab.core.designsystem.PayloadCard
 import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.RedactionReveal
 import com.paymentslab.core.designsystem.SectionHeader
@@ -51,11 +51,14 @@ import org.robolectric.annotation.GraphicsMode
 // must not boot the real Koin graph (which would throw "already started" across tests).
 @Config(sdk = [34], application = android.app.Application::class)
 class ScreenshotCatalogTest {
-
     @get:Rule
     val compose = createComposeRule()
 
-    private fun snapshot(name: String, dark: Boolean = false, content: @Composable () -> Unit) {
+    private fun snapshot(
+        name: String,
+        dark: Boolean = false,
+        content: @Composable () -> Unit,
+    ) {
         compose.setContent {
             PaymentsLabTheme(darkTheme = dark) {
                 Surface(
@@ -114,11 +117,12 @@ class ScreenshotCatalogTest {
         snapshot("payload_card") {
             PayloadCard(
                 title = "verify request",
-                entries = persistentListOf(
-                    "gateway" to "razorpay",
-                    "order_id" to "order_9f3c",
-                    "signature" to "9f••••3a",
-                ),
+                entries =
+                    persistentListOf(
+                        "gateway" to "razorpay",
+                        "order_id" to "order_9f3c",
+                        "signature" to "9f••••3a",
+                    ),
             )
         }
 

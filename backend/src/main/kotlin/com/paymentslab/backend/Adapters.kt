@@ -20,7 +20,7 @@ class RazorpayAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = "razorpay"
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> =
@@ -31,7 +31,7 @@ class RazorpayAdapter(
             "currency" to item.currency,
         )
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto {
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto {
         val paymentId = req.paymentId
         val signature = req.signature
         if (paymentId.isNullOrBlank() || signature.isNullOrBlank()) return PaymentStatusDto.FAILED
@@ -78,7 +78,7 @@ class UpiIntentAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = "upi_intent"
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> {
@@ -94,7 +94,7 @@ class UpiIntentAdapter(
         )
     }
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto {
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto {
         // Client-unverifiable — resolve on webhook. See class doc.
         return PaymentStatusDto.PENDING
     }
@@ -114,7 +114,7 @@ class StripeAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = "stripe"
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> =
@@ -124,7 +124,7 @@ class StripeAdapter(
             "publishable_key" to publishableKey,
         )
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto {
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto {
         // STUB: real impl = stripe.paymentIntents.retrieve(paymentIntentId).status == "succeeded".
         val marker = req.extra["payment_intent_status"] ?: req.extra["marker"]
         return if (marker == "succeeded") PaymentStatusDto.SUCCESS else PaymentStatusDto.PENDING
@@ -144,7 +144,7 @@ class CashfreeAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = "cashfree"
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> =
@@ -153,7 +153,7 @@ class CashfreeAdapter(
             "order_id" to orderId,
         )
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto {
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto {
         // STUB: real impl = GET /orders/{order_id} → order_status == "PAID".
         val marker = req.extra["order_status"] ?: req.extra["marker"]
         return if (marker == "PAID" || marker == "succeeded") PaymentStatusDto.SUCCESS else PaymentStatusDto.PENDING
@@ -185,12 +185,12 @@ class HostedWebViewAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = config.gatewayId
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> = mapOf("checkout_url" to "$baseUrl/mock/checkout/${config.gatewayId}?orderId=$orderId")
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
 }
 
 /**
@@ -203,10 +203,10 @@ class MobileMoneyAdapter(
 ) : GatewayAdapter {
     override val gatewayId: String = config.gatewayId
 
-    override fun createProviderOrder(
+    override suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String> = mapOf("momo_ref" to "momo_$orderId")
 
-    override fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
 }

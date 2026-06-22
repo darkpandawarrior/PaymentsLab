@@ -30,7 +30,6 @@ class PaymentReconciliationWorker(
     params: WorkerParameters,
     private val orchestrator: PaymentOrchestrator,
 ) : CoroutineWorker(appContext, params) {
-
     override suspend fun doWork(): Result =
         try {
             val recovered = orchestrator.recoverPending()
@@ -47,7 +46,8 @@ class PaymentReconciliationWorker(
         private const val PERIODIC_NAME = "payment_reconciliation_periodic"
 
         private val networkConstraint =
-            Constraints.Builder()
+            Constraints
+                .Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 

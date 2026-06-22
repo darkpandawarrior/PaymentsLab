@@ -105,10 +105,11 @@ class BackendTest {
 
             val orderId =
                 decode<OrderResponse>(
-                    client.post("/orders") {
-                        contentType(ContentType.Application.Json)
-                        setBody(json.encodeToString(CreateOrderRequest("headphones_2499", "upi_intent")))
-                    }.bodyAsText(),
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("headphones_2499", "upi_intent")))
+                        }.bodyAsText(),
                 ).orderId
 
             val eventBody = """{"eventId":"evt_1","orderId":"$orderId","status":"success","paymentId":"pay_777"}"""
@@ -181,10 +182,11 @@ class BackendTest {
             application { module() }
             val orderId =
                 decode<OrderResponse>(
-                    client.post("/orders") {
-                        contentType(ContentType.Application.Json)
-                        setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
-                    }.bodyAsText(),
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                        }.bodyAsText(),
                 ).orderId
             val body = """{"eventId":"evt_bad","orderId":"$orderId","status":"success"}"""
 
@@ -231,10 +233,11 @@ class BackendTest {
             application { module() }
             val orderId =
                 decode<OrderResponse>(
-                    client.post("/orders") {
-                        contentType(ContentType.Application.Json)
-                        setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
-                    }.bodyAsText(),
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                        }.bodyAsText(),
                 ).orderId
 
             val scheduleResp = client.post("/mock/momo/mtn_momo?orderId=$orderId&delayMs=10")

@@ -14,6 +14,8 @@ import org.koin.dsl.module
 fun hostedWebViewModule(configs: List<HostedGatewayConfig>) =
     module {
         single { HostedCheckoutRelay() }
+        // Exposed so the app can mount one HostedCheckoutHost that knows every configured gateway.
+        single { configs }
         configs.forEach { config ->
             single<PaymentGateway>(qualifier = org.koin.core.qualifier.named(config.gatewayId.value)) {
                 HostedWebViewGateway(config, get())

@@ -1,5 +1,7 @@
 package com.paymentslab.app
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -21,15 +23,23 @@ import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.lab.LabHomeRoot
 import com.paymentslab.feature.lab.ProviderLabRoot
+import com.paymentslab.provider.hostedwebview.HostedCheckoutHost
+import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
+import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
 import org.koin.compose.koinInject
 
-private data class TopDestination(val route: String, val label: String, val glyph: String)
-
-private val topDestinations = listOf(
-    TopDestination("lab", "Lab", "🧪"),
-    TopDestination("checkout", "Checkout", "🛒"),
-    TopDestination("history", "History", "🧾"),
+private data class TopDestination(
+    val route: String,
+    val label: String,
+    val glyph: String,
 )
+
+private val topDestinations =
+    listOf(
+        TopDestination("lab", "Lab", "🧪"),
+        TopDestination("checkout", "Checkout", "🛒"),
+        TopDestination("history", "History", "🧾"),
+    )
 
 /**
  * The app's navigation. Three top-level destinations (Lab, Checkout, History) plus a per-provider
@@ -40,6 +50,8 @@ private val topDestinations = listOf(
 fun AppNavHost(paymentHost: PaymentHost) {
     val navController = rememberNavController()
     val registry = koinInject<PaymentGatewayRegistry>()
+    val hostedCheckoutRelay = koinInject<HostedCheckoutRelay>()
+    val hostedGatewayConfigs = koinInject<List<HostedGatewayConfig>>()
 
     Scaffold(
         bottomBar = {
@@ -64,40 +76,49 @@ fun AppNavHost(paymentHost: PaymentHost) {
             }
         },
     ) { padding ->
-        NavHost(
-            navController = navController,
-            startDestination = "lab",
-            modifier = Modifier.padding(padding),
-        ) {
-            composable("lab") {
-                LabHomeRoot(
-                    onOpenProvider = { gatewayId -> navController.navigate("provider/${gatewayId.value}") },
-                )
-            }
-            composable("provider/{id}") { entry ->
-                val id = entry.arguments?.getString("id").orEmpty()
-                val meta = registry.byId(GatewayId(id))?.meta
-                // SecureScreen: block screenshots / screen-recording / recents-thumbnail on the
-                // payment-bearing screens, the way banking apps do.
-                SecureScreen {
-                    ProviderLabRoot(
-                        paymentHost = paymentHost,
-                        gatewayId = GatewayId(id),
-                        providerName = meta?.displayName ?: id,
-                        priceLabel = "₹499",
-                        catalogItemId = "book_499",
-                        onBack = { navController.popBackStack() },
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            NavHost(
+                navController = navController,
+                startDestination = "lab",
+            ) {
+                composable("lab") {
+                    LabHomeRoot(
+                        onOpenProvider = { gatewayId -> navController.navigate("provider/${gatewayId.value}") },
                     )
                 }
-            }
-            composable("checkout") {
-                SecureScreen {
-                    CheckoutRoot(paymentHost = paymentHost)
+                composable("provider/{id}") { entry ->
+                    val id = entry.arguments?.getString("id").orEmpty()
+                    val meta = registry.byId(GatewayId(id))?.meta
+                    // SecureScreen: block screenshots / screen-recording / recents-thumbnail on the
+                    // payment-bearing screens, the way banking apps do.
+                    SecureScreen {
+                        ProviderLabRoot(
+                            paymentHost = paymentHost,
+                            gatewayId = GatewayId(id),
+                            providerName = meta?.displayName ?: id,
+                            priceLabel = "₹499",
+                            catalogItemId = "book_499",
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                }
+                composable("checkout") {
+                    SecureScreen {
+                        CheckoutRoot(paymentHost = paymentHost)
+                    }
+                }
+                composable("history") {
+                    HistoryRoot()
                 }
             }
-            composable("history") {
-                HistoryRoot()
-            }
+
+            // Overlays the active screen whenever a hosted-webview gateway (Paystack) is mid-checkout —
+            // the archetype-C flow has no nav route of its own; it's driven by the relay instead.
+            HostedCheckoutHost(
+                relay = hostedCheckoutRelay,
+                configs = hostedGatewayConfigs,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

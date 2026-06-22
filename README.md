@@ -7,8 +7,8 @@
 [![CI](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
-![Ktor](https://img.shields.io/badge/Ktor-3.5.0-087CFA?logo=ktor&logoColor=white)
-![Modules](https://img.shields.io/badge/modules-16-success)
+![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
+![Modules](https://img.shields.io/badge/modules-19-success)
 
 </div>
 
@@ -46,12 +46,19 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
 
 ## Highlights
 
-- 🧩 **16-module KMP architecture.** One Gradle module per provider, contributed into a registry via
+- 🧩 **19-module KMP architecture.** One Gradle module per provider, contributed into a registry via
   Koin `getAll<PaymentGateway>()` — adding gateway *N+1* touches no existing code. Feature modules
   never depend on each other; they meet only at the `:app` composition root.
-- 🔌 **One contract, four real SDKs.** Razorpay, Cashfree, Stripe (+ Google Pay) and a raw UPI intent
-  flow all implement the same tiny `PaymentGateway` interface. The Activity-callback SDKs are bridged
-  into suspending coroutines by a `PaymentHost` that never leaks an `Activity` upward.
+- 🔌 **One contract, four real SDKs — plus a generic hosted-webview archetype.** Razorpay, Cashfree,
+  Stripe (+ Google Pay) and a raw UPI intent flow all implement the same tiny `PaymentGateway`
+  interface. The Activity-callback SDKs are bridged into suspending coroutines by a `PaymentHost`
+  that never leaks an `Activity` upward. `provider:hosted-webview` covers the whole class of
+  gateways with no native SDK (redirect-and-return-URL checkout, e.g. MoMo-style flows) behind the
+  same contract.
+- 🪪 **Env-backed credentials that auto-degrade honestly.** `core:config` resolves each gateway's
+  sandbox keys from `PLAB_<GATEWAY>_<MODE>_<KEY>` env vars; a gateway with no resolved credentials
+  auto-degrades from `SANDBOX_READY` to `MOCK_MODE` instead of silently pretending to work — the Lab
+  stays demoable and honest with zero real credentials configured.
 - 🛡️ **Server is the source of truth.** A companion Ktor server creates orders (**price resolved
   server-side**), verifies payments with **real HMAC-SHA256** (Razorpay), and reconciles idempotent,
   signature-checked webhooks — the client callback is only ever treated as a hint.
@@ -66,7 +73,7 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   (zero coroutines/DI/IO); the orchestrator just executes its effects. A payment's path is a
   recorded event log that replays byte-for-byte identically — the auditing property money movement
   wants.
-- 🧪 **A real quality gate.** ktlint + detekt across all 16 modules (including KMP `commonMain`),
+- 🧪 **A real quality gate.** ktlint + detekt across all 19 modules (including KMP `commonMain`),
   fake-based unit tests for the orchestrator/ViewModels/backend, run on every push via GitHub Actions.
 
 ## Provider status matrix
@@ -99,6 +106,12 @@ Two modes, one engine:
 - **Demo Checkout** — a product checkout (cart → pay) that reuses the exact same provider registry
   and orchestrator, with an inline mini-timeline so the "normal" flow is explained as it runs.
 - **History** — the transaction log, streamed from the Room journal.
+
+Motion is deliberate, not decorative: a shimmer on the `MOCK_MODE` badge, `SuccessBurst`/
+`FailureShake` terminal feedback, a scramble-to-mask `RedactionReveal`, and an animated
+`PaymentFlowDiagram` that visualizes the client-success-is-not-server-truth trust boundary as a
+moving packet. Every animated component reads `LocalReducedMotion`, so system-level reduce-motion
+is honored everywhere, not bolted onto one screen.
 
 The Lab timeline — the app's centerpiece — rendered as a deterministic Roborazzi screenshot:
 
@@ -144,16 +157,19 @@ backend/                   Ktor JVM server — orders, verify, webhooks, status 
 core/
   payments-api/            The frozen contract: PaymentGateway, PaymentResult, PaymentHost,
                            PaymentBackend, PendingPaymentJournal, PaymentStep, Redactor   (KMP + jvm)
+  config/                  Env-backed credential resolution (PLAB_* keys), MOCK_MODE auto-degrade  (KMP)
   protocol/                @Serializable wire DTOs shared with the backend's JVM target    (KMP + jvm)
   orchestration/           the effectful shell + fsm/ — a PURE (State,Event)->Effects reducer it
                            drives; the tested heart (journal-first, server-as-truth, replayable)
   network/                 Ktor client implementing PaymentBackend
   data/                    Room KMP journal (process-death recovery)
-  designsystem/            Compose Multiplatform theme, tokens, StepTimeline, PayloadCard
+  designsystem/            Compose Multiplatform theme, tokens, StepTimeline, Motion Kit
+                           (shimmer, terminal feedback, flow diagram), PayloadCard
   security/                Keystore AES-256-GCM store, FLAG_SECURE, device-integrity, pinning config
-  common/                  UiText, KMP logging
+  common/                  UiText, KMP logging, initKoin()/platformModule() (iOS-ready DI entry point)
 provider/
   razorpay/  cashfree/  upi-intent/  stripe/    one module per gateway, behind the contract
+  hosted-webview/          generic archetype for SDK-less, redirect-and-return-URL gateways
 feature/
   lab/                     catalog home + live per-provider lab timeline
   checkout-demo/           product checkout that reuses the same registry (the "explained" mode)
@@ -181,8 +197,8 @@ build-logic/               convention plugins (kmp.library / kmp.compose / cmp.f
 | UI | Compose Multiplatform **1.11.1**, Material 3 |
 | Build | AGP **9.2.1**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
-| Client networking | Ktor **3.5.0** client (OkHttp + Darwin engines) + kotlinx-serialization |
-| Backend | Ktor **3.5.0** server (Netty), in-memory store (swappable for Exposed/SQLite) |
+| Client networking | Ktor **3.5.1** client (OkHttp + Darwin engines) + kotlinx-serialization |
+| Backend | Ktor **3.5.1** server (Netty), in-memory store (swappable for Exposed/SQLite) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) — the pending-payment journal |
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime`, immutable collections |
 | Provider SDKs | Razorpay Checkout, Cashfree PG (api + ui), Stripe PaymentSheet, Play Services Wallet |

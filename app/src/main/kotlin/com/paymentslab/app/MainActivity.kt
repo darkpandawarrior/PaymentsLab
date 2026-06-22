@@ -40,7 +40,6 @@ class MainActivity :
     ComponentActivity(),
     PaymentResultWithDataListener,
     CFCheckoutResponseCallback {
-
     private val stripeHost: StripePaymentLauncherHost by inject()
     private val cashfreeRelay: CashfreeCheckoutRelay by inject()
     private val appSecurity: AppSecurityManager by inject()
@@ -83,7 +82,10 @@ class MainActivity :
     }
 
     // ── Razorpay (PaymentResultWithDataListener) ────────────────────────────
-    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) {
+    override fun onPaymentSuccess(
+        razorpayPaymentId: String?,
+        paymentData: PaymentData?,
+    ) {
         val data = paymentData?.data
         RazorpayCallbackRelay.emit(
             RazorpayCallbackResult.Success(
@@ -94,7 +96,11 @@ class MainActivity :
         )
     }
 
-    override fun onPaymentError(code: Int, response: String?, paymentData: PaymentData?) {
+    override fun onPaymentError(
+        code: Int,
+        response: String?,
+        paymentData: PaymentData?,
+    ) {
         RazorpayCallbackRelay.emit(RazorpayCallbackResult.Error(code = code, description = response))
     }
 
@@ -103,7 +109,10 @@ class MainActivity :
         cashfreeRelay.onPaymentVerify(orderId)
     }
 
-    override fun onPaymentFailure(errorResponse: CFErrorResponse, orderId: String) {
+    override fun onPaymentFailure(
+        errorResponse: CFErrorResponse,
+        orderId: String,
+    ) {
         cashfreeRelay.onPaymentFailure(
             orderId = orderId,
             errorMessage = errorResponse.message,
