@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,9 @@ import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.designsystem.TimelineStep
+import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.paymentslab.feature.lab.ProviderLabScreen
+import com.paymentslab.feature.lab.ProviderLabUiState
 import kotlinx.collections.immutable.persistentListOf
 import org.junit.Rule
 import org.junit.Test
@@ -67,6 +71,19 @@ class ScreenshotCatalogTest {
                 ) {
                     Column(Modifier.padding(DesignTokens.Spacing.lg)) { content() }
                 }
+            }
+        }
+        compose.onRoot().captureRoboImage("../docs/screenshots/$name.png")
+    }
+
+    /** For a full screen (its own Scaffold/topbar/padding) rather than an isolated component. */
+    private fun snapshotScreen(
+        name: String,
+        content: @Composable () -> Unit,
+    ) {
+        compose.setContent {
+            PaymentsLabTheme {
+                Surface(modifier = Modifier.width(360.dp).height(720.dp)) { content() }
             }
         }
         compose.onRoot().captureRoboImage("../docs/screenshots/$name.png")
@@ -168,5 +185,44 @@ class ScreenshotCatalogTest {
     fun paymentFlowDiagram_verified() =
         snapshot("payment_flow_diagram_verified") {
             PaymentFlowDiagram(activeHop = FlowHop.WEBHOOK, verified = true)
+        }
+
+    // ── Composed ProviderLabScreen — catches layout issues the isolated component shots miss ──────
+    @Test
+    fun providerLabScreen_running() =
+        snapshotScreen("provider_lab_screen_running") {
+            ProviderLabScreen(
+                state =
+                    ProviderLabUiState(
+                        steps = sampleTimeline(),
+                        isRunning = true,
+                        currentHop = FlowHop.GATEWAY,
+                        verified = false,
+                    ),
+                providerName = "Paystack",
+                priceLabel = "₹149",
+                onPay = {},
+                onBack = {},
+            )
+        }
+
+    @Test
+    fun providerLabScreen_settledSuccess() =
+        snapshotScreen("provider_lab_screen_settled_success") {
+            ProviderLabScreen(
+                state =
+                    ProviderLabUiState(
+                        steps = sampleTimeline(),
+                        isRunning = false,
+                        hasRun = true,
+                        finalStatus = PaymentStatus.SUCCESS,
+                        currentHop = FlowHop.BACKEND,
+                        verified = true,
+                    ),
+                providerName = "Paystack",
+                priceLabel = "₹149",
+                onPay = {},
+                onBack = {},
+            )
         }
 }
