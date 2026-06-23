@@ -55,50 +55,51 @@ class AndroidSecurityAuditor(
     private val antiHook: AntiHookDetector = AntiHookDetector,
     private val antiSsl: AntiSslBypassDetector = AntiSslBypassDetector,
 ) : SecurityAuditor {
+    override suspend fun audit(): SecurityAudit =
+        withContext(Dispatchers.IO) {
+            val signals = mutableListOf<String>()
 
-    override suspend fun audit(): SecurityAudit = withContext(Dispatchers.IO) {
-        val signals = mutableListOf<String>()
+            // Root + emulator (+ debuggable) via the existing DeviceIntegrity heuristics.
+            val deviceReport = deviceIntegrity.inspect()
+            signals += deviceReport.signals
 
-        // Root + emulator (+ debuggable) via the existing DeviceIntegrity heuristics.
-        val deviceReport = deviceIntegrity.inspect()
-        signals += deviceReport.signals
+            val debugSignals = antiDebug.detect(context)
+            signals += debugSignals
 
-        val debugSignals = antiDebug.detect(context)
-        signals += debugSignals
+            val hookSignals = antiHook.detect()
+            signals += hookSignals
 
-        val hookSignals = antiHook.detect()
-        signals += hookSignals
+            val sslSignals = antiSsl.detect()
+            signals += sslSignals
 
-        val sslSignals = antiSsl.detect()
-        signals += sslSignals
+            // Raw booleans (report the truth) …
+            val rooted = deviceReport.rooted
+            val emulator = deviceReport.emulator
+            val debuggerAttached = deviceReport.debuggerAttached || debugSignals.isNotEmpty()
+            val hooked = hookSignals.isNotEmpty()
+            val sslBypassSuspected = sslSignals.isNotEmpty()
 
-        // Raw booleans (report the truth) …
-        val rooted = deviceReport.rooted
-        val emulator = deviceReport.emulator
-        val debuggerAttached = deviceReport.debuggerAttached || debugSignals.isNotEmpty()
-        val hooked = hookSignals.isNotEmpty()
-        val sslBypassSuspected = sslSignals.isNotEmpty()
+            // … then apply the VAPT bypass flags only to the gate-feeding booleans.
+            val audit =
+                SecurityAudit(
+                    rooted = if (config.bypassRoot) false else rooted,
+                    emulator = if (config.bypassEmulator) false else emulator,
+                    debuggerAttached = if (config.bypassDebugger) false else debuggerAttached,
+                    hooked = if (config.bypassHook) false else hooked,
+                    sslBypassSuspected = if (config.bypassSsl) false else sslBypassSuspected,
+                    signals = signals.toList(),
+                )
 
-        // … then apply the VAPT bypass flags only to the gate-feeding booleans.
-        val audit = SecurityAudit(
-            rooted = if (config.bypassRoot) false else rooted,
-            emulator = if (config.bypassEmulator) false else emulator,
-            debuggerAttached = if (config.bypassDebugger) false else debuggerAttached,
-            hooked = if (config.bypassHook) false else hooked,
-            sslBypassSuspected = if (config.bypassSsl) false else sslBypassSuspected,
-            signals = signals.toList(),
-        )
-
-        if (audit.isCompromised) {
-            AppLog.w(TAG, "Security audit COMPROMISED: ${audit.signals.joinToString()}")
-        } else {
-            AppLog.i(
-                TAG,
-                "Security audit OK (emulator=$emulator, bypassRoot=${config.bypassRoot}, " +
-                    "bypassHook=${config.bypassHook}, bypassSsl=${config.bypassSsl}, " +
-                    "bypassDebugger=${config.bypassDebugger})",
-            )
+            if (audit.isCompromised) {
+                AppLog.w(TAG, "Security audit COMPROMISED: ${audit.signals.joinToString()}")
+            } else {
+                AppLog.i(
+                    TAG,
+                    "Security audit OK (emulator=$emulator, bypassRoot=${config.bypassRoot}, " +
+                        "bypassHook=${config.bypassHook}, bypassSsl=${config.bypassSsl}, " +
+                        "bypassDebugger=${config.bypassDebugger})",
+                )
+            }
+            audit
         }
-        audit
-    }
 }

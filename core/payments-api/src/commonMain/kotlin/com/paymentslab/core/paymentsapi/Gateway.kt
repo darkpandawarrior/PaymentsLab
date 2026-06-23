@@ -4,7 +4,9 @@ import kotlin.jvm.JvmInline
 
 /** Stable identifier for a payment provider, e.g. `razorpay`, `upi_intent`, `stripe`. */
 @JvmInline
-value class GatewayId(val value: String)
+value class GatewayId(
+    val value: String,
+)
 
 /** Feature a gateway supports — drives capability-filtered lookups and Lab badges. */
 enum class Capability {

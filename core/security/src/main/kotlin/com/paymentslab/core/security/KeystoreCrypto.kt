@@ -33,8 +33,8 @@ private const val TAG = "KeystoreCrypto"
  * fails the tag check and returns `null`.
  */
 class KeystoreCrypto {
-    fun encrypt(plaintext: String): String? {
-        return try {
+    fun encrypt(plaintext: String): String? =
+        try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
 
@@ -50,7 +50,6 @@ class KeystoreCrypto {
             AppLog.e(TAG, "encrypt failed", e)
             null
         }
-    }
 
     fun decrypt(encoded: String): String? {
         return try {
@@ -85,16 +84,17 @@ class KeystoreCrypto {
             return it.secretKey
         }
 
-        val keyGenerator = KeyGenerator.getInstance(
-            KeyProperties.KEY_ALGORITHM_AES,
-            KEYSTORE_PROVIDER,
-        )
-        keyGenerator.init(
-            KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+        val keyGenerator =
+            KeyGenerator.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES,
+                KEYSTORE_PROVIDER,
             )
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+        keyGenerator.init(
+            KeyGenParameterSpec
+                .Builder(
+                    KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+                ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setKeySize(256)
                 // No user-auth binding here — a saved token must decrypt on cold start without a

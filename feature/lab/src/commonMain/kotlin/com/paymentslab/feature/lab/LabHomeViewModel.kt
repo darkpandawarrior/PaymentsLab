@@ -50,10 +50,12 @@ class LabHomeViewModel(
                                 status = gateway.meta.status.toUi(),
                                 region = gateway.meta.region,
                                 blurb = gateway.meta.blurb,
-                                capabilities = gateway.meta.capabilities.map { it.label() }.toImmutableList(),
+                                capabilities =
+                                    gateway.meta.capabilities
+                                        .map { it.label() }
+                                        .toImmutableList(),
                             )
-                        }
-                        .toImmutableList(),
+                        }.toImmutableList(),
             ),
         )
     val uiState: StateFlow<LabHomeUiState> = _uiState.asStateFlow()

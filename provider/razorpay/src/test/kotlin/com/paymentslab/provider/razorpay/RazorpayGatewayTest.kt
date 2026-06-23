@@ -11,18 +11,18 @@ import org.junit.Test
  * that references `Checkout.*` is covered by instrumented tests to avoid loading the SDK class here).
  */
 class RazorpayGatewayTest {
-
     private val gateway = RazorpayGateway(RazorpayCallbackRelay)
 
     @Test
     fun success_puts_signature_in_verification_unredacted() {
-        val res = gateway.mapCallback(
-            RazorpayCallbackResult.Success(
-                razorpayPaymentId = "pay_ABC123",
-                razorpayOrderId = "order_XYZ789",
-                razorpaySignature = "abcdef0123456789signaturevalue",
-            ),
-        )
+        val res =
+            gateway.mapCallback(
+                RazorpayCallbackResult.Success(
+                    razorpayPaymentId = "pay_ABC123",
+                    razorpayOrderId = "order_XYZ789",
+                    razorpaySignature = "abcdef0123456789signaturevalue",
+                ),
+            )
         assertTrue(res is PaymentResult.Success)
         res as PaymentResult.Success
         assertEquals("pay_ABC123", res.paymentId)
@@ -33,15 +33,19 @@ class RazorpayGatewayTest {
 
     @Test
     fun success_masks_signature_in_raw() {
-        val res = gateway.mapCallback(
-            RazorpayCallbackResult.Success(
-                razorpayPaymentId = "pay_ABC123",
-                razorpayOrderId = "order_XYZ789",
-                razorpaySignature = "abcdef0123456789signaturevalue",
-            ),
-        ) as PaymentResult.Success
+        val res =
+            gateway.mapCallback(
+                RazorpayCallbackResult.Success(
+                    razorpayPaymentId = "pay_ABC123",
+                    razorpayOrderId = "order_XYZ789",
+                    razorpaySignature = "abcdef0123456789signaturevalue",
+                ),
+            ) as PaymentResult.Success
 
-        val rawSig = res.raw.entries.first { it.first == "razorpay_signature" }.second
+        val rawSig =
+            res.raw.entries
+                .first { it.first == "razorpay_signature" }
+                .second
         // masked (contains the redaction bullet), NOT the plaintext signature
         assertTrue("expected masked signature, was '$rawSig'", rawSig.contains("•"))
         assertTrue(rawSig != "abcdef0123456789signaturevalue")

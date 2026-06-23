@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SecurityPolicyTest {
-
     private fun audit(
         rooted: Boolean = false,
         emulator: Boolean = false,
@@ -47,10 +46,11 @@ class SecurityPolicyTest {
 
     @Test
     fun lenient_neverBlocks() {
-        val d = SecurityPolicy.evaluate(
-            audit(rooted = true, debugger = true, hooked = true, ssl = true),
-            SecurityPosture.lenient(),
-        )
+        val d =
+            SecurityPolicy.evaluate(
+                audit(rooted = true, debugger = true, hooked = true, ssl = true),
+                SecurityPosture.lenient(),
+            )
         assertFalse(d.shouldBlock)
         assertEquals(ThreatAction.WARN, d.action) // root/hook/ssl → WARN, debugger → ALLOW
     }

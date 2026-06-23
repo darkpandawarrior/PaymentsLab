@@ -13,7 +13,6 @@ import org.junit.Test
  * smoke-tested on-device.
  */
 class SecureStoreContractTest {
-
     private lateinit var store: SecureStore
 
     @Before

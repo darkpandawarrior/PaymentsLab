@@ -220,8 +220,10 @@ private fun StepPayload(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clip(androidx.compose.foundation.shape.RoundedCornerShape(DesignTokens.Radius.sm))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .clip(
+                    androidx.compose.foundation.shape
+                        .RoundedCornerShape(DesignTokens.Radius.sm),
+                ).background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 .padding(DesignTokens.Spacing.md),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
     ) {

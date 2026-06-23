@@ -11,8 +11,23 @@ package com.paymentslab.core.paymentsapi
 object Redactor {
     private val sensitiveMarkers =
         listOf(
-            "secret", "signature", "sign", "key", "token", "password", "pwd",
-            "cvv", "cvc", "card", "pan", "otp", "auth", "vpa", "email", "phone", "contact",
+            "secret",
+            "signature",
+            "sign",
+            "key",
+            "token",
+            "password",
+            "pwd",
+            "cvv",
+            "cvc",
+            "card",
+            "pan",
+            "otp",
+            "auth",
+            "vpa",
+            "email",
+            "phone",
+            "contact",
         )
 
     fun redact(

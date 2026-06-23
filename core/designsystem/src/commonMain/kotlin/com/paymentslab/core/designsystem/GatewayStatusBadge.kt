@@ -24,7 +24,10 @@ enum class GatewayStatusUi {
     COMING_SOON,
 }
 
-private data class BadgeSpec(val label: String, val color: Color)
+private data class BadgeSpec(
+    val label: String,
+    val color: Color,
+)
 
 private fun GatewayStatusUi.spec(): BadgeSpec =
     when (this) {

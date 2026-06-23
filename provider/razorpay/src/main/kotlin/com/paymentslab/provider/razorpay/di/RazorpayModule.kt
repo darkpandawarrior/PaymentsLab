@@ -19,7 +19,8 @@ import org.koin.dsl.module
  * it via `get()`) and bound to [PaymentActivityCallbacks] — the app's `MainActivity` resolves the
  * latter to forward Razorpay's Activity callbacks into the coroutine bridge.
  */
-val razorpayModule: Module = module {
-    single { RazorpayCallbackRelay } bind PaymentActivityCallbacks::class
-    single { RazorpayGateway(get()) } bind PaymentGateway::class
-}
+val razorpayModule: Module =
+    module {
+        single { RazorpayCallbackRelay } bind PaymentActivityCallbacks::class
+        single { RazorpayGateway(get()) } bind PaymentGateway::class
+    }

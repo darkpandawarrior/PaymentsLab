@@ -36,34 +36,36 @@ private const val TAG = "AntiSslBypass"
  * Honored by [SecurityConfig.bypassSsl] at aggregation.
  */
 object AntiSslBypassDetector {
-
     /** Known-legitimate platform / OkHttp trust manager class-name prefixes. */
-    private val LEGITIMATE_TRUST_MANAGERS = listOf(
-        "com.android.org.conscrypt",
-        "org.conscrypt",
-        "sun.security.ssl",
-        "javax.net.ssl", // wrappers
-    )
+    private val LEGITIMATE_TRUST_MANAGERS =
+        listOf(
+            "com.android.org.conscrypt",
+            "org.conscrypt",
+            "sun.security.ssl",
+            "javax.net.ssl", // wrappers
+        )
 
     /** Known-legitimate platform / OkHttp hostname verifier class-name fragments. */
-    private val LEGITIMATE_HOSTNAME_VERIFIERS = listOf(
-        "com.android.okhttp.internal.tls.OkHostnameVerifier",
-        "okhttp3.internal.tls.OkHostnameVerifier",
-        "com.android.org.conscrypt",
-        "javax.net.ssl.HttpsURLConnection",
-    )
+    private val LEGITIMATE_HOSTNAME_VERIFIERS =
+        listOf(
+            "com.android.okhttp.internal.tls.OkHostnameVerifier",
+            "okhttp3.internal.tls.OkHostnameVerifier",
+            "com.android.org.conscrypt",
+            "javax.net.ssl.HttpsURLConnection",
+        )
 
     /** Native SSL-unpinning library markers to look for in memory maps. */
-    private val NATIVE_SSL_BYPASS_LIBS = listOf(
-        "sslunpinning",
-        "ssl-unpinning",
-        "ssl_unpinning",
-        "ssl-kill-switch",
-        "sslkillswitch",
-        "bypass-ssl",
-        "sslbypass",
-        "trustkit-bypass",
-    )
+    private val NATIVE_SSL_BYPASS_LIBS =
+        listOf(
+            "sslunpinning",
+            "ssl-unpinning",
+            "ssl_unpinning",
+            "ssl-kill-switch",
+            "sslkillswitch",
+            "bypass-ssl",
+            "sslbypass",
+            "trustkit-bypass",
+        )
 
     /**
      * Runs every SSL-bypass check and returns the signal strings that fired.
@@ -118,11 +120,12 @@ object AntiSslBypassDetector {
                 null
             } else {
                 // Non-standard verifier — probe whether it rubber-stamps an obviously-invalid host.
-                val acceptsGarbage = try {
-                    verifier.verify("this-host-does-not.exist.invalid", null)
-                } catch (e: Exception) {
-                    false
-                }
+                val acceptsGarbage =
+                    try {
+                        verifier.verify("this-host-does-not.exist.invalid", null)
+                    } catch (e: Exception) {
+                        false
+                    }
                 if (acceptsGarbage) {
                     "ssl: default HostnameVerifier accepts an invalid host ($name)"
                 } else {
@@ -138,7 +141,8 @@ object AntiSslBypassDetector {
             val maps = File("/proc/${Process.myPid()}/maps")
             if (maps.exists() && maps.canRead()) {
                 val lower = maps.readText().lowercase()
-                NATIVE_SSL_BYPASS_LIBS.firstOrNull { lower.contains(it) }
+                NATIVE_SSL_BYPASS_LIBS
+                    .firstOrNull { lower.contains(it) }
                     ?.let { "ssl: native SSL-bypass library in maps ($it)" }
             } else {
                 null

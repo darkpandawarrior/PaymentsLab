@@ -17,7 +17,11 @@ fun hostedWebViewModule(configs: List<HostedGatewayConfig>) =
         // Exposed so the app can mount one HostedCheckoutHost that knows every configured gateway.
         single { configs }
         configs.forEach { config ->
-            single<PaymentGateway>(qualifier = org.koin.core.qualifier.named(config.gatewayId.value)) {
+            single<PaymentGateway>(
+                qualifier =
+                    org.koin.core.qualifier
+                        .named(config.gatewayId.value),
+            ) {
                 HostedWebViewGateway(config, get())
             }
         }

@@ -30,12 +30,13 @@ object PaymentCertificatePinning {
     private const val PLACEHOLDER_PRIMARY = "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     private const val PLACEHOLDER_BACKUP = "sha256/BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB="
 
-    private val PINNED_HOSTS: List<String> = listOf(
-        "api.razorpay.com",
-        "sandbox.cashfree.com",
-        "api.cashfree.com",
-        "api.stripe.com",
-    )
+    private val PINNED_HOSTS: List<String> =
+        listOf(
+            "api.razorpay.com",
+            "sandbox.cashfree.com",
+            "api.cashfree.com",
+            "api.stripe.com",
+        )
 
     /**
      * Builds a [CertificatePinner] pinning two placeholder keys per provider host. Returns a

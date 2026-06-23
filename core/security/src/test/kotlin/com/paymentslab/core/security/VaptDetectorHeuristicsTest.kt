@@ -13,12 +13,12 @@ import org.junit.Test
  * intentionally not unit-tested here.
  */
 class VaptDetectorHeuristicsTest {
-
     // --- AntiDebugDetector.parseTracerPid --------------------------------------------------------
 
     @Test
     fun `TracerPid of zero means not traced`() {
-        val status = """
+        val status =
+            """
             Name:	com.paymentslab
             State:	S (sleeping)
             Tgid:	9876
@@ -26,28 +26,30 @@ class VaptDetectorHeuristicsTest {
             PPid:	1234
             TracerPid:	0
             Uid:	10123	10123	10123	10123
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(0, parseTracerPid(status))
     }
 
     @Test
     fun `non-zero TracerPid is parsed as the tracing pid`() {
-        val status = """
+        val status =
+            """
             Name:	com.paymentslab
             State:	t (tracing stop)
             TracerPid:	4571
             Uid:	10123	10123	10123	10123
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(4571, parseTracerPid(status))
     }
 
     @Test
     fun `missing TracerPid line returns zero`() {
-        val status = """
+        val status =
+            """
             Name:	com.paymentslab
             State:	S (sleeping)
             PPid:	1234
-        """.trimIndent()
+            """.trimIndent()
         assertEquals(0, parseTracerPid(status))
     }
 
@@ -65,20 +67,22 @@ class VaptDetectorHeuristicsTest {
 
     @Test
     fun `clean maps has no frida markers`() {
-        val maps = """
+        val maps =
+            """
             700000000-700001000 r-xp 00000000 fd:00 12345 /system/lib64/libc.so
             700002000-700003000 r--p 00000000 fd:00 12346 /apex/com.android.art/lib64/libart.so
             700004000-700005000 rw-p 00000000 00:00 0 [anon:libc_malloc]
-        """.trimIndent()
+            """.trimIndent()
         assertFalse(mapsIndicatesFrida(maps))
     }
 
     @Test
     fun `frida-agent library in maps is detected`() {
-        val maps = """
+        val maps =
+            """
             700000000-700001000 r-xp 00000000 fd:00 12345 /system/lib64/libc.so
             7f0000000-7f0010000 r-xp 00000000 fd:03 99999 /data/local/tmp/re.frida.server/frida-agent-64.so
-        """.trimIndent()
+            """.trimIndent()
         assertTrue(mapsIndicatesFrida(maps))
     }
 

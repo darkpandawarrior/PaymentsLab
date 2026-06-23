@@ -26,7 +26,8 @@ fun getDatabaseBuilder(): RoomDatabase.Builder<PaymentsLabDatabase> {
             error = null,
         )
     val dbFilePath = requireNotNull(documentsUrl?.path) + "/paymentslab.db"
-    return Room.databaseBuilder<PaymentsLabDatabase>(name = dbFilePath)
+    return Room
+        .databaseBuilder<PaymentsLabDatabase>(name = dbFilePath)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Default)
 }

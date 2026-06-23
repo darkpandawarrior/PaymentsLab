@@ -25,9 +25,13 @@ data class HostedGatewayConfig(
 
 /** The terminal outcome detected from a return-URL redirect inside the hosted checkout WebView. */
 sealed interface HostedReturnOutcome {
-    data class Success(val paymentId: String?) : HostedReturnOutcome
+    data class Success(
+        val paymentId: String?,
+    ) : HostedReturnOutcome
 
-    data class Failure(val reason: String?) : HostedReturnOutcome
+    data class Failure(
+        val reason: String?,
+    ) : HostedReturnOutcome
 
     data object Cancelled : HostedReturnOutcome
 }

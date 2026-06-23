@@ -54,7 +54,9 @@ class CheckoutViewModelTest {
     @Test
     fun only_sandbox_ready_gateways_are_offered() {
         val vm = CheckoutViewModel(FakePaymentFlowRunner(emptyList()), sandboxAndGatedRegistry())
-        val ids = vm.uiState.value.gateways.map { it.id.value }
+        val ids =
+            vm.uiState.value.gateways
+                .map { it.id.value }
         assertEquals(listOf("upi_intent", "razorpay"), ids)
     }
 
@@ -63,7 +65,8 @@ class CheckoutViewModelTest {
         val vm = CheckoutViewModel(FakePaymentFlowRunner(emptyList()), sandboxAndGatedRegistry())
         assertEquals(
             listOf("coffee_149", "book_499", "headphones_2499", "course_9999", "ebook_usd_9"),
-            vm.uiState.value.products.map { it.catalogItemId },
+            vm.uiState.value.products
+                .map { it.catalogItemId },
         )
     }
 
@@ -73,7 +76,9 @@ class CheckoutViewModelTest {
             val runner = FakePaymentFlowRunner(successScript())
             val vm = CheckoutViewModel(runner, sandboxAndGatedRegistry())
 
-            val product = vm.uiState.value.products.first { it.catalogItemId == "book_499" }
+            val product =
+                vm.uiState.value.products
+                    .first { it.catalogItemId == "book_499" }
             vm.selectProduct(product)
             vm.selectGateway(GatewayId("razorpay"))
             assertTrue(vm.uiState.value.canPay)

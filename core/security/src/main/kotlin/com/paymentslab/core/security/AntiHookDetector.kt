@@ -31,24 +31,25 @@ private const val TAG = "AntiHookDetector"
  * awareness — not to provide a guarantee. Honored by [SecurityConfig.bypassHook] at aggregation.
  */
 object AntiHookDetector {
-
     /** Frida agent thread-name fragments (lower-cased match). */
-    private val SUSPICIOUS_THREAD_NAMES = listOf(
-        "gum-js-loop",
-        "gmain",
-        "gdbus",
-        "pool-frida",
-        "frida-server",
-        "frida-agent",
-        "linjector",
-    )
+    private val SUSPICIOUS_THREAD_NAMES =
+        listOf(
+            "gum-js-loop",
+            "gmain",
+            "gdbus",
+            "pool-frida",
+            "frida-server",
+            "frida-agent",
+            "linjector",
+        )
 
     /** Xposed / LSPosed marker classes probed via reflection. */
-    private val XPOSED_MARKER_CLASSES = listOf(
-        "de.robv.android.xposed.XposedBridge",
-        "de.robv.android.xposed.XC_MethodHook",
-        "org.lsposed.lspd.core.Main",
-    )
+    private val XPOSED_MARKER_CLASSES =
+        listOf(
+            "de.robv.android.xposed.XposedBridge",
+            "de.robv.android.xposed.XC_MethodHook",
+            "org.lsposed.lspd.core.Main",
+        )
 
     /** Frida's default server / control ports on loopback. */
     private val FRIDA_PORTS = listOf(27042, 27043)
@@ -76,7 +77,9 @@ object AntiHookDetector {
 
     private fun detectFridaThread(): String? =
         try {
-            Thread.getAllStackTraces().keys
+            Thread
+                .getAllStackTraces()
+                .keys
                 .map { it.name.lowercase() }
                 .firstOrNull { name -> SUSPICIOUS_THREAD_NAMES.any { name.contains(it) } }
                 ?.let { "hook: suspicious thread name '$it' (Frida agent)" }
@@ -127,8 +130,12 @@ object AntiHookDetector {
             throw Exception("xposed-probe")
         } catch (e: Exception) {
             e.stackTrace
-                .firstOrNull { it.className.contains("de.robv.android.xposed") || it.className.contains("XposedBridge") }
-                ?.let { "hook: Xposed frame in stack trace (${it.className})" }
+                .firstOrNull {
+                    it.className.contains(
+                        "de.robv.android.xposed",
+                    ) ||
+                        it.className.contains("XposedBridge")
+                }?.let { "hook: Xposed frame in stack trace (${it.className})" }
         }
     }
 }
@@ -139,16 +146,17 @@ object AntiHookDetector {
  * unit-tested against sample maps content on the JVM without a device.
  */
 internal fun mapsIndicatesFrida(mapsContent: String): Boolean {
-    val markers = listOf(
-        "frida",
-        "frida-agent",
-        "frida-gadget",
-        "libgadget",
-        "gum-js",
-        "linjector",
-        "xposed",
-        "substrate",
-    )
+    val markers =
+        listOf(
+            "frida",
+            "frida-agent",
+            "frida-gadget",
+            "libgadget",
+            "gum-js",
+            "linjector",
+            "xposed",
+            "substrate",
+        )
     val lower = mapsContent.lowercase()
     return markers.any { lower.contains(it) }
 }

@@ -38,7 +38,12 @@ fun SuccessBurst(
         }
     }
     Box(
-        modifier = modifier.size(size).scale(scale.value).clip(CircleShape).background(StatusColors.Success),
+        modifier =
+            modifier
+                .size(size)
+                .scale(scale.value)
+                .clip(CircleShape)
+                .background(StatusColors.Success),
         contentAlignment = Alignment.Center,
     ) {
         Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(size * 0.5f))

@@ -30,7 +30,10 @@ class KeystoreSecureStore(
     private val prefs: SharedPreferences =
         context.applicationContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
 
-    override fun putString(key: String, value: String) {
+    override fun putString(
+        key: String,
+        value: String,
+    ) {
         val ciphertext = crypto.encrypt(value)
         if (ciphertext == null) {
             AppLog.e(TAG, "putString: encryption failed for a value; not persisting")

@@ -41,20 +41,22 @@ class KtorPaymentBackend(
     ): CreatedOrder =
         request("createOrder(catalogItemId=$catalogItemId, gateway=${gatewayId.value})") {
             val response: OrderResponse =
-                client.post("$base/orders") {
-                    contentType(ContentType.Application.Json)
-                    setBody(createOrderRequest(catalogItemId, gatewayId))
-                }.body()
+                client
+                    .post("$base/orders") {
+                        contentType(ContentType.Application.Json)
+                        setBody(createOrderRequest(catalogItemId, gatewayId))
+                    }.body()
             response.toDomain()
         }
 
     override suspend fun verify(request: VerificationRequest): PaymentSnapshot =
         request("verify(orderId=${request.orderId})") {
             val response: VerifyResponse =
-                client.post("$base/payments/${request.orderId}/verify") {
-                    contentType(ContentType.Application.Json)
-                    setBody(request.toDto())
-                }.body()
+                client
+                    .post("$base/payments/${request.orderId}/verify") {
+                        contentType(ContentType.Application.Json)
+                        setBody(request.toDto())
+                    }.body()
             response.toSnapshot(orderId = request.orderId)
         }
 

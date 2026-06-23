@@ -10,7 +10,6 @@ import org.junit.Test
  * and real-device `Build.*` values.
  */
 class DeviceIntegrityHeuristicsTest {
-
     @Test
     fun `Android emulator (sdk_gphone) is flagged`() {
         assertTrue(
