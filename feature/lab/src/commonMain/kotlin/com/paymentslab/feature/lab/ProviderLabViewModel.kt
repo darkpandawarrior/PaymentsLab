@@ -3,6 +3,7 @@ package com.paymentslab.feature.lab
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paymentslab.core.designsystem.FlowHop
 import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.TimelineStep
 import com.paymentslab.core.paymentsapi.GatewayId
@@ -28,6 +29,10 @@ data class ProviderLabUiState(
     val isRunning: Boolean = false,
     val finalStatus: PaymentStatus? = null,
     val hasRun: Boolean = false,
+    /** Where the [PaymentFlowDiagram] packet currently sits — null until the first step lands. */
+    val currentHop: FlowHop? = null,
+    /** Whether [currentHop] has been backend-confirmed yet, vs. still just a client hint. */
+    val verified: Boolean = false,
 )
 
 /**
@@ -59,6 +64,8 @@ class ProviderLabViewModel(
                     _uiState.value =
                         _uiState.value.copy(
                             steps = accumulated.toTimeline(runInFlight = true),
+                            currentHop = step.toFlowHop(),
+                            verified = step.isVerified(),
                         )
                 }
                 _uiState.value =

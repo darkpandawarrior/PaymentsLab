@@ -1,6 +1,7 @@
 package com.paymentslab.feature.lab
 
 import com.paymentslab.core.common.UiText
+import com.paymentslab.core.designsystem.FlowHop
 import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.Money
@@ -83,6 +84,9 @@ class ProviderLabViewModelTest {
             assertEquals(StepState.DONE, state.steps[4].state)
             // Order payload rows are carried through the mapping.
             assertEquals(listOf("order_id" to "order_1"), state.steps[0].payload)
+            // The last emitted step (Settled) lands on the backend hop, backend-confirmed.
+            assertEquals(FlowHop.BACKEND, state.currentHop)
+            assertTrue(state.verified)
         }
 
     @Test
@@ -126,6 +130,9 @@ class ProviderLabViewModelTest {
             assertEquals(StepState.ERROR, state.steps[0].state)
             assertEquals("network down", state.steps[0].subtitle)
             assertEquals(PaymentStatus.FAILED, state.finalStatus)
+            // The flow broke before reaching anywhere authoritative — stays at APP, unverified.
+            assertEquals(FlowHop.APP, state.currentHop)
+            assertFalse(state.verified)
         }
 
     @Test
