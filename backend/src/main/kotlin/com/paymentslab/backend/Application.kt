@@ -95,6 +95,16 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("paymark", "Paymark", config.publicBaseUrl),
                 mockHostedAdapter("vistamoney", "VistaMoney", config.publicBaseUrl),
                 mockHostedAdapter("cmi", "CMI", config.publicBaseUrl),
+                mockHostedAdapter("mypos", "myPOS", config.publicBaseUrl),
+                mockHostedAdapter("xendit", "Xendit", config.publicBaseUrl),
+                mockHostedAdapter("woyopay", "Woyo Pay", config.publicBaseUrl),
+                mockHostedAdapter("amole", "Amole", config.publicBaseUrl),
+                mockHostedAdapter("placetopay", "PlaceToPay", config.publicBaseUrl),
+                mockHostedAdapter("paymentez", "Paymentez", config.publicBaseUrl),
+                mockHostedAdapter("webxpay", "Webxpay", config.publicBaseUrl),
+                mockHostedAdapter("cardnet", "CardNet", config.publicBaseUrl),
+                mockHostedAdapter("kanoo", "Kanoo", config.publicBaseUrl),
+                mockHostedAdapter("moncash", "MonCash", config.publicBaseUrl),
             ),
         )
 
