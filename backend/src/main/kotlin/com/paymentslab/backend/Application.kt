@@ -73,6 +73,12 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 ),
                 StripeAdapter(publishableKey = config.stripePublishableKey, secret = config.stripeSecret),
                 CashfreeAdapter(appId = config.cashfreeAppId, secret = config.cashfreeSecret),
+                // B2 fan-out slice 1: MOCK_MODE only — see docs/providers/mollie.md for why. Rides
+                // the generic archetype-C adapter untouched since B0; proves the fan-out is mechanical.
+                HostedWebViewAdapter(
+                    config = HostedGatewayServerConfig(gatewayId = "mollie", displayName = "Mollie"),
+                    baseUrl = config.publicBaseUrl,
+                ),
             ),
         )
 
