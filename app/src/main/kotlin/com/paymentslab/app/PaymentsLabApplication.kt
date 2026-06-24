@@ -82,7 +82,16 @@ class PaymentsLabApplication :
                 razorpayModule,
                 cashfreeModule,
                 stripeModule,
-                hostedWebViewModule(listOf(paystackHostedGatewayConfig, mollieHostedGatewayConfig)),
+                hostedWebViewModule(
+                    listOf(
+                        paystackHostedGatewayConfig,
+                        mollieHostedGatewayConfig,
+                        culqiHostedGatewayConfig,
+                        ozowHostedGatewayConfig,
+                        sslcommerzHostedGatewayConfig,
+                        bkashHostedGatewayConfig,
+                    ),
+                ),
                 // features
                 labModule,
                 historyModule,

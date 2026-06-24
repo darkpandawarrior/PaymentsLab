@@ -37,6 +37,13 @@ val BackendJson: Json =
         encodeDefaults = true
     }
 
+/** One-liner for a B2 fan-out gateway riding the generic archetype-C adapter, MOCK_MODE only. */
+private fun mockHostedAdapter(
+    gatewayId: String,
+    displayName: String,
+    publicBaseUrl: String,
+) = HostedWebViewAdapter(HostedGatewayServerConfig(gatewayId, displayName), publicBaseUrl)
+
 /**
  * Ktor application module. Wires plugins + routes against freshly-built services so a `testApplication`
  * gets an isolated in-memory store per run.
@@ -73,12 +80,13 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 ),
                 StripeAdapter(publishableKey = config.stripePublishableKey, secret = config.stripeSecret),
                 CashfreeAdapter(appId = config.cashfreeAppId, secret = config.cashfreeSecret),
-                // B2 fan-out slice 1: MOCK_MODE only — see docs/providers/mollie.md for why. Rides
-                // the generic archetype-C adapter untouched since B0; proves the fan-out is mechanical.
-                HostedWebViewAdapter(
-                    config = HostedGatewayServerConfig(gatewayId = "mollie", displayName = "Mollie"),
-                    baseUrl = config.publicBaseUrl,
-                ),
+                // B2 fan-out: MOCK_MODE only — see each docs/providers/<id>.md for why. All ride the
+                // generic archetype-C adapter untouched since B0; proves the fan-out is mechanical.
+                mockHostedAdapter("mollie", "Mollie", config.publicBaseUrl),
+                mockHostedAdapter("culqi", "Culqi", config.publicBaseUrl),
+                mockHostedAdapter("ozow", "Ozow", config.publicBaseUrl),
+                mockHostedAdapter("sslcommerz", "SSLCommerz", config.publicBaseUrl),
+                mockHostedAdapter("bkash", "bKash", config.publicBaseUrl),
             ),
         )
 
