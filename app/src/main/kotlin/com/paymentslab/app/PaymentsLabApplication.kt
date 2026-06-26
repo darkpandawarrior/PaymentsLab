@@ -136,6 +136,12 @@ class PaymentsLabApplication :
                         plugnpayHostedGatewayConfig,
                         savvyHostedGatewayConfig,
                         acceptcardHostedGatewayConfig,
+                        phonepeHostedGatewayConfig,
+                        worldpayHostedGatewayConfig,
+                        paytmaioHostedGatewayConfig,
+                        payuHostedGatewayConfig,
+                        ipay88HostedGatewayConfig,
+                        twintHostedGatewayConfig,
                     ),
                 ),
                 // features

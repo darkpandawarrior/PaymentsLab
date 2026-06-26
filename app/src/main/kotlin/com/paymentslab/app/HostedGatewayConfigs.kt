@@ -387,3 +387,65 @@ val acceptcardHostedGatewayConfig =
             "Likely Mastercard Payment Gateway Services (MPGS) Hosted Checkout — not confirmed " +
                 "against live MPGS docs this session. Strong real-API upgrade candidate if confirmed.",
     )
+
+/**
+ * Tier-2 close-out — real archetype-A (native SDK) gateways demoed through the generic archetype-C
+ * mock path as a simplification (real SDK wiring + a verified backend order-creation API is future
+ * work; see each `docs/providers/<id>.md`, especially `phonepe.md` for verified 2026-07-03 SDK facts
+ * from PhonePe's own official demo repo).
+ */
+val phonepeHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "phonepe",
+        displayName = "PhonePe",
+        region = "India",
+        blurb =
+            "Real SDK is phonepe.intentsdk.android.release:IntentSDK:5.1.0 (verified against " +
+                "PhonePe's own demo repo) — no self-serve sandbox, demoed via the generic mock path.",
+    )
+
+val worldpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "worldpay",
+        displayName = "Worldpay",
+        region = "Global",
+        blurb = "Real SDK: access-checkout-android:2.0.0. Demoed via the generic mock path.",
+    )
+
+val paytmaioHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "paytmaio",
+        displayName = "Paytm All-in-One",
+        region = "India",
+        blurb =
+            "Real SDK: appinvokesdk. Staging MID access is flaky per research — demoed via the " +
+                "generic mock path.",
+    )
+
+val payuHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "payu",
+        displayName = "PayU",
+        region = "India/LATAM",
+        blurb =
+            "India has a real self-serve test SDK (payu-checkout-pro) — a strong future " +
+                "real-API upgrade candidate. Demoed via the generic mock path this pass.",
+    )
+
+val ipay88HostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "ipay88",
+        displayName = "iPay88",
+        region = "Malaysia",
+        blurb =
+            "Real SDK is typically a local AAR via direct merchant agreement, not public Maven. " +
+                "Demoed via the generic mock path.",
+    )
+
+val twintHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "twint",
+        displayName = "TWINT",
+        region = "Switzerland",
+        blurb = "No direct SDK — PSP-wrapped (Datatrans/Adyen/myPOS), API itself certification-gated.",
+    )
