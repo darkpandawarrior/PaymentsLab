@@ -93,6 +93,7 @@ dependencies {
     implementation(project(":provider:cashfree"))
     implementation(project(":provider:stripe"))
     implementation(project(":provider:hosted-webview"))
+    implementation(project(":provider:googlepay"))
 
     // Features
     implementation(project(":feature:lab"))

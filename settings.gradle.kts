@@ -52,6 +52,7 @@ include(":provider:razorpay")
 include(":provider:cashfree")
 include(":provider:stripe")
 include(":provider:hosted-webview")
+include(":provider:googlepay")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

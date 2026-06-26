@@ -161,6 +161,27 @@ class CashfreeAdapter(
 }
 
 /**
+ * Google Pay — a wallet *method*, not a settlement gateway (see `provider:googlepay`'s
+ * `GooglePayGateway` doc). The client's tokenized "success" is a hint, same honesty rule as
+ * [UpiIntentAdapter]: no real processor sits behind the TEST-environment token here, so `verify`
+ * treats a present token as PENDING (never client-trusted SUCCESS) unless a marker says otherwise —
+ * matching [StripeAdapter]/[CashfreeAdapter]'s STUB pattern for a not-yet-live real backend call.
+ */
+class GooglePayAdapter : GatewayAdapter {
+    override val gatewayId: String = "googlepay"
+
+    override suspend fun createProviderOrder(
+        orderId: String,
+        item: CatalogItemDto,
+    ): Map<String, String> = mapOf("currency" to item.currency)
+
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto {
+        val marker = req.extra["marker"]
+        return if (marker == "succeeded") PaymentStatusDto.SUCCESS else PaymentStatusDto.PENDING
+    }
+}
+
+/**
  * Config for one archetype-C (hosted-webview) or archetype-D (mobile-money) gateway. One backend
  * adapter class serves every gateway of that archetype — matches `provider:hosted-webview`'s
  * one-module-N-configs shape (plan Part C/B4) instead of a backend class per gateway.
