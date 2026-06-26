@@ -142,6 +142,7 @@ class PaymentsLabApplication :
                         payuHostedGatewayConfig,
                         ipay88HostedGatewayConfig,
                         twintHostedGatewayConfig,
+                        paypalHostedGatewayConfig,
                     ),
                 ),
                 // features
