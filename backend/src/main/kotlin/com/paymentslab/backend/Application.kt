@@ -82,6 +82,10 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                     credentials = config.squareCredentials,
                     httpClient = outboundHttpClient,
                 ),
+                OmiseAdapter(
+                    credentials = config.omiseCredentials,
+                    httpClient = outboundHttpClient,
+                ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
                     payeeName = "PaymentsLab",

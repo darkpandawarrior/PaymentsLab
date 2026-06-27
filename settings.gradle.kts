@@ -66,6 +66,7 @@ include(":provider:hosted-webview")
 include(":provider:googlepay")
 include(":provider:mobile-money")
 include(":provider:square")
+include(":provider:omise")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

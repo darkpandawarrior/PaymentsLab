@@ -96,6 +96,7 @@ dependencies {
     implementation(project(":provider:googlepay"))
     implementation(project(":provider:mobile-money"))
     implementation(project(":provider:square"))
+    implementation(project(":provider:omise"))
 
     // Features
     implementation(project(":feature:lab"))
