@@ -450,6 +450,37 @@ val twintHostedGatewayConfig =
         blurb = "No direct SDK — PSP-wrapped (Datatrans/Adyen/myPOS), API itself certification-gated.",
     )
 
+val peachHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "peach",
+        displayName = "Peach Payments",
+        region = "Africa/Global",
+        blurb =
+            "No public Android SDK on Maven Central (verified: 0 results) — hosted Checkout page, " +
+                "demoed via the generic mock path.",
+    )
+
+val areebaHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "areeba",
+        displayName = "Areeba",
+        region = "Lebanon/Levant",
+        blurb =
+            "Levant-region acquirer, hosted payment page only — no public Android SDK found. " +
+                "Demoed via the generic mock path.",
+    )
+
+val conektaHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "conekta",
+        displayName = "Conekta",
+        region = "Mexico",
+        blurb =
+            "Shipped here as the generic Tier-3 hosted-checkout config. A separate KMP-native " +
+                "showcase (Conekta Elements, commonMain tokenization) is tracked independently and not " +
+                "part of this entry.",
+    )
+
 /**
  * Tier-1: PayPal. Unlike the Tier-2 batch above, this one has a real backend adapter
  * (`PayPalAdapter`) — real Orders v2 API when `PLAB_PAYPAL_TEST_CLIENT_ID`/`_CLIENT_SECRET` are

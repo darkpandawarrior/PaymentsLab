@@ -147,6 +147,17 @@ class PaymentsLabApplication :
                         ipay88HostedGatewayConfig,
                         twintHostedGatewayConfig,
                         paypalHostedGatewayConfig,
+                        peachHostedGatewayConfig,
+                        areebaHostedGatewayConfig,
+                        conektaHostedGatewayConfig,
+                    ),
+                ),
+                stubGatewayModule(
+                    listOf(
+                        cybersourceStubConfig,
+                        nmiStubConfig,
+                        selcomStubConfig,
+                        supaGhanaPayStubConfig,
                     ),
                 ),
                 // features

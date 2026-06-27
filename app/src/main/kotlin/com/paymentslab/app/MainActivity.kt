@@ -23,9 +23,9 @@ import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
 import com.stripe.android.paymentsheet.rememberPaymentSheet
 import org.koin.android.ext.android.inject
+import sqip.Callback
 import sqip.CardEntry
 import sqip.CardEntryActivityResult
-import sqip.Callback
 
 /**
  * The single launcher Activity — and the one place the Activity-callback-era gateway SDKs are
