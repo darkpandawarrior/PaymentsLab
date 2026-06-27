@@ -30,6 +30,17 @@ dependencyResolutionManagement {
             url = uri("https://maven.cashfree.com/release")
             content { includeGroup("com.cashfree.pg") }
         }
+        // Square In-App Payments SDK (com.squareup.sdk.in-app-payments:*) is published only here,
+        // not Maven Central — confirmed via square/in-app-payments-android-quickstart's build.gradle.
+        // com.squareup.android:truststore/socket-factory are transitive deps also hosted only here
+        // (card-entry's own .pom omits them; found by attempting the build, not by reading docs).
+        maven {
+            url = uri("https://sdk.squareup.com/public/android")
+            content {
+                includeGroup("com.squareup.sdk.in-app-payments")
+                includeGroup("com.squareup.android")
+            }
+        }
     }
 }
 
@@ -54,6 +65,7 @@ include(":provider:stripe")
 include(":provider:hosted-webview")
 include(":provider:googlepay")
 include(":provider:mobile-money")
+include(":provider:square")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

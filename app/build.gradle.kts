@@ -95,6 +95,7 @@ dependencies {
     implementation(project(":provider:hosted-webview"))
     implementation(project(":provider:googlepay"))
     implementation(project(":provider:mobile-money"))
+    implementation(project(":provider:square"))
 
     // Features
     implementation(project(":feature:lab"))
@@ -132,6 +133,7 @@ dependencies {
     implementation(libs.stripe.paymentsheet)
     implementation(libs.cashfree.pg.api)
     implementation(libs.cashfree.pg.ui)
+    implementation("com.squareup.sdk.in-app-payments:card-entry:1.6.8")
 
     // Roborazzi screenshot tests (JVM/Robolectric — no emulator). Snapshot the design system.
     testImplementation(libs.junit)

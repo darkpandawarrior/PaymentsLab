@@ -78,6 +78,10 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                     publicBaseUrl = config.publicBaseUrl,
                     httpClient = outboundHttpClient,
                 ),
+                SquareAdapter(
+                    credentials = config.squareCredentials,
+                    httpClient = outboundHttpClient,
+                ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
                     payeeName = "PaymentsLab",

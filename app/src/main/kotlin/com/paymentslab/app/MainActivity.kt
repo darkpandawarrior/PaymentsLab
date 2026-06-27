@@ -1,5 +1,6 @@
 package com.paymentslab.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
 import androidx.activity.ComponentActivity
@@ -15,11 +16,16 @@ import com.paymentslab.core.security.AppSecurityManager
 import com.paymentslab.provider.cashfree.CashfreeCheckoutRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackResult
+import com.paymentslab.provider.square.SquareCallbackRelay
+import com.paymentslab.provider.square.SquareCallbackResult
 import com.paymentslab.provider.stripe.StripePaymentLauncherHost
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
 import com.stripe.android.paymentsheet.rememberPaymentSheet
 import org.koin.android.ext.android.inject
+import sqip.CardEntry
+import sqip.CardEntryActivityResult
+import sqip.Callback
 
 /**
  * The single launcher Activity — and the one place the Activity-callback-era gateway SDKs are
@@ -32,6 +38,9 @@ import org.koin.android.ext.android.inject
  *    results go to the injected [CashfreeCheckoutRelay].
  *  - **Stripe** needs its `PaymentSheet` built in Compose scope; the sheet's result callback is
  *    routed to the injected [StripePaymentLauncherHost].
+ *  - **Square** predates `ActivityResultContract`s entirely — `CardEntry.startCardEntryActivity`
+ *    calls `startActivityForResult` directly, so results land in the legacy [onActivityResult]
+ *    override below, which forwards to `CardEntry.handleActivityResult` and then [SquareCallbackRelay].
  *
  * Gateways reach this Activity only through the opaque [com.paymentslab.core.paymentsapi.PaymentHost]
  * ([PaymentHostController]); they never hold a reference to it.
@@ -79,6 +88,33 @@ class MainActivity :
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (appSecurity.shouldBlockObscuredTouch(ev)) return false
         return super.dispatchTouchEvent(ev)
+    }
+
+    // ── Square (legacy startActivityForResult/onActivityResult) ─────────────
+    @Deprecated("Square's CardEntry SDK predates ActivityResultContract; no alternative exists.")
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?,
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        CardEntry.handleActivityResult(
+            data,
+            object : Callback<CardEntryActivityResult> {
+                override fun onResult(result: CardEntryActivityResult) {
+                    when {
+                        result.isSuccess() ->
+                            SquareCallbackRelay.emit(
+                                SquareCallbackResult.Success(
+                                    nonce = result.getSuccessValue().nonce,
+                                    cardLastFour = result.getSuccessValue().card.lastFourDigits,
+                                ),
+                            )
+                        result.isCanceled() -> SquareCallbackRelay.emit(SquareCallbackResult.Canceled)
+                    }
+                }
+            },
+        )
     }
 
     // ── Razorpay (PaymentResultWithDataListener) ────────────────────────────
