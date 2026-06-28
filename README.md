@@ -132,17 +132,29 @@ was used to record this — see [`docs/demo/`](docs/demo/) for how it's built):
 
 ### Also runs on iOS
 
-`ios/shared` packages the KMP-safe surface (archetype C hosted-webview + archetype D mobile-money —
-the native-SDK gateways are correctly Android-only) into a real `.framework`, consumed by a genuine
-Xcode project at `ios/iosApp/`. The screenshot below is a real iOS Simulator run of the same Compose
-UI, not a mockup:
+`ios/shared` packages the KMP-safe surface (archetype C hosted-webview + archetype D mobile-money)
+into a real `.framework`, consumed by a genuine Xcode project at `ios/iosApp/`. The screenshot below
+is a real iOS Simulator run of the same Compose UI, not a mockup:
 
 <div align="center">
 <img src="docs/screenshots/ios_catalog.png" alt="The same catalog UI running on iOS" width="320" />
 </div>
 
+**Native-SDK gateways aren't Android-only either — most of them ship real iOS SDKs.** Stripe,
+Razorpay, Cashfree, Square, and Omise all publish native iOS SDKs (only Google Pay is genuinely
+Android-specific; Apple Pay is a separate Apple product, not a Google Pay port). Proved it for
+Stripe: `StripeIosGateway` calls the real `StripePaymentSheet` iOS SDK (SPM, pinned `26.1.0`) via a
+Swift class implementing a small Kotlin interface — the correct interop direction, since
+Kotlin/Native can't cinterop against Stripe's Swift-only framework directly. See
+[`docs/providers/stripe-ios.md`](docs/providers/stripe-ios.md) for the full boundary design.
+
+<div align="center">
+<img src="docs/screenshots/ios_catalog_stripe.png" alt="Stripe showing Sandbox ready on iOS, real SDK linked" width="320" />
+</div>
+
 Build it yourself: `cd ios/iosApp && xcodebuild -scheme iosApp -sdk iphonesimulator build` (the
-`EmbedKotlinFramework` build phase runs the Gradle framework build automatically).
+`EmbedKotlinFramework` build phase runs the Gradle framework build automatically; the first build
+also resolves the Stripe iOS SDK via Swift Package Manager).
 
 ## Architecture
 
