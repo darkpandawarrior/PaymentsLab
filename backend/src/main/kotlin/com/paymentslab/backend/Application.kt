@@ -141,6 +141,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("peach", "Peach Payments", config.publicBaseUrl),
                 mockHostedAdapter("areeba", "Areeba", config.publicBaseUrl),
                 mockHostedAdapter("conekta", "Conekta", config.publicBaseUrl),
+                mockHostedAdapter("midtrans", "Midtrans", config.publicBaseUrl),
                 // Archetype D (async mobile-money) — same MOCK_MODE adapter shape as B0 built it,
                 // registered for the first time now that provider:mobile-money exists client-side.
                 MobileMoneyAdapter(HostedGatewayServerConfig("mpesa", "M-Pesa")),

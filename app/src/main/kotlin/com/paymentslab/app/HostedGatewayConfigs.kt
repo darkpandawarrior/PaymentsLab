@@ -482,6 +482,22 @@ val conektaHostedGatewayConfig =
     )
 
 /**
+ * Midtrans — deliberately NOT built on `com.midtrans:uikit`: Midtrans itself announced the native
+ * mobile SDK (Android UIKit + iOS MidtransKit) sunsets starting June 2026. Snap Checkout (hosted
+ * WebView) is Midtrans's own recommended replacement, which happens to be exactly this app's
+ * archetype-C shape — a deprecation-aware choice, not a fallback.
+ */
+val midtransHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "midtrans",
+        displayName = "Midtrans",
+        region = "Indonesia",
+        blurb =
+            "Deliberately NOT the native uikit SDK — Midtrans announced it sunsetting June 2026. " +
+                "Snap Checkout (hosted WebView) is Midtrans's own recommended replacement.",
+    )
+
+/**
  * Tier-1: PayPal. Unlike the Tier-2 batch above, this one has a real backend adapter
  * (`PayPalAdapter`) — real Orders v2 API when `PLAB_PAYPAL_TEST_CLIENT_ID`/`_CLIENT_SECRET` are
  * configured, mock fallback otherwise. Self-serve sandbox credentials, no business approval needed.
