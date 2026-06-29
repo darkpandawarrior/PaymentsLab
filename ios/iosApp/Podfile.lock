@@ -1,0 +1,16 @@
+PODS:
+  - SquareInAppPaymentsSDK (1.6.7)
+
+DEPENDENCIES:
+  - SquareInAppPaymentsSDK (~> 1.6.7)
+
+SPEC REPOS:
+  trunk:
+    - SquareInAppPaymentsSDK
+
+SPEC CHECKSUMS:
+  SquareInAppPaymentsSDK: 07eb46834e31300d27510ad3ee15940970edd327
+
+PODFILE CHECKSUM: f0052af3e11a48c3fd1dceefa7145506e6bdc38c
+
+COCOAPODS: 1.16.2

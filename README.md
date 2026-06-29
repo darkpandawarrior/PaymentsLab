@@ -140,15 +140,12 @@ is a real iOS Simulator run of the same Compose UI, not a mockup:
 <img src="docs/screenshots/ios_catalog.png" alt="The same catalog UI running on iOS" width="320" />
 </div>
 
-**Native-SDK gateways aren't Android-only either — most of them ship real iOS SDKs.** Stripe,
-Razorpay, Cashfree, and Omise are all built as real native-SDK integrations on iOS, the same
-pattern each time: a small Kotlin interface Kotlin/Native exports as a plain Objective-C protocol,
-implemented in Swift against the vendor's real SDK (Kotlin/Native can't cinterop against a
-Swift-only framework directly, so the direction has to run this way). Square is the one exception —
-its iOS SDK is CocoaPods-only, and CocoaPods needs Ruby ≥3.0 while this environment's system Ruby is
-2.6.10; see [`docs/providers/square-ios.md`](docs/providers/square-ios.md) for the real blocker and
-what building it would take. Google Pay has no iOS equivalent at all — Apple Pay is a separate Apple
-product, not a Google Pay port.
+**Native-SDK gateways aren't Android-only either — most of them ship real iOS SDKs.** All five —
+Stripe, Razorpay, Cashfree, Omise, and Square — are built as real native-SDK integrations on iOS,
+the same pattern each time: a small Kotlin interface Kotlin/Native exports as a plain Objective-C
+protocol, implemented in Swift against the vendor's real SDK (Kotlin/Native can't cinterop against
+a Swift-only framework directly, so the direction has to run this way). Google Pay has no iOS
+equivalent at all — Apple Pay is a separate Apple product, not a Google Pay port.
 
 | Gateway | iOS SDK | Docs |
 |---|---|---|
@@ -156,15 +153,23 @@ product, not a Google Pay port.
 | Razorpay | `RazorpayCheckout` (SPM, `razorpay-pod` `1.5.4`) | [razorpay-ios.md](docs/providers/razorpay-ios.md) |
 | Cashfree | `CashfreePGUISDK` Drop Checkout (SPM, `core-ios-sdk`) | [cashfree-ios.md](docs/providers/cashfree-ios.md) |
 | Omise | `OmiseSDK` manual tokenization (SPM, `5.6.3`) | [omise-ios.md](docs/providers/omise-ios.md) |
-| Square | Not built — CocoaPods/Ruby blocker | [square-ios.md](docs/providers/square-ios.md) |
+| Square | `SQIPCardEntryViewController` (CocoaPods, `1.6.7` — no SPM distribution exists) | [square-ios.md](docs/providers/square-ios.md) |
 
 <div align="center">
-<img src="docs/screenshots/ios_catalog_all_native.png" alt="Stripe, Razorpay, Cashfree and Omise all showing Sandbox ready on iOS, real SDKs linked" width="320" />
+<img src="docs/screenshots/ios_catalog_all_native.png" alt="Stripe, Razorpay, Cashfree, Omise and Square all showing in the iOS catalog, real SDKs linked" width="320" />
 </div>
 
-Build it yourself: `cd ios/iosApp && xcodebuild -scheme iosApp -sdk iphonesimulator build` (the
-`EmbedKotlinFramework` build phase runs the Gradle framework build automatically; the first build
-also resolves all four SDKs via Swift Package Manager).
+Build it yourself — **Square's CocoaPods dependency means the workspace, not the bare project, is
+now the entry point**:
+
+```bash
+cd ios/iosApp
+pod install   # needs Ruby >=3.0 for CocoaPods; see docs/providers/square-ios.md if your system Ruby is older
+xcodebuild -workspace iosApp.xcworkspace -scheme iosApp -sdk iphonesimulator build
+```
+
+The `EmbedKotlinFramework` build phase runs the Gradle framework build automatically; the first
+`xcodebuild` also resolves the four SPM-based SDKs.
 
 ## Architecture
 

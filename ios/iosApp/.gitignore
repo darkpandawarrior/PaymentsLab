@@ -1,0 +1,3 @@
+# CocoaPods vendors third-party SDK source into Pods/ — regenerate with `pod install`,
+# don't commit it. Podfile + Podfile.lock (the actual dependency manifest/lockfile) are tracked.
+Pods/

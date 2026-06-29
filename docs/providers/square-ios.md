@@ -1,16 +1,20 @@
-# Square on iOS — blocked, documented honestly
+# Square on iOS
 
-- **Status:** Not built. Real, verified blocker — not skipped silently.
+- **Region:** Global
+- **Archetype:** A (native SDK — `SQIPCardEntryViewController`, real `SquareInAppPaymentsSDK` `1.6.7`
+  via CocoaPods)
+- **Status shipped:** `MOCK_MODE` (same auto-degrade honesty as Android — no live sandbox
+  credentials were available this session either)
+- **Docs:** https://developer.squareup.com/docs/in-app-payments-sdk/what-it-does
 
-## Why not built
+## The one gateway that needed CocoaPods, not SPM
 
-Square's In-App Payments SDK for iOS is distributed via **CocoaPods only**
-(`SquareInAppPaymentsSDK` on CocoaPods trunk, latest `1.6.7`) — unlike Stripe, Razorpay, Cashfree,
-and Omise, it has no Swift Package Manager distribution (confirmed: no `Package.swift` in any
-Square iOS SDK repo, no SPM-compatible package found).
+Square's iOS SDK (`SquareInAppPaymentsSDK`) has **no Swift Package Manager distribution** —
+confirmed by checking every Square iOS SDK repo for a `Package.swift` and finding none. It's
+CocoaPods-only, latest `1.6.7` on CocoaPods trunk.
 
-CocoaPods requires Ruby ≥ 3.0 (its `ffi` native-extension dependency dropped support for older
-Rubies). This machine's system Ruby is `2.6.10` — installing CocoaPods here failed with:
+CocoaPods needs Ruby ≥3.0; this machine's system Ruby was `2.6.10`, and installing CocoaPods
+against it failed outright:
 
 ```
 ERROR:  Error installing cocoapods:
@@ -18,16 +22,41 @@ ERROR:  Error installing cocoapods:
     ffi requires Ruby version >= 3.0, < 4.1.dev. The current ruby version is 2.6.10.210.
 ```
 
-Unblocking this means installing a newer Ruby (via Homebrew/rbenv/asdf) — a change to the machine's
-dev toolchain beyond this repo, not something to do unilaterally mid-task.
+Fixed by installing a second, newer Ruby via Homebrew (`brew install ruby` → Ruby 4.0.5, installed
+to `/opt/homebrew/opt/ruby` — additive, doesn't touch or replace `/usr/bin/ruby`), then
+`gem install cocoapods` against that Ruby. One more real snag: `pod install` crashed on a Unicode
+normalization error until `LANG=en_US.UTF-8`/`LC_ALL=en_US.UTF-8` were set (CocoaPods' own install
+output warns about exactly this, easy to miss).
 
-## What building it would look like (for next time)
+**Practical consequence: `ios/iosApp` now needs `iosApp.xcworkspace`, not `iosApp.xcodeproj`.**
+CocoaPods generates a `Pods.xcodeproj` and a workspace tying it together with the app project —
+from this gateway onward, build with:
 
-Same pattern as the other four: a `SquareCheckoutHost` Kotlin interface in `ios/shared`, a
-`SquareIosGateway` mirroring Android's `SquareGateway` contract, and a Swift
-`SquareCheckoutHostImpl` implementing it against the real `SquareInAppPaymentsSDK` CocoaPods
-CardEntry flow (`SQIPCardEntry.startCardEntryFlow(from:theme:)` + `SQIPCardEntryDelegate`). The only
-new mechanics vs. the SPM-based integrations: a `Podfile` alongside `iosApp.xcodeproj`, running
-`pod install` (which generates `iosApp.xcworkspace` — the workspace becomes the build entry point
-instead of the `.xcodeproj` directly), and switching `xcodebuild -project` to `xcodebuild -workspace`
-in the build command.
+```bash
+cd ios/iosApp
+PATH="/opt/homebrew/opt/ruby/bin:/opt/homebrew/lib/ruby/gems/4.0.0/bin:$PATH" pod install
+xcodebuild -workspace iosApp.xcworkspace -scheme iosApp -sdk iphonesimulator build
+```
+
+## Architecture
+
+Same Swift-implements-Kotlin-interface boundary as the other four. `SquareCheckoutHostImpl.swift`
+implements `SquareCheckoutHost` against the real SDK — and unlike Omise, Square's iOS SDK ships a
+genuine ready-made card-entry UI (`SQIPCardEntryViewController`), the same UX story as Android's
+`CardEntry` activity:
+
+```swift
+SQIPInAppPaymentsSDK.squareApplicationID = applicationId
+let cardEntryViewController = SQIPCardEntryViewController(theme: theme)
+cardEntryViewController.delegate = self
+// delegate: cardEntryViewController(_:didObtain:completionHandler:) hands back cardDetails.nonce
+```
+
+## Verified
+
+Built via `xcodebuild -workspace` (not `-project` — see above), CocoaPods resolved the real SDK,
+installed + launched alongside Stripe/Razorpay/Cashfree/Omise in an iPhone 17 Pro Simulator with no
+crash — Square shows in the catalog, `Global` region count updated from 2 to 3
+(`docs/screenshots/ios_catalog_all_native.png`). Not verified: actually tapping through to open
+card entry and submit a real card — no touch-injection tool available for iOS Simulator in this
+environment.

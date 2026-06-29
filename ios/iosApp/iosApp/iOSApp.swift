@@ -8,7 +8,8 @@ struct IOSApp: App {
             stripeCheckoutHost: StripeCheckoutHostImpl(),
             razorpayCheckoutHost: RazorpayCheckoutHostImpl(),
             cashfreeCheckoutHost: CashfreeCheckoutHostImpl(),
-            omiseCheckoutHost: OmiseCheckoutHostImpl()
+            omiseCheckoutHost: OmiseCheckoutHostImpl(),
+            squareCheckoutHost: SquareCheckoutHostImpl()
         )
     }
 
