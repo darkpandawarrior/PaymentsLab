@@ -329,6 +329,15 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
   analyzed.
 - **CI.** `.github/workflows/ci.yml` provisions JDK 21 and runs `fastGate` + `:app:assembleDebug` on
   every push and PR.
+- **Distribution.** `release.yml` tags a build and publishes an unsigned APK to GitHub Releases
+  (which also makes the app trackable via [Obtainium](https://github.com/ImranR98/Obtainium) — no
+  separate config needed, it just needs a tagged release with an APK asset). `play-deploy.yml`
+  (internal/beta/production), `fdroid-deploy.yml` (reproducible `-Pfdroid` build), `indus-deploy.yml`
+  (PhonePe Indus Appstore), `amazon-appstore-deploy.yml`, `huawei-appgallery-deploy.yml`,
+  `samsung-galaxy-store-deploy.yml`, and `aptoide-deploy.yml` are all real pipelines gated on repo
+  secrets — see `keystore.properties.template` and each workflow's header comment for what to
+  configure. All are no-ops until secrets are set. **Uptodown** has no public submission API — it's
+  a manual web-form upload (in the future, point it at the GitHub Release APK).
 
 ## Security posture
 

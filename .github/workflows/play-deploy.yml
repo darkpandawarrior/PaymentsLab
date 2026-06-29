@@ -1,0 +1,95 @@
+name: Deploy to Play Store
+
+# Manual release orchestration onto Play, mirroring Mileway/Kursi's rung pattern. Protected rungs
+# run in a GitHub Environment with required reviewers (configure in repo Settings → Environments).
+# All credentials are env-activated placeholders — the job is inert until they are set.
+
+on:
+  workflow_dispatch:
+    inputs:
+      rung:
+        description: "Play rung"
+        type: choice
+        options: [internal, beta, production]
+        default: internal
+      production_rollout:
+        description: "Play production staged rollout fraction"
+        default: "0.10"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy (${{ inputs.rung }})
+    runs-on: ubuntu-latest
+    environment: >-
+      ${{ inputs.rung == 'production' && 'play-production'
+      || (inputs.rung == 'beta' && 'play-beta' || 'play-internal') }}
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Use CI JDK 21 (strip machine-specific java.home)
+        run: sed -i '/^org\.gradle\.java\.home/d; /^org\.gradle\.java\.installations\.paths/d' gradle.properties
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK 37 platform & build-tools
+        run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
+
+      - name: Set up Ruby (fastlane)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - run: chmod +x ./gradlew
+
+      # Materialize signing + Play secrets from base64 repo secrets (all placeholders until set):
+      #   KEYSTORE_B64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD, PLAYSTORE_CREDS_B64
+      - name: Materialize signing + Play secrets
+        run: |
+          set -euo pipefail
+          mkdir -p secrets
+          if [ -n "${KEYSTORE_B64:-}" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > secrets/release.keystore
+            {
+              echo "RELEASE_STORE_FILE=$PWD/secrets/release.keystore"
+              echo "RELEASE_STORE_PASSWORD=${KEYSTORE_PASSWORD:-}"
+              echo "RELEASE_KEY_ALIAS=${KEY_ALIAS:-paymentslab}"
+              echo "RELEASE_KEY_PASSWORD=${KEY_PASSWORD:-}"
+            } >> "$GITHUB_ENV"
+          fi
+          if [ -n "${PLAYSTORE_CREDS_B64:-}" ]; then
+            echo "$PLAYSTORE_CREDS_B64" | base64 -d > secrets/play-service-account.json
+            echo "PLAY_STORE_KEY_FILE_PATH=$PWD/secrets/play-service-account.json" >> "$GITHUB_ENV"
+          fi
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          PLAYSTORE_CREDS_B64: ${{ secrets.PLAYSTORE_CREDS_B64 }}
+
+      - name: Deploy (rung ${{ inputs.rung }})
+        if: env.PLAY_STORE_KEY_FILE_PATH != ''
+        run: |
+          case "${{ inputs.rung }}" in
+            internal)   bundle exec fastlane android deploy_internal ;;
+            beta)       bundle exec fastlane android deploy_beta ;;
+            production) bundle exec fastlane android deploy_production ;;
+          esac
+        env:
+          ROLLOUT: ${{ inputs.production_rollout }}
