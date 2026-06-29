@@ -13,17 +13,25 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
- * B8's composition root — the iOS counterpart to `app/PaymentsLabApplication.kt`. Deliberately
- * narrower: only the KMP-safe archetype C/D providers are registered (see `IosGatewayConfigs.kt`),
- * so `core:security` (Android-only VAPT suite) and every native-SDK archetype-A provider module
- * are correctly absent here, not silently missing.
+ * B8's composition root — the iOS counterpart to `app/PaymentsLabApplication.kt`. Registers the
+ * KMP-safe archetype C/D providers (see `IosGatewayConfigs.kt`) plus every native-SDK gateway that
+ * has a real iOS SDK and a Swift-side [*CheckoutHost] implementation: Stripe, Razorpay, Cashfree,
+ * Omise. `core:security` (Android-only VAPT suite) and Square (CocoaPods-only SDK, blocked by this
+ * environment's Ruby 2.6.10 vs CocoaPods' Ruby >=3.0 requirement — see `docs/providers/square-ios.md`)
+ * are correctly absent, not silently missing. Google Pay has no iOS equivalent at all (Apple Pay is
+ * a separate Apple product, not a Google Pay port) — also correctly absent.
  *
- * Called once from Swift (`KoinInitKt.doInitKoin(stripeCheckoutHost:)`) before
- * `MainViewController()` is presented. [stripeCheckoutHost] is Swift's real `PaymentSheet`
- * implementation of [StripeCheckoutHost] — constructed in Swift (where the real Stripe SDK lives)
- * and handed down, rather than Kotlin reaching up into a framework it can't cinterop against.
+ * Called once from Swift (`KoinInitKt.doInitKoin(...)`) before `MainViewController()` is presented.
+ * Every `*CheckoutHost` parameter is Swift's real SDK implementation, constructed in Swift (where
+ * each vendor's SDK lives) and handed down — Kotlin never reaches up into a framework it can't
+ * cinterop against.
  */
-fun doInitKoin(stripeCheckoutHost: StripeCheckoutHost) {
+fun doInitKoin(
+    stripeCheckoutHost: StripeCheckoutHost,
+    razorpayCheckoutHost: RazorpayCheckoutHost,
+    cashfreeCheckoutHost: CashfreeCheckoutHost,
+    omiseCheckoutHost: OmiseCheckoutHost,
+) {
     startKoin {
         modules(
             dataModule,
@@ -35,6 +43,15 @@ fun doInitKoin(stripeCheckoutHost: StripeCheckoutHost) {
             module {
                 single { stripeCheckoutHost }
                 single<PaymentGateway>(qualifier = named("stripe")) { StripeIosGateway(get()) }
+
+                single { razorpayCheckoutHost }
+                single<PaymentGateway>(qualifier = named("razorpay")) { RazorpayIosGateway(get()) }
+
+                single { cashfreeCheckoutHost }
+                single<PaymentGateway>(qualifier = named("cashfree")) { CashfreeIosGateway(get()) }
+
+                single { omiseCheckoutHost }
+                single<PaymentGateway>(qualifier = named("omise")) { OmiseIosGateway(get()) }
             },
         )
     }

@@ -141,20 +141,30 @@ is a real iOS Simulator run of the same Compose UI, not a mockup:
 </div>
 
 **Native-SDK gateways aren't Android-only either — most of them ship real iOS SDKs.** Stripe,
-Razorpay, Cashfree, Square, and Omise all publish native iOS SDKs (only Google Pay is genuinely
-Android-specific; Apple Pay is a separate Apple product, not a Google Pay port). Proved it for
-Stripe: `StripeIosGateway` calls the real `StripePaymentSheet` iOS SDK (SPM, pinned `26.1.0`) via a
-Swift class implementing a small Kotlin interface — the correct interop direction, since
-Kotlin/Native can't cinterop against Stripe's Swift-only framework directly. See
-[`docs/providers/stripe-ios.md`](docs/providers/stripe-ios.md) for the full boundary design.
+Razorpay, Cashfree, and Omise are all built as real native-SDK integrations on iOS, the same
+pattern each time: a small Kotlin interface Kotlin/Native exports as a plain Objective-C protocol,
+implemented in Swift against the vendor's real SDK (Kotlin/Native can't cinterop against a
+Swift-only framework directly, so the direction has to run this way). Square is the one exception —
+its iOS SDK is CocoaPods-only, and CocoaPods needs Ruby ≥3.0 while this environment's system Ruby is
+2.6.10; see [`docs/providers/square-ios.md`](docs/providers/square-ios.md) for the real blocker and
+what building it would take. Google Pay has no iOS equivalent at all — Apple Pay is a separate Apple
+product, not a Google Pay port.
+
+| Gateway | iOS SDK | Docs |
+|---|---|---|
+| Stripe | `StripePaymentSheet` (SPM, `26.1.0`) | [stripe-ios.md](docs/providers/stripe-ios.md) |
+| Razorpay | `RazorpayCheckout` (SPM, `razorpay-pod` `1.5.4`) | [razorpay-ios.md](docs/providers/razorpay-ios.md) |
+| Cashfree | `CashfreePGUISDK` Drop Checkout (SPM, `core-ios-sdk`) | [cashfree-ios.md](docs/providers/cashfree-ios.md) |
+| Omise | `OmiseSDK` manual tokenization (SPM, `5.6.3`) | [omise-ios.md](docs/providers/omise-ios.md) |
+| Square | Not built — CocoaPods/Ruby blocker | [square-ios.md](docs/providers/square-ios.md) |
 
 <div align="center">
-<img src="docs/screenshots/ios_catalog_stripe.png" alt="Stripe showing Sandbox ready on iOS, real SDK linked" width="320" />
+<img src="docs/screenshots/ios_catalog_all_native.png" alt="Stripe, Razorpay, Cashfree and Omise all showing Sandbox ready on iOS, real SDKs linked" width="320" />
 </div>
 
 Build it yourself: `cd ios/iosApp && xcodebuild -scheme iosApp -sdk iphonesimulator build` (the
 `EmbedKotlinFramework` build phase runs the Gradle framework build automatically; the first build
-also resolves the Stripe iOS SDK via Swift Package Manager).
+also resolves all four SDKs via Swift Package Manager).
 
 ## Architecture
 
