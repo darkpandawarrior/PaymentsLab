@@ -28,9 +28,17 @@ object DesignTokens {
         val lg = 16.dp
     }
 
-    /** Elevation scale for raised surfaces. */
+    /**
+     * Elevation scale for raised surfaces. [card] is kept for existing call sites (every current
+     * `ElevatedCard` in the app); the other three are for the redesign's new depth hierarchy —
+     * [floating] for the hero card and FAB, [overlay] for the hosted-webview overlay.
+     */
     object Elevation {
-        val card = 2.dp
+        val flat = 0.dp
+        val raised = 2.dp
+        val card = raised // alias kept for existing call sites; do not remove raised.
+        val floating = 6.dp
+        val overlay = 12.dp
     }
 
     /**

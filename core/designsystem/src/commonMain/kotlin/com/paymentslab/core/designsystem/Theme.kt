@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -29,6 +30,18 @@ private val GatedAmber = Color(0xFFB57900)
 private val GatedAmberContainer = Color(0xFFFFDEA6)
 private val GatedAmberDark = Color(0xFFF7C066)
 private val GatedAmberDarkContainer = Color(0xFF5A3D00)
+
+/**
+ * The "hero" accent — used sparingly (Home's hero card, the center Pay FAB, success
+ * celebrations) on top of the calm indigo/teal everyday palette. Same in light and dark theme;
+ * it's an accent moment, not a surface color, so it doesn't need theme-aware variants.
+ */
+private val HeroVioletStart = Color(0xFF7C3AED)
+private val HeroPinkEnd = Color(0xFFEC4899)
+
+/** A left-to-right sweep from [HeroVioletStart] to [HeroPinkEnd] — the hero-moment brush. */
+val PaymentsLabHeroGradient: Brush =
+    Brush.linearGradient(colors = listOf(HeroVioletStart, HeroPinkEnd))
 
 private val PaymentsLabLightColors =
     lightColorScheme(
