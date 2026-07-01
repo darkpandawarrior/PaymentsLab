@@ -1,11 +1,17 @@
 package com.paymentslab.core.designsystem
 
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class GatewayBrandingTest {
+    @BeforeTest
+    fun setUp() {
+        registerCuratedGatewayLogos()
+    }
+
     @Test
     fun known_gateway_returns_its_curated_logo() {
         val asset = GatewayBranding.forId("stripe")

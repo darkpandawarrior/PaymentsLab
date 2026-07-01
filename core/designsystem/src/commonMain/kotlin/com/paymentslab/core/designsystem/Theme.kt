@@ -103,6 +103,8 @@ private val PaymentsLabDarkColors =
         onErrorContainer = Color(0xFFFFDAD6),
     )
 
+private var curatedLogosRegistered = false
+
 /**
  * Root theme for every PaymentsLab surface. Wraps content in a Material3 theme using the
  * fintech palette, resolving light/dark automatically from the system by default.
@@ -112,6 +114,10 @@ fun PaymentsLabTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    if (!curatedLogosRegistered) {
+        registerCuratedGatewayLogos()
+        curatedLogosRegistered = true
+    }
     MaterialTheme(
         colorScheme = if (darkTheme) PaymentsLabDarkColors else PaymentsLabLightColors,
         typography = rememberPaymentsLabTypography(),
