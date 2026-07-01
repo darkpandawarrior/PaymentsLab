@@ -20,5 +20,8 @@ kotlin {
             implementation(libs.ui.tooling.preview.mp)
             implementation(libs.kotlinx.collections.immutable)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
