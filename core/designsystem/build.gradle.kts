@@ -16,6 +16,7 @@ kotlin {
             implementation(libs.material3)
             implementation(libs.foundation)
             implementation(libs.material.icons.extended)
+            implementation(libs.components.resources)
             implementation(libs.ui.tooling.preview.mp)
             implementation(libs.kotlinx.collections.immutable)
         }

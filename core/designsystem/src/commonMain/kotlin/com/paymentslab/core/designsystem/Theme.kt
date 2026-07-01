@@ -114,6 +114,7 @@ fun PaymentsLabTheme(
 ) {
     MaterialTheme(
         colorScheme = if (darkTheme) PaymentsLabDarkColors else PaymentsLabLightColors,
+        typography = rememberPaymentsLabTypography(),
         content = content,
     )
 }

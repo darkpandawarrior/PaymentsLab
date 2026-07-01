@@ -71,6 +71,7 @@ ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "ui" }
 ui-tooling-preview-mp = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "ui" }
 material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "foundation" }
 
 # Compose (Android view of BOM, for provider/app android-only surfaces + tooling)
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
