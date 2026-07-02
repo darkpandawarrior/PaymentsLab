@@ -1,0 +1,90 @@
+package com.paymentslab.core.network
+
+import com.paymentslab.core.common.AppLog
+import com.paymentslab.core.paymentsapi.CreatedOrder
+import com.paymentslab.core.paymentsapi.GatewayId
+import com.paymentslab.core.paymentsapi.PaymentBackend
+import com.paymentslab.core.paymentsapi.PaymentSnapshot
+import com.paymentslab.core.paymentsapi.VerificationRequest
+import com.paymentslab.core.protocol.OrderResponse
+import com.paymentslab.core.protocol.PaymentStatusResponse
+import com.paymentslab.core.protocol.VerifyResponse
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.coroutines.CancellationException
+
+/**
+ * The Ktor implementation of [PaymentBackend] — the app's only door to the `backend/` server.
+ *
+ * It speaks `core:protocol` DTOs on the wire and maps them to `core:payments-api` domain types via
+ * [DtoMappers], so the orchestrator that consumes this never sees a DTO or an HTTP status. Any
+ * transport/serialization failure is wrapped in [PaymentNetworkException] with a clear message; the
+ * orchestrator maps that to an `Errored` payment.
+ *
+ * @param client the shared Ktor client (see [HttpClientFactory.create]).
+ * @param config where the backend lives (see [PaymentApiConfig]).
+ */
+class KtorPaymentBackend(
+    private val client: HttpClient,
+    private val config: PaymentApiConfig,
+) : PaymentBackend {
+
+    private val base: String = config.baseUrl.trimEnd('/')
+
+    override suspend fun createOrder(
+        catalogItemId: String,
+        gatewayId: GatewayId,
+    ): CreatedOrder =
+        request("createOrder(catalogItemId=$catalogItemId, gateway=${gatewayId.value})") {
+            val response: OrderResponse =
+                client.post("$base/orders") {
+                    contentType(ContentType.Application.Json)
+                    setBody(createOrderRequest(catalogItemId, gatewayId))
+                }.body()
+            response.toDomain()
+        }
+
+    override suspend fun verify(request: VerificationRequest): PaymentSnapshot =
+        request("verify(orderId=${request.orderId})") {
+            val response: VerifyResponse =
+                client.post("$base/payments/${request.orderId}/verify") {
+                    contentType(ContentType.Application.Json)
+                    setBody(request.toDto())
+                }.body()
+            response.toSnapshot(orderId = request.orderId)
+        }
+
+    override suspend fun status(orderId: String): PaymentSnapshot =
+        request("status(orderId=$orderId)") {
+            val response: PaymentStatusResponse = client.get("$base/payments/$orderId").body()
+            response.toSnapshot()
+        }
+
+    /**
+     * Runs [block], logging entry/exit and converting any non-cancellation failure into a
+     * [PaymentNetworkException] carrying [label] for context. [CancellationException] is rethrown
+     * untouched so structured concurrency / cooperative cancellation still works.
+     */
+    private inline fun <T> request(
+        label: String,
+        block: () -> T,
+    ): T =
+        try {
+            AppLog.d(TAG, "-> $label")
+            block().also { AppLog.d(TAG, "<- $label ok") }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            throw PaymentNetworkException("Payment backend call failed: $label (${t.message})", t)
+        }
+
+    companion object {
+        private const val TAG = "KtorPaymentBackend"
+    }
+}
