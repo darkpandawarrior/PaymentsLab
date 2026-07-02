@@ -35,27 +35,86 @@ val paystackHostedGatewayConfig =
     )
 
 /**
- * B2 fan-out slice 1: Mollie. `MOCK_MODE` only (not upgradeable to real like Paystack) — Mollie
- * requires a registered business account before issuing test API keys, so there's no self-serve
- * sandbox for this app to wire; see `docs/providers/mollie.md`. Proves the fan-out is mechanical:
- * the generic `HostedWebViewAdapter` built in B0 needed zero changes to add this gateway.
+ * Shared shape for every B2 fan-out gateway shipping `MOCK_MODE` on the generic
+ * `HostedWebViewAdapter`: passthrough `checkout_url`, the standard return-URL markers. Only the
+ * identity/blurb differs per gateway — see each `docs/providers/<id>.md` for why it's mock, not real.
+ */
+private fun mockHostedGatewayConfig(
+    id: String,
+    displayName: String,
+    region: String,
+    blurb: String,
+    capabilities: Set<Capability> = setOf(Capability.ONE_TIME_PAYMENT, Capability.CARDS),
+) = HostedGatewayConfig(
+    gatewayId = GatewayId(id),
+    displayName = displayName,
+    region = region,
+    docsPath = "docs/providers/$id.md",
+    blurb = blurb,
+    capabilities = capabilities,
+    status = GatewayStatus.MOCK_MODE,
+    buildCheckoutUrl = { params -> params["checkout_url"].orEmpty() },
+    matchReturn =
+        ReturnUrlMatchers.byMarker(
+            successMarker = "/mock/return/success",
+            failureMarker = "/mock/return/failure",
+        ),
+)
+
+/**
+ * B2 fan-out slice 1: Mollie. Not upgradeable to real like Paystack in this pass — Mollie requires a
+ * registered business account before issuing test API keys, so there's no self-serve sandbox to
+ * wire; see `docs/providers/mollie.md`. Proves the fan-out is mechanical: the generic
+ * `HostedWebViewAdapter` built in B0 needed zero changes to add this gateway.
  */
 val mollieHostedGatewayConfig =
-    HostedGatewayConfig(
-        gatewayId = GatewayId("mollie"),
+    mockHostedGatewayConfig(
+        id = "mollie",
         displayName = "Mollie",
         region = "EU",
-        docsPath = "docs/providers/mollie.md",
         blurb =
             "Hosted checkout via Mollie's Payments API. Real integration would call " +
                 "POST /v2/payments and redirect to _links.checkout — MOCK_MODE here since Mollie " +
                 "needs a registered business account before issuing test keys.",
-        capabilities = setOf(Capability.ONE_TIME_PAYMENT, Capability.CARDS),
-        status = GatewayStatus.MOCK_MODE,
-        buildCheckoutUrl = { params -> params["checkout_url"].orEmpty() },
-        matchReturn =
-            ReturnUrlMatchers.byMarker(
-                successMarker = "/mock/return/success",
-                failureMarker = "/mock/return/failure",
-            ),
+    )
+
+/** B2 batch 2 — see docs/providers/culqi.md, ozow.md, sslcommerz.md, bkash.md for per-gateway notes. */
+val culqiHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "culqi",
+        displayName = "Culqi",
+        region = "Peru",
+        blurb =
+            "Hosted checkout via Culqi's Checkout v4 (WebView + Culqi3DS). Self-serve test " +
+                "keys exist (CulqiPanel) — a good future upgrade to real, not wired yet this pass.",
+    )
+
+val ozowHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "ozow",
+        displayName = "Ozow",
+        region = "South Africa",
+        blurb =
+            "Hosted instant-EFT redirect. Staging is merchant-approval-gated — no anonymous " +
+                "self-serve sandbox exists for this app to wire.",
+    )
+
+val sslcommerzHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "sslcommerz",
+        displayName = "SSLCommerz",
+        region = "Bangladesh",
+        blurb =
+            "Hosted checkout. A sandbox registration flow exists, but the real session-create " +
+                "contract wasn't verified against live docs this pass.",
+    )
+
+val bkashHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "bkash",
+        displayName = "bKash",
+        region = "Bangladesh",
+        blurb =
+            "Hosted/URL-based checkout. Sandbox self-serve status wasn't confirmed against " +
+                "live docs this pass.",
     )
