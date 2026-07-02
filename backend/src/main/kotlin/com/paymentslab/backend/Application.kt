@@ -119,6 +119,12 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("plugnpay", "Plug'n'Pay", config.publicBaseUrl),
                 mockHostedAdapter("savvy", "Savvy", config.publicBaseUrl),
                 mockHostedAdapter("acceptcard", "AcceptCard", config.publicBaseUrl),
+                mockHostedAdapter("phonepe", "PhonePe", config.publicBaseUrl),
+                mockHostedAdapter("worldpay", "Worldpay", config.publicBaseUrl),
+                mockHostedAdapter("paytmaio", "Paytm All-in-One", config.publicBaseUrl),
+                mockHostedAdapter("payu", "PayU", config.publicBaseUrl),
+                mockHostedAdapter("ipay88", "iPay88", config.publicBaseUrl),
+                mockHostedAdapter("twint", "TWINT", config.publicBaseUrl),
                 // Archetype D (async mobile-money) — same MOCK_MODE adapter shape as B0 built it,
                 // registered for the first time now that provider:mobile-money exists client-side.
                 MobileMoneyAdapter(HostedGatewayServerConfig("mpesa", "M-Pesa")),
