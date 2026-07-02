@@ -272,3 +272,117 @@ val moncashHostedGatewayConfig =
         region = "Haiti",
         blurb = "Hosted checkout (+ Directpay). Minimal public docs located this pass.",
     )
+
+/**
+ * B2 batch 5 — completes the Tier-3 hosted-webview list. See `docs/providers/<id>.md` for each;
+ * several (SmartPay, Thiwani, Araka, Savvy) don't even have a confirmed region — flagged honestly.
+ */
+val jccHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "jcc",
+        displayName = "JCC",
+        region = "Cyprus",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val truevoHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "truevo",
+        displayName = "Truevo",
+        region = "EU/Malta",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val dotlinesHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "dotlines",
+        displayName = "DotLines",
+        region = "Bangladesh",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val expresspayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "expresspay",
+        displayName = "ExpressPay",
+        region = "Ghana",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val factranzHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "factranz",
+        displayName = "FAC/PowerTranz",
+        region = "Caribbean",
+        blurb = "Hosted checkout (3DS-shaped flow). Minimal public docs located this pass.",
+    )
+
+val mobizpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "mobizpay",
+        displayName = "Mobizpay",
+        region = "Africa",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val smartpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "smartpay",
+        displayName = "SmartPay",
+        region = "unconfirmed",
+        blurb =
+            "Hosted checkout, assumed — thinnest-documented gateway in the catalog; even its " +
+                "region wasn't confirmed this session.",
+    )
+
+val thiwaniHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "thiwani",
+        displayName = "Thiwani",
+        region = "unconfirmed",
+        blurb = "Hosted checkout, assumed — region/API contract unverified this session.",
+    )
+
+val asapcardsHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "asapcards",
+        displayName = "ASAP Cards",
+        region = "unconfirmed",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val arakaHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "araka",
+        displayName = "Araka",
+        region = "unconfirmed",
+        blurb = "Hosted checkout, assumed — region/API contract unverified this session.",
+    )
+
+val plugnpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "plugnpay",
+        displayName = "Plug'n'Pay",
+        region = "Caribbean",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val savvyHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "savvy",
+        displayName = "Savvy",
+        region = "unconfirmed",
+        blurb =
+            "Hosted checkout, assumed (reference branch suggests an NMI-backed white-label " +
+                "integration) — unverified this session.",
+    )
+
+val acceptcardHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "acceptcard",
+        displayName = "AcceptCard",
+        region = "Global",
+        blurb =
+            "Likely Mastercard Payment Gateway Services (MPGS) Hosted Checkout — not confirmed " +
+                "against live MPGS docs this session. Strong real-API upgrade candidate if confirmed.",
+    )
