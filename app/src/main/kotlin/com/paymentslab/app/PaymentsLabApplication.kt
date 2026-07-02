@@ -7,7 +7,11 @@ import com.paymentslab.app.work.PaymentWorkerFactory
 import com.paymentslab.core.data.di.dataModule
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
-import com.paymentslab.core.security.DeviceIntegrity
+import com.paymentslab.core.security.AppSecurityManager
+import com.paymentslab.core.security.SecurityAuditor
+import com.paymentslab.core.security.SecurityConfig
+import com.paymentslab.core.security.SecurityPolicy
+import com.paymentslab.core.security.SecurityPosture
 import com.paymentslab.core.security.di.securityModule
 import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
@@ -42,6 +46,17 @@ class PaymentsLabApplication :
     override fun onCreate() {
         super.onCreate()
         Napier.base(DebugAntilog())
+
+        // App-owned security policy: VAPT bypass flags come from BuildConfig (all false except in a
+        // dedicated compliance-test variant).
+        val securityConfig =
+            SecurityConfig(
+                bypassRoot = BuildConfig.BYPASS_ROOT,
+                bypassHook = BuildConfig.BYPASS_HOOK,
+                bypassSsl = BuildConfig.BYPASS_SSL,
+                bypassDebugger = BuildConfig.BYPASS_DEBUGGER,
+            )
+
         startKoin {
             androidContext(this@PaymentsLabApplication)
             modules(
@@ -49,7 +64,7 @@ class PaymentsLabApplication :
                 dataModule,
                 networkModule,
                 orchestrationModule,
-                securityModule,
+                securityModule(securityConfig),
                 // providers (each contributes a PaymentGateway into the registry)
                 upiIntentModule,
                 razorpayModule,
@@ -62,13 +77,21 @@ class PaymentsLabApplication :
             )
         }
 
-        // VAPT: inspect device integrity on launch (log-only here; a real app can gate sensitive
-        // flows on a compromised device per its risk policy). Off the main thread — inspect() does
-        // file I/O and spawns a `which su` process.
+        // Screen-facing defenses (FLAG_SECURE re-assert on background). Per-Activity screenshot +
+        // tapjacking protection is applied in MainActivity.
+        get<AppSecurityManager>().install(this)
+
+        // VAPT audit on launch, off the main thread (file I/O + process spawn). Detection is separate
+        // from enforcement: SecurityPolicy turns the audit into an action for the current posture
+        // (strict in release, lenient in debug). Log-only here — a real app would gate card entry on
+        // a BLOCK; that decision is intentionally the app's, not the detector's.
         CoroutineScope(Dispatchers.IO).launch {
-            val report = get<DeviceIntegrity>().inspect()
-            if (report.isCompromised) {
-                Napier.w("Device integrity signals: ${report.signals}", tag = "Security")
+            val audit = get<SecurityAuditor>().audit()
+            val posture = if (BuildConfig.DEBUG) SecurityPosture.lenient() else SecurityPosture.strict()
+            val decision = SecurityPolicy.evaluate(audit, posture)
+            when {
+                decision.shouldBlock -> Napier.e("Security: BLOCK — ${decision.summary()}", tag = "Security")
+                decision.shouldWarn -> Napier.w("Security: WARN — ${decision.summary()}", tag = "Security")
             }
         }
 

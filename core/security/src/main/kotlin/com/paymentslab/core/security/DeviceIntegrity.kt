@@ -35,18 +35,57 @@ data class SecurityReport(
 }
 
 /**
- * Policy knobs for how [AndroidDeviceIntegrity] interprets its raw signals.
+ * Policy knobs for how [AndroidDeviceIntegrity] and the [SecurityAuditor] interpret their raw
+ * signals.
  *
+ * ## Interpretation knobs
  * @property allowRootedDevice reserved for a caller that wants to *tolerate* root (kept in the
  *   report either way; this lets a caller downgrade root from blocking to informational).
  * @property allowEmulator emulators are allowed by default so CI/QA keeps working.
  * @property allowDebuggerInDebug when the app is itself a debuggable build, an attached debugger is
  *   expected (Android Studio) and is not treated as an attack signal.
+ *
+ * ## VAPT bypass flags
+ * These mirror Dice's production `BuildConfig.bypassRoo / bypassEmu / bypassFri / bypassSsl` toggle
+ * pattern. A VAPT (Vulnerability Assessment & Penetration Testing) test build often has to run on a
+ * rooted / hooked / debuggable device on purpose so the auditor can exercise the app's flows without
+ * the app hard-blocking itself. Each flag lets a specific category still be *detected and logged*
+ * (so diagnostics stay accurate) while being excluded from the [SecurityAudit.isCompromised] gate.
+ *
+ * All default to `false` (full protection). The app sets them from `BuildConfig` for VAPT/compliance
+ * test builds only — never in a real release. See the module KDoc for the exact `buildConfigField`
+ * wiring the app should add.
+ *
+ * @property bypassRoot exclude a rooted-device signal from the compromise gate.
+ * @property bypassEmulator exclude an emulator signal from the compromise gate (emulator is already
+ *   non-blocking by default via [allowEmulator]; kept for symmetry with Dice's `bypassEmu`).
+ * @property bypassDebugger exclude an attached-debugger signal from the compromise gate.
+ * @property bypassHook exclude Frida/Xposed/hook signals from the compromise gate.
+ * @property bypassSsl exclude SSL-pinning-bypass signals from the compromise gate (for bank/PCI
+ *   compliance testing where an interception proxy is deliberately in the path).
+ *
+ * ## UI-surface protection toggles (consumed by [AppSecurityManager])
+ * These mirror Dice's server-toggleable `enableScreenshotProtection / enableTapjackingProtection /
+ * enableSecurityOverlay` flags. Default `true` (protected); an app can flip one off per-client.
+ *
+ * @property screenshotProtectionEnabled gate for Activity-wide `FLAG_SECURE`.
+ * @property tapjackingProtectionEnabled gate for `filterTouchesWhenObscured` + obscured-touch drop.
+ * @property securityOverlayEnabled gate for re-asserting `FLAG_SECURE` on app background.
  */
 data class SecurityConfig(
     val allowRootedDevice: Boolean = false,
     val allowEmulator: Boolean = true,
     val allowDebuggerInDebug: Boolean = true,
+    // --- VAPT bypass flags (mirror Dice BuildConfig.bypassRoo/Emu/Fri/Ssl) — default false. ---
+    val bypassRoot: Boolean = false,
+    val bypassEmulator: Boolean = false,
+    val bypassDebugger: Boolean = false,
+    val bypassHook: Boolean = false,
+    val bypassSsl: Boolean = false,
+    // --- UI-surface protection toggles (mirror Dice enable* server flags) — default true. ---
+    val screenshotProtectionEnabled: Boolean = true,
+    val tapjackingProtectionEnabled: Boolean = true,
+    val securityOverlayEnabled: Boolean = true,
 )
 
 /**

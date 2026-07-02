@@ -25,6 +25,14 @@ android {
         targetSdk = 36
         versionCode = appBuildNumber
         versionName = appVersionName
+
+        // VAPT bypass flags (mirror Dice's bypassRoo/Fri/Ssl). Default false = full protection; a
+        // dedicated VAPT/compliance test variant flips them so pentesters can run on a rooted/hooked
+        // device without the app hard-blocking itself. Never true in a real release.
+        buildConfigField("boolean", "BYPASS_ROOT", "false")
+        buildConfigField("boolean", "BYPASS_HOOK", "false")
+        buildConfigField("boolean", "BYPASS_SSL", "false")
+        buildConfigField("boolean", "BYPASS_DEBUGGER", "false")
     }
 
     buildTypes {
