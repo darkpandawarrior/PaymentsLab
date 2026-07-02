@@ -1,5 +1,7 @@
 package com.paymentslab.core.designsystem
 
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.ui.unit.dp
 
 /**
@@ -29,5 +31,16 @@ object DesignTokens {
     /** Elevation scale for raised surfaces. */
     object Elevation {
         val card = 2.dp
+    }
+
+    /**
+     * Durations/easing shared by every animated component (Motion Kit). Centralized so a
+     * reduce-motion switch (see [LocalReducedMotion]) is one place, not scattered `tween()` calls.
+     */
+    object Motion {
+        const val SHORT_MS = 150
+        const val MEDIUM_MS = 400
+        const val LONG_MS = 900
+        val standardEasing: Easing = FastOutSlowInEasing
     }
 }

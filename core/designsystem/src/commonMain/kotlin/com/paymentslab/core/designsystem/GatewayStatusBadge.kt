@@ -45,7 +45,7 @@ fun GatewayStatusBadge(
 ) {
     val spec = status.spec()
     Surface(
-        modifier = modifier,
+        modifier = modifier.shimmer(active = status == GatewayStatusUi.MOCK_MODE),
         color = spec.color.copy(alpha = 0.14f),
         shape = CircleShape,
     ) {
