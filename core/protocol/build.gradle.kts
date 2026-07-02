@@ -4,14 +4,13 @@ plugins {
 }
 
 kotlin {
+    // Pin the toolchain to 17 so the JVM target (consumed by the backend server) compiles to Java 17
+    // bytecode, matching the backend runtime. Otherwise it defaults higher and the backend test
+    // fails with UnsupportedClassVersionError.
+    jvmToolchain(17)
+
     // JVM target so the backend server links against the exact same DTOs the client sends.
-    // Pinned to 21 to match the backend's jvmToolchain(21) — otherwise the JVM classes compile to
-    // newer bytecode than the backend test runtime and fail with UnsupportedClassVersionError.
-    jvm {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-    }
+    jvm()
 
     android {
         namespace = "com.paymentslab.core.protocol"

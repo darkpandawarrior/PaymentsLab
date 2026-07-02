@@ -3,12 +3,10 @@ plugins {
 }
 
 kotlin {
-    // Pinned to 21 for JVM-consumer bytecode consistency (see core:protocol for the rationale).
-    jvm {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-    }
+    // Toolchain 17 for JVM-consumer bytecode consistency (see core:protocol for the rationale).
+    jvmToolchain(17)
+
+    jvm()
 
     android {
         namespace = "com.paymentslab.core.common"

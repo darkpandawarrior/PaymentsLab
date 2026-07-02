@@ -25,12 +25,7 @@ detekt {
     allRules = false
 }
 
-// Detekt 1.23.x rejects JDK 23+; skip on incompatible JVMs (see subprojects block for detail).
-val detektJvmMajor: Int = JavaVersion.current().majorVersion.toIntOrNull() ?: 0
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-    enabled = detektJvmMajor <= 22
-    jvmTarget = "17"
-}
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "17" }
 
 dependencies {
     // Guarded so the project still configures while modules are being scaffolded in.
@@ -58,19 +53,21 @@ subprojects {
         config.setFrom(rootProject.files("config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
         baseline = file("detekt-baseline.xml")
+        // detekt's default `detekt` task only scans src/main; KMP modules use commonMain/androidMain,
+        // so point it at every source root we use (missing dirs are ignored).
+        source.setFrom(
+            "src/commonMain/kotlin",
+            "src/androidMain/kotlin",
+            "src/jvmMain/kotlin",
+            "src/iosMain/kotlin",
+            "src/main/kotlin",
+            "src/main/java",
+        )
     }
-    // Detekt 1.23.x cannot run on JDK 23+ (it rejects the runtime version). The Gradle JDK here is
-    // newer, and no JDK <=22 toolchain is installed, so detekt is skipped on incompatible JVMs rather
-    // than failing the build. It runs normally under JDK 17-22. jvmTarget capped at 22 (detekt's max).
-    val detektRunnable = detektJvmMajor <= 22
-    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-        enabled = detektRunnable
-        jvmTarget = "17"
-    }
-    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
-        enabled = detektRunnable
-        jvmTarget = "17"
-    }
+    // Detekt 1.23.x cannot run on JDK 23+; the daemon is pinned to JDK 17 via
+    // gradle/gradle-daemon-jvm.properties so detekt runs normally.
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "17" }
+    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach { jvmTarget = "17" }
 }
 
 // ── Workflow task aliases: the local dev + CI verification loop ──────────────
@@ -78,5 +75,11 @@ tasks.register("fastGate") {
     description = "ktlint + detekt + JVM/common unit tests: the fast CI gate (no emulator)."
     dependsOn("ktlintCheck", "detekt")
     findProject(":backend")?.let { dependsOn(":backend:test") }
-    findProject(":core:orchestration")?.let { dependsOn(":core:orchestration:testAndroidHostTest") }
+    listOf(
+        ":core:orchestration", ":core:data", ":core:network",
+        ":feature:lab", ":feature:history", ":feature:checkout-demo",
+    ).forEach { path -> findProject(path)?.let { dependsOn("$path:testAndroidHostTest") } }
+    listOf(":provider:upi-intent", ":provider:razorpay", ":provider:cashfree").forEach { path ->
+        findProject(path)?.let { dependsOn("$path:testDebugUnitTest") }
+    }
 }
