@@ -37,6 +37,7 @@ rootProject.name = "PaymentsLab"
 
 // ── Core (KMP-ready) ────────────────────────────────────────────────────────
 include(":core:payments-api")
+include(":core:config")
 include(":core:protocol")
 include(":core:common")
 include(":core:orchestration")
@@ -50,6 +51,7 @@ include(":provider:upi-intent")
 include(":provider:razorpay")
 include(":provider:cashfree")
 include(":provider:stripe")
+include(":provider:hosted-webview")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

@@ -30,6 +30,7 @@ workmanager = "2.11.2"
 kmpworkmanager = "3.0.1"
 jbNavigationCompose = "2.9.2"
 coil3 = "3.5.0"
+compose-webview-multiplatform = "2.0.3"
 
 # Networking (KMP client + JVM server)
 ktor = "3.5.0"
@@ -114,6 +115,7 @@ kmpworkmanager = { module = "dev.brewkits:kmpworkmanager", version.ref = "kmpwor
 jb-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "jbNavigationCompose" }
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coil3-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
+compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "compose-webview-multiplatform" }
 
 # Ktor client (KMP; app -> backend)
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }

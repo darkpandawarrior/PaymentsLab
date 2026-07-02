@@ -173,4 +173,78 @@ class BackendTest {
             assertEquals(HttpStatusCode.BadRequest, resp.status)
             assertTrue(resp.bodyAsText().contains("unknown_gateway"))
         }
+
+    // ── Test 5: webhook signature verification is now dispatched through GatewayAdapter ─────────
+    @Test
+    fun `webhook with wrong razorpay signature is rejected via the adapter`() =
+        testApplication {
+            application { module() }
+            val orderId =
+                decode<OrderResponse>(
+                    client.post("/orders") {
+                        contentType(ContentType.Application.Json)
+                        setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                    }.bodyAsText(),
+                ).orderId
+            val body = """{"eventId":"evt_bad","orderId":"$orderId","status":"success"}"""
+
+            val resp =
+                client.post("/webhooks/razorpay") {
+                    contentType(ContentType.Application.Json)
+                    header("X-Razorpay-Signature", "not_the_real_signature")
+                    setBody(body)
+                }
+            assertEquals(HttpStatusCode.Unauthorized, resp.status)
+            assertTrue(resp.bodyAsText().contains("bad_signature"))
+        }
+
+    // ── Test 6: webhook for an unknown gateway → 400 (adapter lookup happens before body decode) ─
+    @Test
+    fun `webhook for an unknown gateway returns 400`() =
+        testApplication {
+            application { module() }
+            val resp =
+                client.post("/webhooks/no_such_gateway") {
+                    contentType(ContentType.Application.Json)
+                    setBody("""{"eventId":"e","orderId":"o","status":"success"}""")
+                }
+            assertEquals(HttpStatusCode.BadRequest, resp.status)
+            assertTrue(resp.bodyAsText().contains("unknown_gateway"))
+        }
+
+    // ── Test 7: the generic mock-checkout page renders Pay/Fail links for any provider ────────────
+    @Test
+    fun `mock checkout page serves html with pay and fail links`() =
+        testApplication {
+            application { module() }
+            val resp = client.get("/mock/checkout/paystack?orderId=order_abc")
+            assertEquals(HttpStatusCode.OK, resp.status)
+            val html = resp.bodyAsText()
+            assertTrue(html.contains("/mock/return/success?payment_id=mock_pay_order_abc"))
+            assertTrue(html.contains("/mock/return/failure"))
+        }
+
+    // ── Test 8: mock momo flip resolves the order after its delay, via the PaymentActor ──────────
+    @Test
+    fun `mock momo flip resolves the order to success after its delay`() =
+        testApplication {
+            application { module() }
+            val orderId =
+                decode<OrderResponse>(
+                    client.post("/orders") {
+                        contentType(ContentType.Application.Json)
+                        setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                    }.bodyAsText(),
+                ).orderId
+
+            val scheduleResp = client.post("/mock/momo/mtn_momo?orderId=$orderId&delayMs=10")
+            assertEquals(HttpStatusCode.OK, scheduleResp.status)
+
+            // The flip runs on the application's own coroutine scope; give it a moment to fire.
+            kotlinx.coroutines.delay(200)
+
+            val status = decode<PaymentStatusResponse>(client.get("/payments/$orderId").bodyAsText())
+            assertEquals(PaymentStatusDto.SUCCESS, status.status)
+            assertEquals("momo_pay_$orderId", status.paymentId)
+        }
 }

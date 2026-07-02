@@ -7,6 +7,7 @@ import com.paymentslab.core.paymentsapi.GatewayStatus
 internal fun GatewayStatus.toUi(): GatewayStatusUi =
     when (this) {
         GatewayStatus.SANDBOX_READY -> GatewayStatusUi.SANDBOX_READY
+        GatewayStatus.MOCK_MODE -> GatewayStatusUi.MOCK_MODE
         GatewayStatus.KYC_GATED -> GatewayStatusUi.KYC_GATED
         GatewayStatus.COMING_SOON -> GatewayStatusUi.COMING_SOON
     }
