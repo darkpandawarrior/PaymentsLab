@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentHost
+import com.paymentslab.core.security.SecureScreen
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.lab.LabHomeRoot
@@ -76,17 +77,23 @@ fun AppNavHost(paymentHost: PaymentHost) {
             composable("provider/{id}") { entry ->
                 val id = entry.arguments?.getString("id").orEmpty()
                 val meta = registry.byId(GatewayId(id))?.meta
-                ProviderLabRoot(
-                    paymentHost = paymentHost,
-                    gatewayId = GatewayId(id),
-                    providerName = meta?.displayName ?: id,
-                    priceLabel = "₹499",
-                    catalogItemId = "book_499",
-                    onBack = { navController.popBackStack() },
-                )
+                // SecureScreen: block screenshots / screen-recording / recents-thumbnail on the
+                // payment-bearing screens, the way banking apps do.
+                SecureScreen {
+                    ProviderLabRoot(
+                        paymentHost = paymentHost,
+                        gatewayId = GatewayId(id),
+                        providerName = meta?.displayName ?: id,
+                        priceLabel = "₹499",
+                        catalogItemId = "book_499",
+                        onBack = { navController.popBackStack() },
+                    )
+                }
             }
             composable("checkout") {
-                CheckoutRoot(paymentHost = paymentHost)
+                SecureScreen {
+                    CheckoutRoot(paymentHost = paymentHost)
+                }
             }
             composable("history") {
                 HistoryRoot()

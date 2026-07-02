@@ -43,6 +43,7 @@ include(":core:orchestration")
 include(":core:network")
 include(":core:data")
 include(":core:designsystem")
+include(":core:security")
 
 // ── Providers (Android libraries; one per gateway) ──────────────────────────
 include(":provider:upi-intent")

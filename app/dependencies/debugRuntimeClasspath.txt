@@ -61,6 +61,7 @@ androidx.compose.ui:ui-util:1.11.2
 androidx.compose.ui:ui-viewbinding:1.11.2
 androidx.compose.ui:ui:1.11.2
 androidx.compose:compose-bom:2026.05.01
+androidx.concurrent:concurrent-futures-ktx:1.1.0
 androidx.concurrent:concurrent-futures:1.1.0
 androidx.constraintlayout:constraintlayout-core:1.1.1
 androidx.constraintlayout:constraintlayout:2.2.1
@@ -101,6 +102,7 @@ androidx.lifecycle:lifecycle-runtime-compose:2.10.0
 androidx.lifecycle:lifecycle-runtime-ktx-android:2.10.0
 androidx.lifecycle:lifecycle-runtime-ktx:2.10.0
 androidx.lifecycle:lifecycle-runtime:2.10.0
+androidx.lifecycle:lifecycle-service:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-android:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-compose-android:2.10.0
 androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0
@@ -144,6 +146,7 @@ androidx.sqlite:sqlite-framework:2.6.2
 androidx.sqlite:sqlite:2.6.2
 androidx.startup:startup-runtime:1.2.0
 androidx.swiperefreshlayout:swiperefreshlayout:1.0.0
+androidx.tracing:tracing-ktx:1.2.0
 androidx.tracing:tracing:1.2.0
 androidx.transition:transition:1.6.0
 androidx.vectordrawable:vectordrawable-animated:1.1.0
@@ -155,6 +158,8 @@ androidx.webkit:webkit:1.15.0
 androidx.window:window-core-android:1.5.0
 androidx.window:window-core:1.5.0
 androidx.window:window:1.5.0
+androidx.work:work-runtime-ktx:2.11.2
+androidx.work:work-runtime:2.11.2
 co.touchlab:stately-concurrency-jvm:2.1.0
 co.touchlab:stately-concurrency:2.1.0
 co.touchlab:stately-concurrent-collections-jvm:2.1.0
