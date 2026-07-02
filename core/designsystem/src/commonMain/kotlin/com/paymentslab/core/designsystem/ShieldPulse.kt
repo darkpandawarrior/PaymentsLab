@@ -44,7 +44,7 @@ internal fun easeOutBack(t: Float): Float {
  *
  * Timeline for internal progress 0->1 (mirrors Kursi's RubberStamp phase split):
  *   Phase A (0.00–PHASE_A_END): icon descends from INITIAL_SCALE via EaseInQuart.
- *   Phase B (PHASE_A_END–PHASE_B_END): overshoot to PRESS_SCALE via linear snap (uneasedfor quick impulse).
+ *   Phase B (PHASE_A_END–PHASE_B_END): overshoot to PRESS_SCALE via linear snap (unedged, for quick impulse).
  *   Phase C (PHASE_B_END–1.00): settle to 1.0x via EaseOutBack.
  *   Alpha reaches full opacity at ALPHA_COMPLETION_PROGRESS (40%), before phase A settles, so the icon
  *   shows up partway through its descent rather than popping in at the very end.
