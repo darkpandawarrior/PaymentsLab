@@ -20,6 +20,7 @@ import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
+import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.stripe.di.stripeModule
@@ -82,6 +83,7 @@ class PaymentsLabApplication :
                 razorpayModule,
                 cashfreeModule,
                 stripeModule,
+                googlePayModule,
                 hostedWebViewModule(
                     listOf(
                         paystackHostedGatewayConfig,

@@ -80,6 +80,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 ),
                 StripeAdapter(publishableKey = config.stripePublishableKey, secret = config.stripeSecret),
                 CashfreeAdapter(appId = config.cashfreeAppId, secret = config.cashfreeSecret),
+                GooglePayAdapter(),
                 // B2 fan-out: MOCK_MODE only — see each docs/providers/<id>.md for why. All ride the
                 // generic archetype-C adapter untouched since B0; proves the fan-out is mechanical.
                 mockHostedAdapter("mollie", "Mollie", config.publicBaseUrl),
