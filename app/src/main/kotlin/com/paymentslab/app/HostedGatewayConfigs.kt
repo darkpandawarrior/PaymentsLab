@@ -187,3 +187,88 @@ val cmiHostedGatewayConfig =
         region = "Morocco",
         blurb = "Hosted checkout. API contract not verified against live docs this pass.",
     )
+
+/** B2 batch 4 — see `docs/providers/<id>.md` for each. Same unverified-real-API caveat as batch 3. */
+val myposHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "mypos",
+        displayName = "myPOS",
+        region = "EU",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val xenditHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "xendit",
+        displayName = "Xendit",
+        region = "Indonesia",
+        blurb =
+            "DANA/OVO/LinkAja e-wallets. Shipped as archetype C for catalog consistency; the " +
+                "plan flags this as possibly archetype D (async, no sync result) — unresolved this pass.",
+    )
+
+val woyopayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "woyopay",
+        displayName = "Woyo Pay",
+        region = "Africa",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val amoleHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "amole",
+        displayName = "Amole",
+        region = "Ethiopia",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val placetopayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "placetopay",
+        displayName = "PlaceToPay",
+        region = "LATAM",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val paymentezHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "paymentez",
+        displayName = "Paymentez",
+        region = "LATAM",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val webxpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "webxpay",
+        displayName = "Webxpay",
+        region = "Sri Lanka",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val cardnetHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "cardnet",
+        displayName = "CardNet",
+        region = "Caribbean",
+        blurb =
+            "Needs a JS-bridge for its real integration — provider:hosted-webview only supports " +
+                "return-URL interception today, so this rides the generic mock path until that's added.",
+    )
+
+val kanooHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "kanoo",
+        displayName = "Kanoo",
+        region = "Gulf",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val moncashHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "moncash",
+        displayName = "MonCash",
+        region = "Haiti",
+        blurb = "Hosted checkout (+ Directpay). Minimal public docs located this pass.",
+    )
