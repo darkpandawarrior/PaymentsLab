@@ -59,6 +59,13 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   SDK opens; on cold start the orchestrator finds unresolved payments and reconciles them.
 - 🔎 **Redaction by default.** A single choke point masks any secret/PII-shaped field before it can
   be rendered in the Lab timeline or written to a log.
+- 🔐 **VAPT-grade security suite.** `core:security` — real Android Keystore AES-256-GCM at-rest
+  encryption, `FLAG_SECURE` on payment screens (blocks screenshots/recording), device-integrity
+  checks (root/Magisk, emulator, debugger), and a certificate-pinning config.
+- ♻️ **Pure, replayable state machine.** The lifecycle is a pure `(State, Event) -> Effects` reducer
+  (zero coroutines/DI/IO); the orchestrator just executes its effects. A payment's path is a
+  recorded event log that replays byte-for-byte identically — the auditing property money movement
+  wants.
 - 🧪 **A real quality gate.** ktlint + detekt across all 16 modules (including KMP `commonMain`),
   fake-based unit tests for the orchestrator/ViewModels/backend, run on every push via GitHub Actions.
 
@@ -138,10 +145,12 @@ core/
   payments-api/            The frozen contract: PaymentGateway, PaymentResult, PaymentHost,
                            PaymentBackend, PendingPaymentJournal, PaymentStep, Redactor   (KMP + jvm)
   protocol/                @Serializable wire DTOs shared with the backend's JVM target    (KMP + jvm)
-  orchestration/           PaymentOrchestrator — the tested heart (journal-first, server-as-truth)
+  orchestration/           the effectful shell + fsm/ — a PURE (State,Event)->Effects reducer it
+                           drives; the tested heart (journal-first, server-as-truth, replayable)
   network/                 Ktor client implementing PaymentBackend
   data/                    Room KMP journal (process-death recovery)
   designsystem/            Compose Multiplatform theme, tokens, StepTimeline, PayloadCard
+  security/                Keystore AES-256-GCM store, FLAG_SECURE, device-integrity, pinning config
   common/                  UiText, KMP logging
 provider/
   razorpay/  cashfree/  upi-intent/  stripe/    one module per gateway, behind the contract
@@ -149,6 +158,7 @@ feature/
   lab/                     catalog home + live per-provider lab timeline
   checkout-demo/           product checkout that reuses the same registry (the "explained" mode)
   history/                 transaction log from the Room journal
+app/ .../work/             PaymentReconciliationWorker — WorkManager process-death reconciliation
 build-logic/               convention plugins (kmp.library / kmp.compose / cmp.feature / …)
 ```
 
@@ -176,8 +186,11 @@ build-logic/               convention plugins (kmp.library / kmp.compose / cmp.f
 | Database | Room **2.8.4** (KMP, bundled SQLite) — the pending-payment journal |
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime`, immutable collections |
 | Provider SDKs | Razorpay Checkout, Cashfree PG (api + ui), Stripe PaymentSheet, Play Services Wallet |
-| Testing | JUnit, MockK, Turbine, kotlinx-coroutines-test, Koin-Test; fake-first |
-| Quality | detekt **1.23.8**, ktlint, dependency-guard |
+| Security | Android Keystore (AES-256-GCM), FLAG_SECURE, device-integrity, OkHttp CertificatePinner |
+| Background | WorkManager (payment reconciliation), Koin-backed WorkerFactory |
+| Testing | JUnit, MockK, Turbine, kotlinx-coroutines-test, Koin-Test, **Roborazzi** screenshots; fake-first |
+| Quality | detekt **1.23.8**, ktlint, **dependency-guard**, **Kover** coverage floor, Compose stability config |
+| Release | Fastlane (versioning + build lanes), `release.yml` (tag → GitHub Release) |
 | Targets | Android (compileSdk **37**, minSdk **24**) + iOS-ready KMP core; **JDK 21** |
 
 ## Getting started
@@ -246,6 +259,10 @@ each provider's sandbox keys — the SDK integrations compile and the flows are 
 - Webhook signatures are verified before processing, and handlers are idempotent (event-id dedup).
 - Idempotency keys on order creation; the app retries the *status check*, never the charge.
 - The `Redactor` allowlist masks any secret/PII-shaped field before it is rendered or logged.
+- **At-rest:** `core:security` stores saved tokens with Android Keystore AES-256-GCM (non-exportable
+  key, TEE/StrongBox-backed). **On-screen:** payment routes are `FLAG_SECURE`. **Device:** launch-time
+  root/emulator/debugger inspection. **Transport:** a certificate-pinning config (placeholder pins
+  here — the localhost backend is intentionally unpinned; the pattern is real).
 
 ## Roadmap
 
@@ -254,7 +271,7 @@ each provider's sandbox keys — the SDK integrations compile and the flows are 
 - UPI Autopay / e-mandates + Stripe Billing subscriptions
 - Google Play Billing v8 (needs a Play Console listing)
 - iOS app entry point (the KMP core already compiles for iOS today)
-- Roborazzi screenshot suite → `docs/screenshots/`
+- Real certificate pins + a signing config to make the release/Play Fastlane lanes live
 - Extract & publish `core:payments-api` as a standalone KMP library
 
 ## iOS readiness
