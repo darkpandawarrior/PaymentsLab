@@ -118,3 +118,72 @@ val bkashHostedGatewayConfig =
             "Hosted/URL-based checkout. Sandbox self-serve status wasn't confirmed against " +
                 "live docs this pass.",
     )
+
+/**
+ * B2 batch 3 — see `docs/providers/<id>.md` for each. All unverified-against-live-docs this pass
+ * (several doc sites 404'd or didn't resolve); archetype classification comes from the Jugnoo
+ * reference branch, not a live API check. `MOCK_MODE` only, no fabricated real-API shapes.
+ */
+val hyperpayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "hyperpay",
+        displayName = "HyperPay",
+        region = "MENA",
+        blurb = "Hosted checkout (+ Payfort/MADA). API contract not verified against live docs this pass.",
+    )
+
+val telrHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "telr",
+        displayName = "Telr",
+        region = "MENA",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val myfatoorahHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "myfatoorah",
+        displayName = "MyFatoorah",
+        region = "Kuwait/MENA",
+        blurb = "Hosted checkout (InvoiceURL-style redirect). API contract not verified this pass.",
+    )
+
+val paywayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "payway",
+        displayName = "PayWay",
+        region = "Cambodia",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val wipayHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "wipay",
+        displayName = "WiPay",
+        region = "Caribbean",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val paymarkHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "paymark",
+        displayName = "Paymark",
+        region = "New Zealand",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )
+
+val vistamoneyHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "vistamoney",
+        displayName = "VistaMoney",
+        region = "LATAM",
+        blurb = "Hosted checkout. Minimal public docs located this pass — catalog entry only.",
+    )
+
+val cmiHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "cmi",
+        displayName = "CMI",
+        region = "Morocco",
+        blurb = "Hosted checkout. API contract not verified against live docs this pass.",
+    )

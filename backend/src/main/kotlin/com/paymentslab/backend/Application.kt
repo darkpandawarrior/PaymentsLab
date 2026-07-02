@@ -87,6 +87,14 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("ozow", "Ozow", config.publicBaseUrl),
                 mockHostedAdapter("sslcommerz", "SSLCommerz", config.publicBaseUrl),
                 mockHostedAdapter("bkash", "bKash", config.publicBaseUrl),
+                mockHostedAdapter("hyperpay", "HyperPay", config.publicBaseUrl),
+                mockHostedAdapter("telr", "Telr", config.publicBaseUrl),
+                mockHostedAdapter("myfatoorah", "MyFatoorah", config.publicBaseUrl),
+                mockHostedAdapter("payway", "PayWay", config.publicBaseUrl),
+                mockHostedAdapter("wipay", "WiPay", config.publicBaseUrl),
+                mockHostedAdapter("paymark", "Paymark", config.publicBaseUrl),
+                mockHostedAdapter("vistamoney", "VistaMoney", config.publicBaseUrl),
+                mockHostedAdapter("cmi", "CMI", config.publicBaseUrl),
             ),
         )
 
