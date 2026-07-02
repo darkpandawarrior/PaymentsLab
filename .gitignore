@@ -1,0 +1,33 @@
+# Gradle
+.gradle/
+build/
+**/build/
+!build-logic/**/src/**/build/
+.kotlin/
+
+# Local config & secrets
+local.properties
+*.local
+.env
+**/.env
+!**/.env.example
+secrets.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Android
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+captures/
+
+# KMP / Kotlin Native
+**/*.klib
+kotlin-js-store/
+
+# Detekt baseline is generated per-module; keep tracked baselines but ignore reports
+**/build/reports/

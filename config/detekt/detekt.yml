@@ -1,0 +1,55 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 80
+  LongParameterList:
+    active: true
+    functionThreshold: 8
+    constructorThreshold: 10
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    active: true
+    threshold: 20
+
+style:
+  MagicNumber:
+    active: false
+  ReturnCount:
+    active: true
+    max: 5
+  UnusedPrivateMember:
+    active: true
+  ForbiddenComment:
+    active: false
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+    excludeCommentStatements: true
+  WildcardImport:
+    active: true
+    excludeImports:
+      - 'java.util.*'
+      - 'kotlinx.coroutines.*'
+
+naming:
+  FunctionNaming:
+    active: true
+    # Compose @Composable functions are PascalCase by convention.
+    ignoreAnnotated: [ 'Composable' ]
+  TopLevelPropertyNaming:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false
