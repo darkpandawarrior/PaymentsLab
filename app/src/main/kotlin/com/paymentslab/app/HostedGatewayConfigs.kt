@@ -33,3 +33,29 @@ val paystackHostedGatewayConfig =
                 failureMarker = "/mock/return/failure",
             ),
     )
+
+/**
+ * B2 fan-out slice 1: Mollie. `MOCK_MODE` only (not upgradeable to real like Paystack) — Mollie
+ * requires a registered business account before issuing test API keys, so there's no self-serve
+ * sandbox for this app to wire; see `docs/providers/mollie.md`. Proves the fan-out is mechanical:
+ * the generic `HostedWebViewAdapter` built in B0 needed zero changes to add this gateway.
+ */
+val mollieHostedGatewayConfig =
+    HostedGatewayConfig(
+        gatewayId = GatewayId("mollie"),
+        displayName = "Mollie",
+        region = "EU",
+        docsPath = "docs/providers/mollie.md",
+        blurb =
+            "Hosted checkout via Mollie's Payments API. Real integration would call " +
+                "POST /v2/payments and redirect to _links.checkout — MOCK_MODE here since Mollie " +
+                "needs a registered business account before issuing test keys.",
+        capabilities = setOf(Capability.ONE_TIME_PAYMENT, Capability.CARDS),
+        status = GatewayStatus.MOCK_MODE,
+        buildCheckoutUrl = { params -> params["checkout_url"].orEmpty() },
+        matchReturn =
+            ReturnUrlMatchers.byMarker(
+                successMarker = "/mock/return/success",
+                failureMarker = "/mock/return/failure",
+            ),
+    )
