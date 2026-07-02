@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-02
 **Status:** Approved by Siddharth (brainstorming session, section-by-section)
-**Repo:** `/Users/darkpandawarrior/Repos/PaymentsLab` (public GitHub target)
+**Repo:** `/Users/darkpandawarrior/Repos/Android/PaymentsLab` (public GitHub target)
 
 ## 1. Purpose
 
