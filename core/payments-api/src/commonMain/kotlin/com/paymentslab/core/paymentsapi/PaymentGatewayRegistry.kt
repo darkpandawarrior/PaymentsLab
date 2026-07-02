@@ -16,7 +16,6 @@ interface PaymentGatewayRegistry {
 class DefaultPaymentGatewayRegistry(
     override val gateways: List<PaymentGateway>,
 ) : PaymentGatewayRegistry {
-
     private val byId: Map<GatewayId, PaymentGateway> = gateways.associateBy { it.id }
 
     override fun byId(id: GatewayId): PaymentGateway? = byId[id]

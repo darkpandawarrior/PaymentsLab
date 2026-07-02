@@ -5,10 +5,8 @@ import com.paymentslab.core.paymentsapi.Money
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PendingPayment
 
-/**
- * Pure entity <-> domain mappers for the journal. Kept as top-level functions with no Room or
- * platform dependency so they are trivially unit-testable on the JVM (see PendingPaymentMapperTest).
- */
+// Pure entity <-> domain mappers for the journal. Kept as top-level functions with no Room or
+// platform dependency so they are trivially unit-testable on the JVM (see PendingPaymentMapperTest).
 
 /** Domain -> storage. Flattens [Money] into (amountMinor, currency) and enums into their names. */
 fun PendingPayment.toEntity(): PendingPaymentEntity =

@@ -16,8 +16,8 @@ import org.gradle.kotlin.dsl.configure
 class AndroidProviderConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         with(pluginManager) {
+            // AGP 9 provides built-in Kotlin support — applying kotlin.android is no longer needed.
             apply("com.android.library")
-            apply("org.jetbrains.kotlin.android")
             apply("org.jetbrains.kotlin.plugin.compose")
         }
         configureComposeCompilerMetrics()

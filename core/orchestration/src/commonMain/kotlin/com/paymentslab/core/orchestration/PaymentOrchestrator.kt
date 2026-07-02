@@ -43,66 +43,79 @@ class PaymentOrchestrator(
     private val pollConfig: PollConfig = PollConfig(),
     private val now: () -> Long = ::systemNowMs,
 ) {
+    fun pay(
+        host: PaymentHost,
+        gatewayId: GatewayId,
+        catalogItemId: String,
+    ): Flow<PaymentStep> =
+        flow {
+            val gateway = registry.byId(gatewayId)
+            if (gateway == null) {
+                emit(PaymentStep.Errored(UiText.Dynamic("No gateway registered for '${gatewayId.value}'")))
+                return@flow
+            }
 
-    fun pay(host: PaymentHost, gatewayId: GatewayId, catalogItemId: String): Flow<PaymentStep> = flow {
-        val gateway = registry.byId(gatewayId)
-        if (gateway == null) {
-            emit(PaymentStep.Errored(UiText.Dynamic("No gateway registered for '${gatewayId.value}'")))
-            return@flow
-        }
-
-        var orderId: String? = null
-        try {
-            // 1. Server creates the order (price resolved server-side).
-            val created: CreatedOrder = backend.createOrder(catalogItemId, gatewayId)
-            orderId = created.order.orderId
-            emit(
-                PaymentStep.OrderCreated(
-                    orderId = created.order.orderId,
-                    amount = created.order.amount,
-                    payload = Redactor.redact("order", created.providerParams + mapOf("order_id" to created.order.orderId)),
-                ),
-            )
-
-            // 2. Journal BEFORE launch — the process-death insurance.
-            journal.record(
-                PendingPayment(
-                    orderId = created.order.orderId,
-                    catalogItemId = catalogItemId,
-                    gatewayId = gatewayId,
-                    amount = created.order.amount,
-                    createdAtEpochMs = now(),
-                    status = PaymentStatus.CREATED,
-                ),
-            )
-            emit(PaymentStep.Launching(gatewayId))
-
-            // 3. Hand off to the provider SDK / UPI chooser; suspend until a client-side result.
-            val prepared = gateway.prepare(created)
-            val result = gateway.pay(host, prepared)
-            emit(PaymentStep.ClientResult(result, result.raw))
-
-            // 4. Reconcile the client hint against the server.
-            val settled = reconcile(gatewayId, created.order.orderId, result) { emit(it) }
-            journal.markResolved(created.order.orderId, settled.status, settled.paymentId)
-            emit(
-                PaymentStep.Settled(
-                    status = settled.status,
-                    snapshot = settled,
-                    payload = Redactor.redact(
-                        "settled",
-                        mapOf("order_id" to settled.orderId, "status" to settled.status.name, "payment_id" to settled.paymentId),
+            var orderId: String? = null
+            try {
+                // 1. Server creates the order (price resolved server-side).
+                val created: CreatedOrder = backend.createOrder(catalogItemId, gatewayId)
+                orderId = created.order.orderId
+                emit(
+                    PaymentStep.OrderCreated(
+                        orderId = created.order.orderId,
+                        amount = created.order.amount,
+                        payload =
+                            Redactor.redact(
+                                "order",
+                                created.providerParams + mapOf("order_id" to created.order.orderId),
+                            ),
                     ),
-                ),
-            )
-        } catch (ce: CancellationException) {
-            throw ce
-        } catch (t: Throwable) {
-            AppLog.e(TAG, "Payment flow failed for order=$orderId", t)
-            orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
-            emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
+                )
+
+                // 2. Journal BEFORE launch — the process-death insurance.
+                journal.record(
+                    PendingPayment(
+                        orderId = created.order.orderId,
+                        catalogItemId = catalogItemId,
+                        gatewayId = gatewayId,
+                        amount = created.order.amount,
+                        createdAtEpochMs = now(),
+                        status = PaymentStatus.CREATED,
+                    ),
+                )
+                emit(PaymentStep.Launching(gatewayId))
+
+                // 3. Hand off to the provider SDK / UPI chooser; suspend until a client-side result.
+                val prepared = gateway.prepare(created)
+                val result = gateway.pay(host, prepared)
+                emit(PaymentStep.ClientResult(result, result.raw))
+
+                // 4. Reconcile the client hint against the server.
+                val settled = reconcile(gatewayId, created.order.orderId, result) { emit(it) }
+                journal.markResolved(created.order.orderId, settled.status, settled.paymentId)
+                emit(
+                    PaymentStep.Settled(
+                        status = settled.status,
+                        snapshot = settled,
+                        payload =
+                            Redactor.redact(
+                                "settled",
+                                mapOf(
+                                    "order_id" to settled.orderId,
+                                    "status" to settled.status.name,
+                                    "payment_id" to settled.paymentId,
+                                ),
+                            ),
+                    ),
+                )
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (t: Throwable) {
+                AppLog.e(TAG, "Payment flow failed for order=$orderId", t)
+                orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
+                emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
+            }
         }
-    }
 
     /**
      * Turn a client-side [PaymentResult] into a server-authoritative [PaymentSnapshot].
@@ -120,28 +133,34 @@ class PaymentOrchestrator(
         }
 
         emit(PaymentStep.Verifying())
-        val verified = when (result) {
-            is PaymentResult.Success -> backend.verify(
-                VerificationRequest(
-                    gatewayId = gatewayId,
-                    orderId = orderId,
-                    paymentId = result.paymentId,
-                    signature = result.verification["signature"],
-                    extra = result.verification,
-                ),
-            )
-            is PaymentResult.Pending -> backend.verify(
-                VerificationRequest(gatewayId = gatewayId, orderId = orderId, extra = result.verification),
-            )
-            is PaymentResult.Failure -> backend.status(orderId)
-            is PaymentResult.Cancelled -> error("unreachable")
-        }
+        val verified =
+            when (result) {
+                is PaymentResult.Success ->
+                    backend.verify(
+                        VerificationRequest(
+                            gatewayId = gatewayId,
+                            orderId = orderId,
+                            paymentId = result.paymentId,
+                            signature = result.verification["signature"],
+                            extra = result.verification,
+                        ),
+                    )
+                is PaymentResult.Pending ->
+                    backend.verify(
+                        VerificationRequest(gatewayId = gatewayId, orderId = orderId, extra = result.verification),
+                    )
+                is PaymentResult.Failure -> backend.status(orderId)
+                is PaymentResult.Cancelled -> error("unreachable")
+            }
 
         return if (verified.status == PaymentStatus.PENDING) pollUntilTerminal(orderId, verified) else verified
     }
 
     /** Poll `GET /payments/{id}` with exponential backoff until terminal or attempts exhausted. */
-    private suspend fun pollUntilTerminal(orderId: String, initial: PaymentSnapshot): PaymentSnapshot {
+    private suspend fun pollUntilTerminal(
+        orderId: String,
+        initial: PaymentSnapshot,
+    ): PaymentSnapshot {
         var snapshot = initial
         var delayMs = pollConfig.initialDelayMs
         var attempts = 0

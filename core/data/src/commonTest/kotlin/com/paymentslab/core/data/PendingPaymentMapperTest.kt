@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
  * paymentId and every enum status.
  */
 class PendingPaymentMapperTest {
-
     private val domain =
         PendingPayment(
             orderId = "order_123",

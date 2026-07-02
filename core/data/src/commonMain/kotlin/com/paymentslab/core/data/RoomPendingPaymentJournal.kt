@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.map
 class RoomPendingPaymentJournal(
     private val dao: PendingPaymentDao,
 ) : PendingPaymentJournal {
-
     override suspend fun record(entry: PendingPayment) {
         dao.upsert(entry.toEntity())
     }
@@ -29,9 +28,7 @@ class RoomPendingPaymentJournal(
         dao.updateStatus(orderId = orderId, status = status.name, paymentId = paymentId)
     }
 
-    override suspend fun unresolved(): List<PendingPayment> =
-        dao.unresolved().map { it.toDomain() }
+    override suspend fun unresolved(): List<PendingPayment> = dao.unresolved().map { it.toDomain() }
 
-    override fun observeAll(): Flow<List<PendingPayment>> =
-        dao.observeAll().map { rows -> rows.map { it.toDomain() } }
+    override fun observeAll(): Flow<List<PendingPayment>> = dao.observeAll().map { rows -> rows.map { it.toDomain() } }
 }

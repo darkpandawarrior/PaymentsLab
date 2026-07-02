@@ -24,19 +24,23 @@ import kotlinx.coroutines.flow.update
 
 object NoopHost : PaymentHost
 
-fun testMeta(name: String = "Fake") = GatewayMeta(
-    displayName = name,
-    status = GatewayStatus.SANDBOX_READY,
-    capabilities = setOf(Capability.ONE_TIME_PAYMENT),
-    region = "Test",
-    docsPath = "docs/fake.md",
-    blurb = "fake gateway",
-)
+fun testMeta(name: String = "Fake") =
+    GatewayMeta(
+        displayName = name,
+        status = GatewayStatus.SANDBOX_READY,
+        capabilities = setOf(Capability.ONE_TIME_PAYMENT),
+        region = "Test",
+        docsPath = "docs/fake.md",
+        blurb = "fake gateway",
+    )
 
 /** Records the order of key interactions so tests can assert journal-before-launch. */
 class InteractionLog {
     val events = mutableListOf<String>()
-    fun record(event: String) { events.add(event) }
+
+    fun record(event: String) {
+        events.add(event)
+    }
 }
 
 class FakeGateway(
@@ -50,7 +54,10 @@ class FakeGateway(
         return PreparedPayment(id, created.order.orderId, created.order.amount, created.providerParams)
     }
 
-    override suspend fun pay(host: PaymentHost, prepared: PreparedPayment): PaymentResult {
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult {
         log?.record("pay")
         return result
     }
@@ -65,10 +72,14 @@ class FakeBackend(
     private val statusSequence: List<PaymentStatus> = listOf(PaymentStatus.SUCCESS),
     private val log: InteractionLog? = null,
 ) : PaymentBackend {
-    var verifyCalls = 0; private set
+    var verifyCalls = 0
+        private set
     private var statusIdx = 0
 
-    override suspend fun createOrder(catalogItemId: String, gatewayId: GatewayId): CreatedOrder {
+    override suspend fun createOrder(
+        catalogItemId: String,
+        gatewayId: GatewayId,
+    ): CreatedOrder {
         log?.record("createOrder")
         return CreatedOrder(OrderRef(orderId, catalogItemId, amount), gatewayId, providerParams)
     }
@@ -95,21 +106,25 @@ class FakeJournal(private val log: InteractionLog? = null) : PendingPaymentJourn
         state.update { it + entry }
     }
 
-    override suspend fun markResolved(orderId: String, status: PaymentStatus, paymentId: String?) {
+    override suspend fun markResolved(
+        orderId: String,
+        status: PaymentStatus,
+        paymentId: String?,
+    ) {
         log?.record("journal.markResolved:$status")
         state.update { list ->
             list.map { if (it.orderId == orderId) it.copy(status = status, paymentId = paymentId) else it }
         }
     }
 
-    override suspend fun unresolved(): List<PendingPayment> =
-        state.value.filter { !it.status.isTerminal }
+    override suspend fun unresolved(): List<PendingPayment> = state.value.filter { !it.status.isTerminal }
 
     override fun observeAll(): Flow<List<PendingPayment>> = state
 }
 
-fun success(paymentId: String = "pay_1") = PaymentResult.Success(
-    paymentId = paymentId,
-    verification = mapOf("signature" to "abc", "payment_id" to paymentId),
-    raw = RedactedPayload.of("client", "payment_id" to paymentId),
-)
+fun success(paymentId: String = "pay_1") =
+    PaymentResult.Success(
+        paymentId = paymentId,
+        verification = mapOf("signature" to "abc", "payment_id" to paymentId),
+        raw = RedactedPayload.of("client", "payment_id" to paymentId),
+    )

@@ -6,9 +6,11 @@ package com.paymentslab.core.paymentsapi
  * an HTTP concern. This is the seam that lets the tested core run against a fake backend.
  */
 interface PaymentBackend {
-
     /** `POST /orders` — price is resolved server-side from [catalogItemId]; the client never sets it. */
-    suspend fun createOrder(catalogItemId: String, gatewayId: GatewayId): CreatedOrder
+    suspend fun createOrder(
+        catalogItemId: String,
+        gatewayId: GatewayId,
+    ): CreatedOrder
 
     /** `POST /payments/{id}/verify` — hand the client's proof to the server for authoritative checking. */
     suspend fun verify(request: VerificationRequest): PaymentSnapshot

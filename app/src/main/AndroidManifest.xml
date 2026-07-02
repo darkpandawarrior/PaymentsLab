@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+      UPI intent: some apps require the sender to declare it can query UPI packages on Android 11+.
+      The generic chooser (NPCI-mandated) still works without listing every app, but declaring the
+      scheme improves resolution.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".PaymentsLabApplication"
+        android:allowBackup="false"
+        android:label="PaymentsLab"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PaymentsLab"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PaymentsLab">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

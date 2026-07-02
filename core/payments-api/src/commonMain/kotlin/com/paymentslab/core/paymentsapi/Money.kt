@@ -18,6 +18,7 @@ data class Money(
 
     companion object {
         fun inr(rupees: Long): Money = Money(rupees * 100, "INR")
+
         fun usd(dollars: Long): Money = Money(dollars * 100, "USD")
     }
 }

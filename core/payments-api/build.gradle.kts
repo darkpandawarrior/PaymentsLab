@@ -4,7 +4,12 @@ plugins {
 
 kotlin {
     // JVM target so the backend can reuse Money/OrderRef value types without duplication.
-    jvm()
+    // Pinned to 21 to match the backend's jvmToolchain(21) (see core:protocol for the rationale).
+    jvm {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+        }
+    }
 
     android {
         namespace = "com.paymentslab.core.paymentsapi"
