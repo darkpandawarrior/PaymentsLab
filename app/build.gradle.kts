@@ -33,6 +33,10 @@ android {
         buildConfigField("boolean", "BYPASS_HOOK", "false")
         buildConfigField("boolean", "BYPASS_SSL", "false")
         buildConfigField("boolean", "BYPASS_DEBUGGER", "false")
+
+        // Per-environment backend URL. Debug/vapt talk to the local dev server (emulator loopback);
+        // release points at the real host. The app feeds this into networkModule(PaymentApiConfig(...)).
+        buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:8080\"")
     }
 
     buildTypes {
@@ -43,6 +47,21 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            buildConfigField("String", "BACKEND_URL", "\"https://api.paymentslab.example\"")
+        }
+
+        // VAPT / pen-test variant: a debuggable build that flips the security BYPASS_* flags so a
+        // tester can run on a rooted/hooked/proxied device without the app hard-blocking itself.
+        // Installs alongside via the .vapt applicationId suffix. Never distributed.
+        create("vapt") {
+            initWith(getByName("debug"))
+            matchingFallbacks += "debug" // library modules only define debug/release
+            applicationIdSuffix = ".vapt"
+            versionNameSuffix = "-vapt"
+            buildConfigField("boolean", "BYPASS_ROOT", "true")
+            buildConfigField("boolean", "BYPASS_HOOK", "true")
+            buildConfigField("boolean", "BYPASS_SSL", "true")
+            buildConfigField("boolean", "BYPASS_DEBUGGER", "true")
         }
     }
 

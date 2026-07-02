@@ -5,6 +5,7 @@ import androidx.work.Configuration
 import com.paymentslab.app.work.PaymentReconciliationWorker
 import com.paymentslab.app.work.PaymentWorkerFactory
 import com.paymentslab.core.data.di.dataModule
+import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
 import com.paymentslab.core.security.AppSecurityManager
@@ -62,7 +63,7 @@ class PaymentsLabApplication :
             modules(
                 // core
                 dataModule,
-                networkModule,
+                networkModule(PaymentApiConfig(BuildConfig.BACKEND_URL)),
                 orchestrationModule,
                 securityModule(securityConfig),
                 // providers (each contributes a PaymentGateway into the registry)
