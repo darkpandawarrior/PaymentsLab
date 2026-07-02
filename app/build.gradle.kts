@@ -11,6 +11,11 @@ dependencyGuard {
     configuration("debugRuntimeClasspath")
 }
 
+// Single-source versioning: VERSION (semver) + BUILD_NUMBER (monotonic) at the repo root, bumped by
+// `fastlane bump` and read here so versionName/versionCode never drift.
+val appVersionName = rootProject.file("VERSION").readText().trim()
+val appBuildNumber = rootProject.file("BUILD_NUMBER").readText().trim().toInt()
+
 android {
     namespace = "com.paymentslab.app"
 
@@ -18,8 +23,8 @@ android {
         applicationId = "com.paymentslab.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = appBuildNumber
+        versionName = appVersionName
     }
 
     buildTypes {

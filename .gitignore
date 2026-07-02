@@ -31,3 +31,11 @@ kotlin-js-store/
 
 # Detekt baseline is generated per-module; keep tracked baselines but ignore reports
 **/build/reports/
+
+# Fastlane
+fastlane/report.xml
+fastlane/README.md
+fastlane/Preview.html
+**/.fastlane/
+Gemfile.lock
+vendor/bundle/
