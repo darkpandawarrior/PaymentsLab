@@ -28,10 +28,11 @@ class EnvCredentialStore(
     ): GatewayCredentials {
         val gatewayToken = gatewayId.value.uppercase()
         val keys =
-            requiredKeyNames.mapNotNull { keyName ->
-                val envKey = "PLAB_${gatewayToken}_${mode.name}_${keyName.uppercase()}"
-                env[envKey]?.takeIf { it.isNotBlank() }?.let { keyName to it }
-            }.toMap()
+            requiredKeyNames
+                .mapNotNull { keyName ->
+                    val envKey = "PLAB_${gatewayToken}_${mode.name}_${keyName.uppercase()}"
+                    env[envKey]?.takeIf { it.isNotBlank() }?.let { keyName to it }
+                }.toMap()
         return GatewayCredentials(gatewayId, mode, keys, requiredKeyNames)
     }
 }

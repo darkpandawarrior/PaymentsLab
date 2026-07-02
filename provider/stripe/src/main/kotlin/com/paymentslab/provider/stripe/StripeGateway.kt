@@ -35,22 +35,24 @@ import kotlin.coroutines.resume
 class StripeGateway(
     private val launcherHost: StripePaymentLauncherHost,
 ) : PaymentGateway {
-
     override val id: GatewayId = GatewayId("stripe")
 
-    override val meta: GatewayMeta = GatewayMeta(
-        displayName = "Stripe",
-        status = GatewayStatus.SANDBOX_READY,
-        capabilities = setOf(
-            Capability.ONE_TIME_PAYMENT,
-            Capability.CARDS,
-            Capability.WALLET,
-        ),
-        region = "Global",
-        docsPath = "docs/providers/stripe.md",
-        blurb = "Card + wallet checkout via Stripe PaymentSheet. Test cards trigger the 3DS2 " +
-            "challenge; Google Pay rides Stripe as the gateway of record.",
-    )
+    override val meta: GatewayMeta =
+        GatewayMeta(
+            displayName = "Stripe",
+            status = GatewayStatus.SANDBOX_READY,
+            capabilities =
+                setOf(
+                    Capability.ONE_TIME_PAYMENT,
+                    Capability.CARDS,
+                    Capability.WALLET,
+                ),
+            region = "Global",
+            docsPath = "docs/providers/stripe.md",
+            blurb =
+                "Card + wallet checkout via Stripe PaymentSheet. Test cards trigger the 3DS2 " +
+                    "challenge; Google Pay rides Stripe as the gateway of record.",
+        )
 
     /**
      * Stripe's session material is the PaymentIntent client secret plus the publishable key. Both are
@@ -59,30 +61,39 @@ class StripeGateway(
      */
     override suspend fun prepare(created: CreatedOrder): PreparedPayment {
         val params = created.providerParams
-        val clientSecret = params[KEY_CLIENT_SECRET]
-            ?: throw PaymentPreparationException("Stripe order missing '$KEY_CLIENT_SECRET'")
-        val publishableKey = params[KEY_PUBLISHABLE_KEY]
-            ?: throw PaymentPreparationException("Stripe order missing '$KEY_PUBLISHABLE_KEY'")
+        val clientSecret =
+            params[KEY_CLIENT_SECRET]
+                ?: throw PaymentPreparationException("Stripe order missing '$KEY_CLIENT_SECRET'")
+        val publishableKey =
+            params[KEY_PUBLISHABLE_KEY]
+                ?: throw PaymentPreparationException("Stripe order missing '$KEY_PUBLISHABLE_KEY'")
 
         return PreparedPayment(
             gatewayId = id,
             orderId = created.order.orderId,
             amount = created.order.amount,
-            params = mapOf(
-                KEY_CLIENT_SECRET to clientSecret,
-                KEY_PUBLISHABLE_KEY to publishableKey,
-            ),
+            params =
+                mapOf(
+                    KEY_CLIENT_SECRET to clientSecret,
+                    KEY_PUBLISHABLE_KEY to publishableKey,
+                ),
         )
     }
 
-    override suspend fun pay(host: PaymentHost, prepared: PreparedPayment): PaymentResult {
-        val androidHost = host as? AndroidPaymentHost
-            ?: return configMissing("Stripe requires an AndroidPaymentHost")
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult {
+        val androidHost =
+            host as? AndroidPaymentHost
+                ?: return configMissing("Stripe requires an AndroidPaymentHost")
 
-        val clientSecret = prepared.params[KEY_CLIENT_SECRET]
-            ?: return configMissing("Stripe payment missing '$KEY_CLIENT_SECRET'")
-        val publishableKey = prepared.params[KEY_PUBLISHABLE_KEY]
-            ?: return configMissing("Stripe payment missing '$KEY_PUBLISHABLE_KEY'")
+        val clientSecret =
+            prepared.params[KEY_CLIENT_SECRET]
+                ?: return configMissing("Stripe payment missing '$KEY_CLIENT_SECRET'")
+        val publishableKey =
+            prepared.params[KEY_PUBLISHABLE_KEY]
+                ?: return configMissing("Stripe payment missing '$KEY_PUBLISHABLE_KEY'")
 
         // PaymentConfiguration.init installs the publishable key process-wide; the SDK reads it when
         // it confirms the PaymentIntent. Safe to call again with the same activity + key.
@@ -127,75 +138,81 @@ class StripeGateway(
         // once the backend exposes it; hardcoding is a showcase simplification, not production-safe.
         val country = if (currency.equals("INR", ignoreCase = true)) "IN" else "US"
 
-        return PaymentSheet.Configuration.Builder(MERCHANT_DISPLAY_NAME)
+        return PaymentSheet.Configuration
+            .Builder(MERCHANT_DISPLAY_NAME)
             .googlePay(
                 PaymentSheet.GooglePayConfiguration(
                     environment = PaymentSheet.GooglePayConfiguration.Environment.Test,
                     countryCode = country,
                     currencyCode = currency,
                 ),
-            )
-            .allowsDelayedPaymentMethods(false)
+            ).allowsDelayedPaymentMethods(false)
             .build()
     }
 
     /** Map Stripe's [PaymentSheetResult] zoo into the normalized [PaymentResult]. */
-    private fun PaymentSheetResult.toPaymentResult(clientSecret: String): PaymentResult = when (this) {
-        is PaymentSheetResult.Completed -> {
-            // The SDK does not hand back the PaymentIntent id on the imperative surface, so derive a
-            // stable payment id from the client secret prefix (`pi_XXX_secret_YYY` -> `pi_XXX`). The
-            // server re-derives/verifies authoritatively from the client secret it minted.
-            val paymentIntentId = clientSecret.substringBefore("_secret_")
-            AppLog.i(TAG, "Stripe PaymentSheet completed: $paymentIntentId")
-            PaymentResult.Success(
-                paymentId = paymentIntentId,
-                // Unredacted, server-bound only — forwarded to PaymentBackend.verify, never displayed.
-                verification = mapOf(
-                    "payment_intent" to paymentIntentId,
-                    "client_secret_present" to "true",
-                ),
-                raw = Redactor.redact(
-                    label = "stripe.paymentsheet.completed",
-                    raw = mapOf(
-                        "status" to "completed",
-                        "payment_intent" to paymentIntentId,
-                        // `client_secret` contains "secret" -> Redactor masks it automatically.
-                        "client_secret" to clientSecret,
-                    ),
-                ),
-            )
-        }
+    private fun PaymentSheetResult.toPaymentResult(clientSecret: String): PaymentResult =
+        when (this) {
+            is PaymentSheetResult.Completed -> {
+                // The SDK does not hand back the PaymentIntent id on the imperative surface, so derive a
+                // stable payment id from the client secret prefix (`pi_XXX_secret_YYY` -> `pi_XXX`). The
+                // server re-derives/verifies authoritatively from the client secret it minted.
+                val paymentIntentId = clientSecret.substringBefore("_secret_")
+                AppLog.i(TAG, "Stripe PaymentSheet completed: $paymentIntentId")
+                PaymentResult.Success(
+                    paymentId = paymentIntentId,
+                    // Unredacted, server-bound only — forwarded to PaymentBackend.verify, never displayed.
+                    verification =
+                        mapOf(
+                            "payment_intent" to paymentIntentId,
+                            "client_secret_present" to "true",
+                        ),
+                    raw =
+                        Redactor.redact(
+                            label = "stripe.paymentsheet.completed",
+                            raw =
+                                mapOf(
+                                    "status" to "completed",
+                                    "payment_intent" to paymentIntentId,
+                                    // `client_secret` contains "secret" -> Redactor masks it automatically.
+                                    "client_secret" to clientSecret,
+                                ),
+                        ),
+                )
+            }
 
-        is PaymentSheetResult.Canceled -> {
-            AppLog.i(TAG, "Stripe PaymentSheet cancelled by user")
-            PaymentResult.Cancelled(
-                raw = Redactor.redact("stripe.paymentsheet.canceled", mapOf("status" to "canceled")),
-            )
-        }
+            is PaymentSheetResult.Canceled -> {
+                AppLog.i(TAG, "Stripe PaymentSheet cancelled by user")
+                PaymentResult.Cancelled(
+                    raw = Redactor.redact("stripe.paymentsheet.canceled", mapOf("status" to "canceled")),
+                )
+            }
 
-        is PaymentSheetResult.Failed -> {
-            val throwable = this.error
-            val message = throwable.message ?: "Stripe payment failed"
-            AppLog.w(TAG, "Stripe PaymentSheet failed: $message", throwable)
-            PaymentResult.Failure(
-                // A thrown SDK error is an integration/SDK problem; a declined card also surfaces here.
-                // We can't reliably distinguish without inspecting Stripe error types, so treat the
-                // general failure as GATEWAY_DECLINED (the user-facing common case) and log the raw.
-                // TODO(failure-taxonomy): narrow to SDK_ERROR when `error` is a StripeException
-                // subtype signalling a config/integration fault (e.g. missing publishable key).
-                code = FailureCode.GATEWAY_DECLINED,
-                message = UiText.of(message),
-                raw = Redactor.redact(
-                    label = "stripe.paymentsheet.failed",
-                    raw = mapOf(
-                        "status" to "failed",
-                        "error" to message,
-                        "error_type" to throwable::class.simpleName.orEmpty(),
-                    ),
-                ),
-            )
+            is PaymentSheetResult.Failed -> {
+                val throwable = this.error
+                val message = throwable.message ?: "Stripe payment failed"
+                AppLog.w(TAG, "Stripe PaymentSheet failed: $message", throwable)
+                PaymentResult.Failure(
+                    // A thrown SDK error is an integration/SDK problem; a declined card also surfaces here.
+                    // We can't reliably distinguish without inspecting Stripe error types, so treat the
+                    // general failure as GATEWAY_DECLINED (the user-facing common case) and log the raw.
+                    // TODO(failure-taxonomy): narrow to SDK_ERROR when `error` is a StripeException
+                    // subtype signalling a config/integration fault (e.g. missing publishable key).
+                    code = FailureCode.GATEWAY_DECLINED,
+                    message = UiText.of(message),
+                    raw =
+                        Redactor.redact(
+                            label = "stripe.paymentsheet.failed",
+                            raw =
+                                mapOf(
+                                    "status" to "failed",
+                                    "error" to message,
+                                    "error_type" to throwable::class.simpleName.orEmpty(),
+                                ),
+                        ),
+                )
+            }
         }
-    }
 
     private fun configMissing(message: String): PaymentResult.Failure {
         AppLog.e(TAG, "Stripe config error: $message")

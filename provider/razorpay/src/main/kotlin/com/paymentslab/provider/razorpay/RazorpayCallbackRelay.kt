@@ -55,7 +55,6 @@ interface PaymentActivityCallbacks {
  * the stale slot and logs a warning rather than silently dropping the new one.
  */
 object RazorpayCallbackRelay : PaymentActivityCallbacks {
-
     @Volatile
     private var listener: ((RazorpayCallbackResult) -> Unit)? = null
 

@@ -24,10 +24,12 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
  * duplicated SDK callback (or a late one after cancellation) can never resume twice.
  */
 class StripePaymentLauncherHost {
-
     /** How to present the sheet, supplied by the app once the [PaymentSheet] is built. */
     fun interface Presenter {
-        fun present(clientSecret: String, configuration: PaymentSheet.Configuration)
+        fun present(
+            clientSecret: String,
+            configuration: PaymentSheet.Configuration,
+        )
     }
 
     private var presenter: Presenter? = null
@@ -55,8 +57,9 @@ class StripePaymentLauncherHost {
         configuration: PaymentSheet.Configuration,
         onResult: (PaymentSheetResult) -> Unit,
     ) {
-        val activePresenter = presenter
-            ?: error("No PaymentSheet attached — the app must call attach() before launching Stripe.")
+        val activePresenter =
+            presenter
+                ?: error("No PaymentSheet attached — the app must call attach() before launching Stripe.")
         check(pendingResult == null) { "A Stripe payment is already in flight." }
         pendingResult = onResult
         activePresenter.present(clientSecret, configuration)

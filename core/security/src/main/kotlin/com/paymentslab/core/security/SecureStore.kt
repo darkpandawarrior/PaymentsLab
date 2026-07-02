@@ -12,7 +12,10 @@ package com.paymentslab.core.security
  * moment it needs to pre-fill a form, not reactively.
  */
 interface SecureStore {
-    fun putString(key: String, value: String)
+    fun putString(
+        key: String,
+        value: String,
+    )
 
     fun getString(key: String): String?
 
@@ -33,7 +36,10 @@ class FakeSecureStore(
 ) : SecureStore {
     private val backing: MutableMap<String, String> = initial.toMutableMap()
 
-    override fun putString(key: String, value: String) {
+    override fun putString(
+        key: String,
+        value: String,
+    ) {
         backing[key] = value
     }
 

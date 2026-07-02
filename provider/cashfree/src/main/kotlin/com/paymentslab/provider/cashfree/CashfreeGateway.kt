@@ -37,24 +37,26 @@ import kotlin.coroutines.resume
 class CashfreeGateway(
     private val relay: CashfreeCheckoutRelay,
 ) : PaymentGateway {
-
     override val id: GatewayId = GatewayId("cashfree")
 
-    override val meta: GatewayMeta = GatewayMeta(
-        displayName = "Cashfree",
-        status = GatewayStatus.SANDBOX_READY,
-        capabilities = setOf(
-            Capability.ONE_TIME_PAYMENT,
-            Capability.UPI,
-            Capability.CARDS,
-            Capability.NET_BANKING,
-        ),
-        region = "India",
-        docsPath = "docs/providers/cashfree.md",
-        blurb = "UPI / cards / net-banking checkout via the Cashfree nextgen SDK. The sandbox UPI " +
-            "simulator lets you approve or decline a UPI collect request end-to-end without a real " +
-            "PSP app.",
-    )
+    override val meta: GatewayMeta =
+        GatewayMeta(
+            displayName = "Cashfree",
+            status = GatewayStatus.SANDBOX_READY,
+            capabilities =
+                setOf(
+                    Capability.ONE_TIME_PAYMENT,
+                    Capability.UPI,
+                    Capability.CARDS,
+                    Capability.NET_BANKING,
+                ),
+            region = "India",
+            docsPath = "docs/providers/cashfree.md",
+            blurb =
+                "UPI / cards / net-banking checkout via the Cashfree nextgen SDK. The sandbox UPI " +
+                    "simulator lets you approve or decline a UPI collect request end-to-end without a real " +
+                    "PSP app.",
+        )
 
     /**
      * Cashfree's session material is the **`payment_session_id`** plus the **`order_id`**, both minted
@@ -63,27 +65,34 @@ class CashfreeGateway(
      */
     override suspend fun prepare(created: CreatedOrder): PreparedPayment {
         val params = created.providerParams
-        val paymentSessionId = params[KEY_PAYMENT_SESSION_ID]
-            ?: throw PaymentPreparationException("Cashfree order missing '$KEY_PAYMENT_SESSION_ID'")
+        val paymentSessionId =
+            params[KEY_PAYMENT_SESSION_ID]
+                ?: throw PaymentPreparationException("Cashfree order missing '$KEY_PAYMENT_SESSION_ID'")
         val orderId = params[KEY_ORDER_ID] ?: created.order.orderId
 
         return PreparedPayment(
             gatewayId = id,
             orderId = orderId,
             amount = created.order.amount,
-            params = mapOf(
-                KEY_PAYMENT_SESSION_ID to paymentSessionId,
-                KEY_ORDER_ID to orderId,
-            ),
+            params =
+                mapOf(
+                    KEY_PAYMENT_SESSION_ID to paymentSessionId,
+                    KEY_ORDER_ID to orderId,
+                ),
         )
     }
 
-    override suspend fun pay(host: PaymentHost, prepared: PreparedPayment): PaymentResult {
-        val androidHost = host as? AndroidPaymentHost
-            ?: return configMissing("Cashfree requires an AndroidPaymentHost")
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult {
+        val androidHost =
+            host as? AndroidPaymentHost
+                ?: return configMissing("Cashfree requires an AndroidPaymentHost")
 
-        val paymentSessionId = prepared.params[KEY_PAYMENT_SESSION_ID]
-            ?: return configMissing("Cashfree payment missing '$KEY_PAYMENT_SESSION_ID'")
+        val paymentSessionId =
+            prepared.params[KEY_PAYMENT_SESSION_ID]
+                ?: return configMissing("Cashfree payment missing '$KEY_PAYMENT_SESSION_ID'")
         val orderId = prepared.params[KEY_ORDER_ID] ?: prepared.orderId
 
         return suspendCancellableCoroutine { continuation ->
@@ -101,11 +110,13 @@ class CashfreeGateway(
                     }
                 }
 
-                val cfSession = CFSession.CFSessionBuilder()
-                    .setEnvironment(CFSession.Environment.SANDBOX)
-                    .setPaymentSessionID(paymentSessionId)
-                    .setOrderId(orderId)
-                    .build()
+                val cfSession =
+                    CFSession
+                        .CFSessionBuilder()
+                        .setEnvironment(CFSession.Environment.SANDBOX)
+                        .setPaymentSessionID(paymentSessionId)
+                        .setOrderId(orderId)
+                        .build()
 
                 // CFDropCheckoutPayment renders Cashfree's full drop-in (UPI + cards + net-banking).
                 // TODO(sdk-artifact): CFDropCheckoutPayment lives in `com.cashfree.pg:ui`, which is
@@ -113,9 +124,11 @@ class CashfreeGateway(
                 // `cashfree-pg-ui` dependency for this import to resolve. Builder shape confirmed
                 // against the Cashfree Android docs (CFWebCheckoutPayment shares the same
                 // setSession(...) pattern); paymentModes left at SDK default = all sandbox methods.
-                val dropPayment = CFDropCheckoutPayment.CFDropCheckoutPaymentBuilder()
-                    .setSession(cfSession)
-                    .build()
+                val dropPayment =
+                    CFDropCheckoutPayment
+                        .CFDropCheckoutPaymentBuilder()
+                        .setSession(cfSession)
+                        .build()
 
                 AppLog.i(TAG, "Launching Cashfree drop checkout for order=$orderId")
                 CFPaymentGatewayService.getInstance().doPayment(androidHost.activity, dropPayment)
@@ -144,17 +157,20 @@ class CashfreeGateway(
                     // the actual cf_payment_id is resolved server-side during verification.
                     paymentId = this.orderId,
                     // Unredacted, server-bound only — forwarded to PaymentBackend.verify.
-                    verification = mapOf(
-                        "order_id" to this.orderId,
-                        "cf_status" to "verify",
-                    ),
-                    raw = Redactor.redact(
-                        label = "cashfree.checkout.verify",
-                        raw = mapOf(
-                            "status" to "verify",
+                    verification =
+                        mapOf(
                             "order_id" to this.orderId,
+                            "cf_status" to "verify",
                         ),
-                    ),
+                    raw =
+                        Redactor.redact(
+                            label = "cashfree.checkout.verify",
+                            raw =
+                                mapOf(
+                                    "status" to "verify",
+                                    "order_id" to this.orderId,
+                                ),
+                        ),
                 )
             }
 
@@ -163,15 +179,17 @@ class CashfreeGateway(
                 PaymentResult.Failure(
                     code = mapFailureCode(errorCode, errorMessage),
                     message = UiText.of(errorMessage),
-                    raw = Redactor.redact(
-                        label = "cashfree.checkout.failure",
-                        raw = mapOf(
-                            "status" to "failure",
-                            "order_id" to this.orderId,
-                            "error" to errorMessage,
-                            "error_code" to errorCode.orEmpty(),
+                    raw =
+                        Redactor.redact(
+                            label = "cashfree.checkout.failure",
+                            raw =
+                                mapOf(
+                                    "status" to "failure",
+                                    "order_id" to this.orderId,
+                                    "error" to errorMessage,
+                                    "error_code" to errorCode.orEmpty(),
+                                ),
                         ),
-                    ),
                 )
             }
         }
@@ -185,7 +203,10 @@ class CashfreeGateway(
      * fully documented; the string checks below are best-effort. Tighten once the sandbox surfaces
      * real codes (e.g. "user_cancelled", "payment_declined").
      */
-    private fun mapFailureCode(errorCode: String?, errorMessage: String): FailureCode {
+    private fun mapFailureCode(
+        errorCode: String?,
+        errorMessage: String,
+    ): FailureCode {
         val haystack = "${errorCode.orEmpty()} $errorMessage".lowercase()
         return when {
             "cancel" in haystack -> FailureCode.USER_CANCELLED
@@ -205,7 +226,10 @@ class CashfreeGateway(
         )
     }
 
-    private fun sdkError(message: String, cause: Throwable?): PaymentResult.Failure {
+    private fun sdkError(
+        message: String,
+        cause: Throwable?,
+    ): PaymentResult.Failure {
         AppLog.e(TAG, "Cashfree SDK error: $message", cause)
         return PaymentResult.Failure(
             code = FailureCode.SDK_ERROR,

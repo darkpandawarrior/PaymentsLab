@@ -1,6 +1,6 @@
 package com.paymentslab.core.security
 
-/**
+/*
  * Enforcement, kept deliberately separate from detection. [SecurityAuditor] answers *"what did we
  * find?"* ([SecurityAudit]); [SecurityPolicy] answers *"what should we do about it?"* ([SecurityDecision]),
  * driven by a configurable [SecurityPosture]. Dice hard-coded the reaction inside the detectors; this
@@ -15,7 +15,9 @@ enum class Threat { ROOT, EMULATOR, DEBUGGER, HOOK, SSL_BYPASS }
 enum class ThreatAction { ALLOW, WARN, BLOCK }
 
 /** The app's stance: an action per threat. */
-data class SecurityPosture(val actions: Map<Threat, ThreatAction>) {
+data class SecurityPosture(
+    val actions: Map<Threat, ThreatAction>,
+) {
     fun actionFor(threat: Threat): ThreatAction = actions[threat] ?: ThreatAction.ALLOW
 
     companion object {
@@ -62,14 +64,18 @@ data class SecurityDecision(
  * the most severe among the triggered threats (none triggered → ALLOW).
  */
 object SecurityPolicy {
-    fun evaluate(audit: SecurityAudit, posture: SecurityPosture): SecurityDecision {
-        val triggered = buildList {
-            if (audit.rooted) add(Threat.ROOT to posture.actionFor(Threat.ROOT))
-            if (audit.emulator) add(Threat.EMULATOR to posture.actionFor(Threat.EMULATOR))
-            if (audit.debuggerAttached) add(Threat.DEBUGGER to posture.actionFor(Threat.DEBUGGER))
-            if (audit.hooked) add(Threat.HOOK to posture.actionFor(Threat.HOOK))
-            if (audit.sslBypassSuspected) add(Threat.SSL_BYPASS to posture.actionFor(Threat.SSL_BYPASS))
-        }
+    fun evaluate(
+        audit: SecurityAudit,
+        posture: SecurityPosture,
+    ): SecurityDecision {
+        val triggered =
+            buildList {
+                if (audit.rooted) add(Threat.ROOT to posture.actionFor(Threat.ROOT))
+                if (audit.emulator) add(Threat.EMULATOR to posture.actionFor(Threat.EMULATOR))
+                if (audit.debuggerAttached) add(Threat.DEBUGGER to posture.actionFor(Threat.DEBUGGER))
+                if (audit.hooked) add(Threat.HOOK to posture.actionFor(Threat.HOOK))
+                if (audit.sslBypassSuspected) add(Threat.SSL_BYPASS to posture.actionFor(Threat.SSL_BYPASS))
+            }
         val action = triggered.maxOfOrNull { it.second } ?: ThreatAction.ALLOW
         return SecurityDecision(action, triggered)
     }

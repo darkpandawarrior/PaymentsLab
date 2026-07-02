@@ -15,7 +15,8 @@ import org.koin.dsl.module
  * [StripePaymentLauncherHost] is a singleton the app also reaches (to `attach` its Compose/Activity-
  * scoped `PaymentSheet`), so it must be shared between the gateway and the UI — hence `single`.
  */
-val stripeModule: Module = module {
-    single { StripePaymentLauncherHost() }
-    single { StripeGateway(launcherHost = get()) } bind PaymentGateway::class
-}
+val stripeModule: Module =
+    module {
+        single { StripePaymentLauncherHost() }
+        single { StripeGateway(launcherHost = get()) } bind PaymentGateway::class
+    }

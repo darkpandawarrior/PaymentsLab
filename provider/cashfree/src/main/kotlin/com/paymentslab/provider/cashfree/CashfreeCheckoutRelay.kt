@@ -18,12 +18,17 @@ import com.paymentslab.core.common.AppLog
  * callback can't resume the coroutine twice.
  */
 class CashfreeCheckoutRelay {
-
     /** Terminal outcome the SDK reports, normalized to a tiny sealed type the gateway maps. */
     sealed interface Outcome {
-        data class Verify(val orderId: String) : Outcome
-        data class Failure(val orderId: String, val errorMessage: String, val errorCode: String?) :
-            Outcome
+        data class Verify(
+            val orderId: String,
+        ) : Outcome
+
+        data class Failure(
+            val orderId: String,
+            val errorMessage: String,
+            val errorCode: String?,
+        ) : Outcome
     }
 
     // Guarded by @Synchronized: the SDK callback thread and the calling coroutine race on this.
@@ -49,7 +54,11 @@ class CashfreeCheckoutRelay {
 
     /** App-side wiring: the `CFCheckoutResponseCallback.onPaymentFailure` forwards here. */
     @Synchronized
-    fun onPaymentFailure(orderId: String, errorMessage: String, errorCode: String?) {
+    fun onPaymentFailure(
+        orderId: String,
+        errorMessage: String,
+        errorCode: String?,
+    ) {
         AppLog.w(TAG, "onPaymentFailure order=$orderId message=$errorMessage code=$errorCode")
         fire(Outcome.Failure(orderId, errorMessage, errorCode))
     }

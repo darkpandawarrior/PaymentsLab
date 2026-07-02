@@ -97,7 +97,9 @@ class FakeBackend(
     }
 }
 
-class FakeJournal(private val log: InteractionLog? = null) : PendingPaymentJournal {
+class FakeJournal(
+    private val log: InteractionLog? = null,
+) : PendingPaymentJournal {
     private val state = MutableStateFlow<List<PendingPayment>>(emptyList())
     val recorded get() = state.value
 

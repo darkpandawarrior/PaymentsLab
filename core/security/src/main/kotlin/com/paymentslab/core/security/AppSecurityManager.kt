@@ -115,8 +115,9 @@ class AppSecurityManager(
      */
     fun shouldBlockObscuredTouch(event: MotionEvent): Boolean {
         if (!config.tapjackingProtectionEnabled) return false
-        val obscured = (event.flags and MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0 ||
-            (event.flags and MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED) != 0
+        val obscured =
+            (event.flags and MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0 ||
+                (event.flags and MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED) != 0
         if (obscured) {
             AppLog.w(TAG, "Blocked obscured touch event — possible tapjacking attempt")
         }
@@ -147,27 +148,37 @@ class AppSecurityManager(
         AppLog.d(TAG, "AppSecurityManager installed (overlay=${config.securityOverlayEnabled})")
     }
 
-    private val activityTracker = object : Application.ActivityLifecycleCallbacks {
-        override fun onActivityStarted(activity: Activity) {
-            val wasBackground = startedActivities == 0
-            startedActivities++
-            if (wasBackground) onAppForegrounded()
-        }
+    private val activityTracker =
+        object : Application.ActivityLifecycleCallbacks {
+            override fun onActivityStarted(activity: Activity) {
+                val wasBackground = startedActivities == 0
+                startedActivities++
+                if (wasBackground) onAppForegrounded()
+            }
 
-        override fun onActivityResumed(activity: Activity) {
-            currentActivity = WeakReference(activity)
-        }
+            override fun onActivityResumed(activity: Activity) {
+                currentActivity = WeakReference(activity)
+            }
 
-        override fun onActivityStopped(activity: Activity) {
-            startedActivities--
-            if (startedActivities == 0) onAppBackgrounded()
-        }
+            override fun onActivityStopped(activity: Activity) {
+                startedActivities--
+                if (startedActivities == 0) onAppBackgrounded()
+            }
 
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
-        override fun onActivityPaused(activity: Activity) = Unit
-        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
-        override fun onActivityDestroyed(activity: Activity) = Unit
-    }
+            override fun onActivityCreated(
+                activity: Activity,
+                savedInstanceState: Bundle?,
+            ) = Unit
+
+            override fun onActivityPaused(activity: Activity) = Unit
+
+            override fun onActivitySaveInstanceState(
+                activity: Activity,
+                outState: Bundle,
+            ) = Unit
+
+            override fun onActivityDestroyed(activity: Activity) = Unit
+        }
 
     private fun onAppBackgrounded() {
         if (!config.securityOverlayEnabled) return

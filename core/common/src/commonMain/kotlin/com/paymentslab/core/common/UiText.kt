@@ -10,7 +10,9 @@ package com.paymentslab.core.common
  * already return [UiText].
  */
 sealed interface UiText {
-    data class Dynamic(val value: String) : UiText
+    data class Dynamic(
+        val value: String,
+    ) : UiText
 
     data object Empty : UiText
 

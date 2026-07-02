@@ -37,10 +37,11 @@ fun RedactionReveal(
         }
         repeat(SCRAMBLE_STEPS) { step ->
             display =
-                value.mapIndexed { index, char ->
-                    val shouldScramble = char == '•' || index % 2 == step % 2
-                    if (shouldScramble) SCRAMBLE_CHARS[Random.nextInt(SCRAMBLE_CHARS.length)] else char
-                }.joinToString("")
+                value
+                    .mapIndexed { index, char ->
+                        val shouldScramble = char == '•' || index % 2 == step % 2
+                        if (shouldScramble) SCRAMBLE_CHARS[Random.nextInt(SCRAMBLE_CHARS.length)] else char
+                    }.joinToString("")
             delay(SCRAMBLE_STEP_MS)
         }
         display = value

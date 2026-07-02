@@ -15,7 +15,6 @@ import org.junit.Test
  * [Intent] pair is mocked (MockK) so the parsing logic is exercised without an emulator.
  */
 class UpiIntentGatewayTest {
-
     private val gateway = UpiIntentGateway()
 
     private fun resultWith(response: String?): ActivityResult {
@@ -29,9 +28,10 @@ class UpiIntentGatewayTest {
 
     @Test
     fun success_maps_to_Success_with_txnId_as_paymentId() {
-        val res = gateway.parseUpiResult(
-            resultWith("txnId=TX123&responseCode=00&Status=SUCCESS&txnRef=REF9"),
-        )
+        val res =
+            gateway.parseUpiResult(
+                resultWith("txnId=TX123&responseCode=00&Status=SUCCESS&txnRef=REF9"),
+            )
         assertTrue(res is PaymentResult.Success)
         res as PaymentResult.Success
         assertEquals("TX123", res.paymentId)
@@ -41,18 +41,20 @@ class UpiIntentGatewayTest {
 
     @Test
     fun submitted_maps_to_Pending_UPI_SUBMITTED() {
-        val res = gateway.parseUpiResult(
-            resultWith("txnId=TX1&responseCode=00&Status=SUBMITTED&txnRef=R1"),
-        )
+        val res =
+            gateway.parseUpiResult(
+                resultWith("txnId=TX1&responseCode=00&Status=SUBMITTED&txnRef=R1"),
+            )
         assertTrue(res is PaymentResult.Pending)
         assertEquals(PendingReason.UPI_SUBMITTED, (res as PaymentResult.Pending).reason)
     }
 
     @Test
     fun failure_maps_to_Failure() {
-        val res = gateway.parseUpiResult(
-            resultWith("txnId=&responseCode=ZM&Status=FAILURE&txnRef="),
-        )
+        val res =
+            gateway.parseUpiResult(
+                resultWith("txnId=&responseCode=ZM&Status=FAILURE&txnRef="),
+            )
         assertTrue(res is PaymentResult.Failure)
     }
 

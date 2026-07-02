@@ -16,7 +16,8 @@ import org.koin.dsl.module
  * `CFCheckoutResponseCallback` that forwards into this relay), so it must be shared between the
  * gateway and the Activity — hence `single`.
  */
-val cashfreeModule: Module = module {
-    single { CashfreeCheckoutRelay() }
-    single { CashfreeGateway(relay = get()) } bind PaymentGateway::class
-}
+val cashfreeModule: Module =
+    module {
+        single { CashfreeCheckoutRelay() }
+        single { CashfreeGateway(relay = get()) } bind PaymentGateway::class
+    }

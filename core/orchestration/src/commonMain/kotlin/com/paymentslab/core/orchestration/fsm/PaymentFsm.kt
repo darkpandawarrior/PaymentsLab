@@ -5,7 +5,7 @@ import com.paymentslab.core.paymentsapi.PaymentResult
 import com.paymentslab.core.paymentsapi.PaymentSnapshot
 import com.paymentslab.core.paymentsapi.PaymentStatus
 
-/**
+/*
  * The payment lifecycle as a **pure state machine** — zero coroutines, zero DI, zero I/O, zero clock.
  * It imports only domain value types. Given a [PaymentState] and a [PaymentEvent] it returns the next
  * state plus the [PaymentEffect]s the effectful shell ([com.paymentslab.core.orchestration.PaymentOrchestrator])
@@ -39,14 +39,22 @@ data class PaymentState(
 
 /** Something that happened in the outside world (the result of an effect). */
 sealed interface PaymentEvent {
-    data class OrderCreated(val orderId: String) : PaymentEvent
+    data class OrderCreated(
+        val orderId: String,
+    ) : PaymentEvent
 
-    data class ClientReturned(val result: PaymentResult) : PaymentEvent
+    data class ClientReturned(
+        val result: PaymentResult,
+    ) : PaymentEvent
 
     /** The server's answer to a verify OR a status check — both yield a snapshot. */
-    data class ServerAnswered(val snapshot: PaymentSnapshot) : PaymentEvent
+    data class ServerAnswered(
+        val snapshot: PaymentSnapshot,
+    ) : PaymentEvent
 
-    data class Errored(val message: String) : PaymentEvent
+    data class Errored(
+        val message: String,
+    ) : PaymentEvent
 }
 
 /** Something the shell must do. Pure data — the shell decides how to perform it. */
@@ -56,13 +64,17 @@ sealed interface PaymentEffect {
     data object RecordJournalAndLaunch : PaymentEffect
 
     /** Confirm a client [result] with the server (signature verify for success/pending). */
-    data class Verify(val result: PaymentResult) : PaymentEffect
+    data class Verify(
+        val result: PaymentResult,
+    ) : PaymentEffect
 
     /** Ask the server for authoritative state (used when the client reported failure, and while polling). */
     data object CheckStatus : PaymentEffect
 
     /** Settle terminally: resolve the journal + emit the final step. */
-    data class Settle(val status: PaymentStatus) : PaymentEffect
+    data class Settle(
+        val status: PaymentStatus,
+    ) : PaymentEffect
 }
 
 /** The result of one reduction: the next state and the effects to run. */
@@ -72,7 +84,9 @@ data class Transition(
 )
 
 /** Tuning the poll loop — mirrors the orchestrator's PollConfig, kept here so the FSM stays pure. */
-data class FsmPollConfig(val maxAttempts: Int = 5)
+data class FsmPollConfig(
+    val maxAttempts: Int = 5,
+)
 
 /**
  * The reducer. Total over (phase, event): every reachable combination maps to a transition. Unexpected

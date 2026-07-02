@@ -43,7 +43,9 @@ fun CheckoutRoot(
     paymentHost: PaymentHost,
     onBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    viewModel: CheckoutViewModel = org.koin.compose.viewmodel.koinViewModel(),
+    viewModel: CheckoutViewModel =
+        org.koin.compose.viewmodel
+            .koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     CheckoutScreen(
@@ -186,8 +188,7 @@ private fun GatewayChips(
                             width = DesignTokens.Spacing.xs / 4,
                             color = MaterialTheme.colorScheme.outlineVariant,
                             shape = RoundedCornerShape(DesignTokens.Radius.md),
-                        )
-                        .clickable { onSelect(gateway.id) },
+                        ).clickable { onSelect(gateway.id) },
             ) {
                 Text(
                     text = gateway.displayName,

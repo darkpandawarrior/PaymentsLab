@@ -45,19 +45,20 @@ import kotlin.coroutines.resume
  * ────────────────────────────────────────────────────────────────────────────────────────────────
  */
 class UpiIntentGateway : PaymentGateway {
-
     override val id: GatewayId = GatewayId("upi_intent")
 
-    override val meta: GatewayMeta = GatewayMeta(
-        displayName = "UPI (raw intent)",
-        status = GatewayStatus.SANDBOX_READY,
-        capabilities = setOf(Capability.ONE_TIME_PAYMENT, Capability.UPI),
-        region = "India",
-        docsPath = "docs/providers/upi-intent.md",
-        blurb = "Constructs a raw upi:// deep link and launches the UPI app chooser — no SDK, no " +
-            "onboarding. The app's returned status is client-side and UNVERIFIABLE; the server " +
-            "must confirm every payment out-of-band before trusting it.",
-    )
+    override val meta: GatewayMeta =
+        GatewayMeta(
+            displayName = "UPI (raw intent)",
+            status = GatewayStatus.SANDBOX_READY,
+            capabilities = setOf(Capability.ONE_TIME_PAYMENT, Capability.UPI),
+            region = "India",
+            docsPath = "docs/providers/upi-intent.md",
+            blurb =
+                "Constructs a raw upi:// deep link and launches the UPI app chooser — no SDK, no " +
+                    "onboarding. The app's returned status is client-side and UNVERIFIABLE; the server " +
+                    "must confirm every payment out-of-band before trusting it.",
+        )
 
     /**
      * Build the `upi://pay` parameter map. The backend owns the trust-sensitive fields — payee
@@ -67,10 +68,12 @@ class UpiIntentGateway : PaymentGateway {
      */
     override suspend fun prepare(created: CreatedOrder): PreparedPayment {
         val backend = created.providerParams
-        val pa = backend["pa"]
-            ?: throw PaymentPreparationException("UPI order missing payee address (pa)")
-        val pn = backend["pn"]
-            ?: throw PaymentPreparationException("UPI order missing payee name (pn)")
+        val pa =
+            backend["pa"]
+                ?: throw PaymentPreparationException("UPI order missing payee address (pa)")
+        val pn =
+            backend["pn"]
+                ?: throw PaymentPreparationException("UPI order missing payee name (pn)")
         val mc = backend["mc"].orEmpty()
 
         val amount = created.order.amount
@@ -78,14 +81,15 @@ class UpiIntentGateway : PaymentGateway {
             throw PaymentPreparationException("UPI only supports INR, was ${amount.currency}")
         }
 
-        val params = linkedMapOf(
-            "pa" to pa,
-            "pn" to pn,
-            "tr" to created.order.orderId, // transaction reference = our order id
-            "am" to amount.toUpiAmountString(),
-            "cu" to "INR",
-            "mc" to mc,
-        )
+        val params =
+            linkedMapOf(
+                "pa" to pa,
+                "pn" to pn,
+                "tr" to created.order.orderId, // transaction reference = our order id
+                "am" to amount.toUpiAmountString(),
+                "cu" to "INR",
+                "mc" to mc,
+            )
 
         AppLog.d(TAG, "prepared UPI intent order=${created.order.orderId} am=${params["am"]}")
         return PreparedPayment(
@@ -96,13 +100,17 @@ class UpiIntentGateway : PaymentGateway {
         )
     }
 
-    override suspend fun pay(host: PaymentHost, prepared: PreparedPayment): PaymentResult {
-        val androidHost = host as? AndroidPaymentHost
-            ?: return PaymentResult.Failure(
-                code = FailureCode.SDK_ERROR,
-                message = UiText.of("UPI intent requires an Android host"),
-                raw = Redactor.redact(RAW_LABEL, mapOf("error" to "host_not_android")),
-            )
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult {
+        val androidHost =
+            host as? AndroidPaymentHost
+                ?: return PaymentResult.Failure(
+                    code = FailureCode.SDK_ERROR,
+                    message = UiText.of("UPI intent requires an Android host"),
+                    raw = Redactor.redact(RAW_LABEL, mapOf("error" to "host_not_android")),
+                )
 
         val uri = buildUpiUri(prepared.params)
 
@@ -110,17 +118,19 @@ class UpiIntentGateway : PaymentGateway {
             // Guard against a double resume: ActivityResult can fire once, but process recreation
             // or a defensive path could invoke the callback more than once — resume-once only.
             val resumed = AtomicBoolean(false)
+
             fun finishOnce(result: PaymentResult) {
                 if (resumed.compareAndSet(false, true) && cont.isActive) {
                     cont.resume(result)
                 }
             }
 
-            val launcher = androidHost.registerForResult(
-                ActivityResultContracts.StartActivityForResult(),
-            ) { activityResult: ActivityResult ->
-                finishOnce(parseUpiResult(activityResult))
-            }
+            val launcher =
+                androidHost.registerForResult(
+                    ActivityResultContracts.StartActivityForResult(),
+                ) { activityResult: ActivityResult ->
+                    finishOnce(parseUpiResult(activityResult))
+                }
 
             // NPCI mandates the *generic* Android chooser for the upi:// intent — you must NOT
             // target a specific UPI package or pre-select an app. createChooser presents every
@@ -173,21 +183,23 @@ class UpiIntentGateway : PaymentGateway {
 
         // verification: unredacted server-bound fields. NB: even these are only *claims* — the
         // server verifies out-of-band; there is no client-side signature to check.
-        val verification = mapOf(
-            "txnId" to txnId,
-            "txnRef" to txnRef,
-            "responseCode" to responseCode,
-            "Status" to status,
-        )
-        val raw = Redactor.redact(
-            RAW_LABEL,
+        val verification =
             mapOf(
                 "txnId" to txnId,
                 "txnRef" to txnRef,
                 "responseCode" to responseCode,
                 "Status" to status,
-            ),
-        )
+            )
+        val raw =
+            Redactor.redact(
+                RAW_LABEL,
+                mapOf(
+                    "txnId" to txnId,
+                    "txnRef" to txnRef,
+                    "responseCode" to responseCode,
+                    "Status" to status,
+                ),
+            )
 
         return when (status) {
             "SUCCESS" -> {
@@ -224,12 +236,12 @@ class UpiIntentGateway : PaymentGateway {
     }
 
     private fun parseResponseString(response: String): Map<String, String> =
-        response.split("&")
+        response
+            .split("&")
             .mapNotNull { pair ->
                 val idx = pair.indexOf('=')
                 if (idx <= 0) null else pair.substring(0, idx) to pair.substring(idx + 1)
-            }
-            .toMap()
+            }.toMap()
 
     private companion object {
         const val TAG = "UpiIntentGateway"

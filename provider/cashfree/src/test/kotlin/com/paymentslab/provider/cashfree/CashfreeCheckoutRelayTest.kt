@@ -12,7 +12,6 @@ import org.junit.Test
  * relies on, so it's the highest-value thing to lock down.
  */
 class CashfreeCheckoutRelayTest {
-
     private val relay = CashfreeCheckoutRelay()
 
     @Test

@@ -14,6 +14,7 @@ import org.koin.dsl.module
  * with `getAll<PaymentGateway>()` — each provider contributes one distinct concrete `single`, so
  * there is no definition override, and all of them show up in the multi-binding.
  */
-val upiIntentModule: Module = module {
-    single { UpiIntentGateway() } bind PaymentGateway::class
-}
+val upiIntentModule: Module =
+    module {
+        single { UpiIntentGateway() } bind PaymentGateway::class
+    }

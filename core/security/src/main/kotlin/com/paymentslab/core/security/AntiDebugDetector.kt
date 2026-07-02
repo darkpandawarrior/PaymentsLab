@@ -33,7 +33,6 @@ private const val TAG = "AntiDebugDetector"
  * layer, so a debuggable VAPT build can still pass the compromise gate.
  */
 object AntiDebugDetector {
-
     /**
      * Runs every debug check and returns the human-readable signal strings that fired.
      *

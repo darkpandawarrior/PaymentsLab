@@ -13,9 +13,9 @@ import kotlinx.coroutines.Dispatchers
  * future schema changes ship explicit [androidx.room.migration.Migration]s.
  */
 fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<PaymentsLabDatabase> =
-    Room.databaseBuilder<PaymentsLabDatabase>(
-        context = context.applicationContext,
-        name = context.applicationContext.getDatabasePath("paymentslab.db").absolutePath,
-    )
-        .setDriver(BundledSQLiteDriver())
+    Room
+        .databaseBuilder<PaymentsLabDatabase>(
+            context = context.applicationContext,
+            name = context.applicationContext.getDatabasePath("paymentslab.db").absolutePath,
+        ).setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)

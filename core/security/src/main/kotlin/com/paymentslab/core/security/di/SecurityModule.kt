@@ -32,18 +32,19 @@ import org.koin.dsl.module
  *
  * Assemble into the app graph: `modules(securityModule(SecurityConfig(...)), …)`.
  */
-fun securityModule(config: SecurityConfig = SecurityConfig()): Module = module {
-    single<SecureStore> { KeystoreSecureStore(androidContext()) }
-    single { config }
-    single<DeviceIntegrity> { AndroidDeviceIntegrity(androidContext(), get()) }
+fun securityModule(config: SecurityConfig = SecurityConfig()): Module =
+    module {
+        single<SecureStore> { KeystoreSecureStore(androidContext()) }
+        single { config }
+        single<DeviceIntegrity> { AndroidDeviceIntegrity(androidContext(), get()) }
 
-    single { AppSecurityManager(get()) }
+        single { AppSecurityManager(get()) }
 
-    single { AntiDebugDetector }
-    single { AntiHookDetector }
-    single { AntiSslBypassDetector }
+        single { AntiDebugDetector }
+        single { AntiHookDetector }
+        single { AntiSslBypassDetector }
 
-    single<SecurityAuditor> {
-        AndroidSecurityAuditor(androidContext(), get(), get(), get(), get(), get())
+        single<SecurityAuditor> {
+            AndroidSecurityAuditor(androidContext(), get(), get(), get(), get(), get())
+        }
     }
-}

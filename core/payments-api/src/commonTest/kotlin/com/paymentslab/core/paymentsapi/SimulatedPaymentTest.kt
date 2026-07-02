@@ -24,7 +24,12 @@ class SimulatedPaymentTest {
             assertEquals("succeeded", success.verification["marker"])
             // key_id looks like a secret to Redactor and must be masked, not dropped or shown raw.
             assertEquals("MOCK_MODE", success.raw.entries.toMap()["mode"])
-            assertEquals(true, success.raw.entries.toMap()["key_id"]?.contains("•"))
+            assertEquals(
+                true,
+                success.raw.entries
+                    .toMap()["key_id"]
+                    ?.contains("•"),
+            )
         }
 
     @Test
