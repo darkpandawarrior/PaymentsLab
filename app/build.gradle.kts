@@ -2,6 +2,7 @@ plugins {
     id("paymentslab.android.application")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.dependency.guard)
+    alias(libs.plugins.roborazzi)
 }
 
 // Locks the app's runtime dependency graph. A silent transitive version bump fails
@@ -24,6 +25,13 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+        }
+    }
+
+    testOptions {
+        unitTests {
+            // Roborazzi/Robolectric render real Compose UI on the JVM — needs Android resources.
+            isIncludeAndroidResources = true
         }
     }
 }
@@ -79,4 +87,13 @@ dependencies {
     implementation(libs.stripe.paymentsheet)
     implementation(libs.cashfree.pg.api)
     implementation(libs.cashfree.pg.ui)
+
+    // Roborazzi screenshot tests (JVM/Robolectric — no emulator). Snapshot the design system.
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi.core)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.kotlinx.collections.immutable)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
