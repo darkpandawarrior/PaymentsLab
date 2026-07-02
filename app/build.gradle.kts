@@ -94,6 +94,7 @@ dependencies {
     implementation(project(":provider:stripe"))
     implementation(project(":provider:hosted-webview"))
     implementation(project(":provider:googlepay"))
+    implementation(project(":provider:mobile-money"))
 
     // Features
     implementation(project(":feature:lab"))

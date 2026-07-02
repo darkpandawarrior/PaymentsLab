@@ -53,6 +53,7 @@ include(":provider:cashfree")
 include(":provider:stripe")
 include(":provider:hosted-webview")
 include(":provider:googlepay")
+include(":provider:mobile-money")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

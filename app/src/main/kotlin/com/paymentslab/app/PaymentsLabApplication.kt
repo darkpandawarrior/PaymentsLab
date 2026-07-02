@@ -22,6 +22,7 @@ import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
+import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.stripe.di.stripeModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
@@ -84,6 +85,18 @@ class PaymentsLabApplication :
                 cashfreeModule,
                 stripeModule,
                 googlePayModule,
+                mobileMoneyModule(
+                    listOf(
+                        mpesaConfig,
+                        mtnMomoConfig,
+                        beyonicConfig,
+                        orangeMoneyConfig,
+                        waveConfig,
+                        ecocashConfig,
+                        easypaisaConfig,
+                        vukapayConfig,
+                    ),
+                ),
                 hostedWebViewModule(
                     listOf(
                         paystackHostedGatewayConfig,
