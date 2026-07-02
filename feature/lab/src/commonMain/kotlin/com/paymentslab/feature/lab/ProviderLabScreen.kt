@@ -11,16 +11,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paymentslab.core.designsystem.DesignTokens
+import com.paymentslab.core.designsystem.FailureShake
 import com.paymentslab.core.designsystem.LabScaffold
+import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.designsystem.StepTimeline
+import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentHost
+import com.paymentslab.core.paymentsapi.PaymentStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -73,6 +78,17 @@ fun ProviderLabScreen(
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
         ) {
+            // Pinned at top per the plan: shows this run's specific hops (SDK vs WebView vs intent
+            // vs poll) and the trust boundary — a client result stays "unverified" colour until the
+            // backend actually confirms it.
+            state.currentHop?.let { hop ->
+                PaymentFlowDiagram(
+                    activeHop = hop,
+                    verified = state.verified,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
             SectionHeader(text = "Live payment timeline")
 
             if (state.steps.isEmpty()) {
@@ -104,12 +120,23 @@ fun ProviderLabScreen(
             )
 
             state.finalStatus?.let { status ->
-                Text(
-                    text = "Final server status: ${status.name}",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sm),
+                ) {
+                    if (status == PaymentStatus.SUCCESS || status == PaymentStatus.REFUNDED) {
+                        SuccessBurst()
+                    } else {
+                        FailureShake()
+                    }
+                    Text(
+                        text = "Final server status: ${status.name}",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         }
     }
