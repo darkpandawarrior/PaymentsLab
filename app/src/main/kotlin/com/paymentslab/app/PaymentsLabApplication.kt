@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.work.Configuration
 import com.paymentslab.app.work.PaymentReconciliationWorker
 import com.paymentslab.app.work.PaymentWorkerFactory
+import com.paymentslab.core.common.CrashReporter
+import com.paymentslab.core.common.NapierCrashReporter
 import com.paymentslab.core.data.di.dataModule
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
@@ -48,6 +50,14 @@ class PaymentsLabApplication :
         super.onCreate()
         Napier.base(DebugAntilog())
 
+        // Crash/non-fatal reporting behind an interface (Napier default; Crashlytics/Sentry is a
+        // one-line DI swap). Install the uncaught-exception handler + build-variant keys first.
+        val crashReporter: CrashReporter = NapierCrashReporter()
+        CrashReportingInitializer.install(
+            crashReporter,
+            mapOf("buildType" to BuildConfig.BUILD_TYPE, "versionName" to BuildConfig.VERSION_NAME),
+        )
+
         // App-owned security policy: VAPT bypass flags come from BuildConfig (all false except in a
         // dedicated compliance-test variant).
         val securityConfig =
@@ -61,6 +71,7 @@ class PaymentsLabApplication :
         startKoin {
             androidContext(this@PaymentsLabApplication)
             modules(
+                org.koin.dsl.module { single { crashReporter } },
                 // core
                 dataModule,
                 networkModule(PaymentApiConfig(BuildConfig.BACKEND_URL)),
@@ -90,9 +101,16 @@ class PaymentsLabApplication :
             val audit = get<SecurityAuditor>().audit()
             val posture = if (BuildConfig.DEBUG) SecurityPosture.lenient() else SecurityPosture.strict()
             val decision = SecurityPolicy.evaluate(audit, posture)
+            crashReporter.setCustomKey("security_decision", decision.action.name)
             when {
-                decision.shouldBlock -> Napier.e("Security: BLOCK — ${decision.summary()}", tag = "Security")
-                decision.shouldWarn -> Napier.w("Security: WARN — ${decision.summary()}", tag = "Security")
+                decision.shouldBlock -> {
+                    crashReporter.log("security BLOCK: ${decision.summary()}")
+                    Napier.e("Security: BLOCK — ${decision.summary()}", tag = "Security")
+                }
+                decision.shouldWarn -> {
+                    crashReporter.log("security WARN: ${decision.summary()}")
+                    Napier.w("Security: WARN — ${decision.summary()}", tag = "Security")
+                }
             }
         }
 
