@@ -14,7 +14,12 @@ dependencyGuard {
 // Single-source versioning: VERSION (semver) + BUILD_NUMBER (monotonic) at the repo root, bumped by
 // `fastlane bump` and read here so versionName/versionCode never drift.
 val appVersionName = rootProject.file("VERSION").readText().trim()
-val appBuildNumber = rootProject.file("BUILD_NUMBER").readText().trim().toInt()
+val appBuildNumber =
+    rootProject
+        .file("BUILD_NUMBER")
+        .readText()
+        .trim()
+        .toInt()
 
 android {
     namespace = "com.paymentslab.app"
@@ -87,6 +92,7 @@ dependencies {
     implementation(project(":provider:razorpay"))
     implementation(project(":provider:cashfree"))
     implementation(project(":provider:stripe"))
+    implementation(project(":provider:hosted-webview"))
 
     // Features
     implementation(project(":feature:lab"))

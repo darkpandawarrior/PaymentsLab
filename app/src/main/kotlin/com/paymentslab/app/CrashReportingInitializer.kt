@@ -9,7 +9,10 @@ import com.paymentslab.core.common.CrashReporter
  * (Napier by default, Crashlytics/Sentry in a real deployment).
  */
 object CrashReportingInitializer {
-    fun install(reporter: CrashReporter, customKeys: Map<String, String>) {
+    fun install(
+        reporter: CrashReporter,
+        customKeys: Map<String, String>,
+    ) {
         customKeys.forEach { (key, value) -> reporter.setCustomKey(key, value) }
 
         val previous = Thread.getDefaultUncaughtExceptionHandler()

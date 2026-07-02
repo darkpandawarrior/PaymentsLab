@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger
 class PaymentHostController(
     override val activity: ComponentActivity,
 ) : AndroidPaymentHost {
-
     private val counter = AtomicInteger(0)
 
     override fun <I, O> registerForResult(
@@ -26,10 +25,11 @@ class PaymentHostController(
     ): ActivityResultLauncher<I> {
         val key = "paymentslab_result_${counter.incrementAndGet()}"
         lateinit var launcher: ActivityResultLauncher<I>
-        launcher = activity.activityResultRegistry.register(key, contract) { result ->
-            onResult(result)
-            launcher.unregister()
-        }
+        launcher =
+            activity.activityResultRegistry.register(key, contract) { result ->
+                onResult(result)
+                launcher.unregister()
+            }
         return launcher
     }
 }

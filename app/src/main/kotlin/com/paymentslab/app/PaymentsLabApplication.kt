@@ -20,6 +20,7 @@ import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
+import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.stripe.di.stripeModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
@@ -45,7 +46,6 @@ class PaymentsLabApplication :
     Application(),
     Configuration.Provider,
     KoinComponent {
-
     override fun onCreate() {
         super.onCreate()
         Napier.base(DebugAntilog())
@@ -82,6 +82,7 @@ class PaymentsLabApplication :
                 razorpayModule,
                 cashfreeModule,
                 stripeModule,
+                hostedWebViewModule(listOf(paystackHostedGatewayConfig)),
                 // features
                 labModule,
                 historyModule,
@@ -121,7 +122,8 @@ class PaymentsLabApplication :
     // WorkManager on-demand init uses this — set after startKoin so the Koin graph is ready.
     override val workManagerConfiguration: Configuration
         get() =
-            Configuration.Builder()
+            Configuration
+                .Builder()
                 .setWorkerFactory(PaymentWorkerFactory(get()))
                 .build()
 }

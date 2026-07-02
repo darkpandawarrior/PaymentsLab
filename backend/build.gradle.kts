@@ -12,6 +12,8 @@ application {
 dependencies {
     // Depend on the shared wire contract (JVM target) so the server serves the EXACT DTOs the client sends.
     implementation(project(":core:protocol"))
+    // Env-backed credential resolution (PLAB_<GATEWAY>_<MODE>_<KEY>) — shared with the Android app.
+    implementation(project(":core:config"))
 
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
@@ -22,7 +24,13 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.logback.classic)
 
+    // Outbound HTTP client — for gateways with a real server-side REST API (Paystack).
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.mock)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit)
 }

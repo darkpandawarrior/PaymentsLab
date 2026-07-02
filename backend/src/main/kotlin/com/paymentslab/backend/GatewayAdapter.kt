@@ -18,15 +18,16 @@ interface GatewayAdapter {
 
     /**
      * Build the provider params for a new order. [orderId] is the server-generated id; [item] carries
-     * the server-authoritative amount/currency.
+     * the server-authoritative amount/currency. `suspend` because a real gateway (Paystack) makes a
+     * network call here (`POST /transaction/initialize`); the other adapters just build a map.
      */
-    fun createProviderOrder(
+    suspend fun createProviderOrder(
         orderId: String,
         item: CatalogItemDto,
     ): Map<String, String>
 
     /** Verify the client's proof. Returns the resolved server-authoritative status. */
-    fun verify(req: VerifyRequest): PaymentStatusDto
+    suspend fun verify(req: VerifyRequest): PaymentStatusDto
 
     /**
      * Verify an inbound webhook's authenticity from its raw body + headers. Default accepts
@@ -45,14 +46,18 @@ interface GatewayAdapter {
 sealed interface WebhookVerification {
     data object Accepted : WebhookVerification
 
-    data class Rejected(val reason: String) : WebhookVerification
+    data class Rejected(
+        val reason: String,
+    ) : WebhookVerification
 }
 
 /**
  * Registry of adapters by [GatewayAdapter.gatewayId]. Returns null for an unknown id so routes can
  * map that to a 400 ApiError.
  */
-class GatewayRegistry(adapters: List<GatewayAdapter>) {
+class GatewayRegistry(
+    adapters: List<GatewayAdapter>,
+) {
     private val byId: Map<String, GatewayAdapter> = adapters.associateBy { it.gatewayId }
 
     fun find(gatewayId: String): GatewayAdapter? = byId[gatewayId]

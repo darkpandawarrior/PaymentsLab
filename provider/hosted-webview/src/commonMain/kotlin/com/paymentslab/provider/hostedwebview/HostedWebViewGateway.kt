@@ -51,7 +51,7 @@ class HostedWebViewGateway(
     ): PaymentResult {
         val checkoutUrl = config.buildCheckoutUrl(prepared.params)
         return suspendCancellableCoroutine { cont ->
-            relay.register(id) { outcome -> if (cont.isActive) cont.resume(mapOutcome(outcome)) }
+            relay.register(id) { outcome -> if (cont.isActive) cont.resume(mapOutcome(outcome)) { _, _, _ -> } }
             cont.invokeOnCancellation { relay.clear(id) }
             relay.launch(id, checkoutUrl)
         }

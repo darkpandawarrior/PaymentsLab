@@ -8,6 +8,8 @@ import com.paymentslab.core.protocol.PaymentStatusResponse
 import com.paymentslab.core.protocol.VerifyRequest
 import com.paymentslab.core.protocol.VerifyResponse
 import com.paymentslab.core.protocol.WebhookAck
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -26,6 +28,7 @@ import io.ktor.server.routing.routing
 import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
 import java.util.UUID
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 
 /** JSON config shared by ContentNegotiation and raw webhook-body decoding. */
 val BackendJson: Json =
@@ -49,6 +52,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
     val store = PaymentStore()
     val actor = PaymentActor(store, this)
     val catalog = CatalogService()
+    val outboundHttpClient = HttpClient(OkHttp) { install(ClientContentNegotiation) { json(BackendJson) } }
     val gateways =
         GatewayRegistry(
             listOf(
@@ -56,6 +60,11 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                     keyId = config.razorpayKeyId,
                     secret = config.razorpaySecret,
                     webhookSecret = config.razorpayWebhookSecret,
+                ),
+                PaystackAdapter(
+                    credentials = config.paystackCredentials,
+                    publicBaseUrl = config.publicBaseUrl,
+                    httpClient = outboundHttpClient,
                 ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
@@ -175,7 +184,10 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 gateways.find(provider)
                     ?: throw BadRequestException("unknown_gateway", "No gateway: $provider")
             val rawBody = call.receiveText()
-            val headers = call.request.headers.names().associateWith { call.request.headers[it].orEmpty() }
+            val headers =
+                call.request.headers
+                    .names()
+                    .associateWith { call.request.headers[it].orEmpty() }
 
             // Dispatched through the adapter — no more razorpay-only special case. Every provider
             // decides its own webhook authenticity rule (default: accept, see GatewayAdapter).
