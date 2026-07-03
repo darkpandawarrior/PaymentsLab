@@ -23,6 +23,7 @@ import com.paymentslab.provider.cashfree.di.cashfreeModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
+import com.paymentslab.provider.omise.di.omiseModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
@@ -87,6 +88,7 @@ class PaymentsLabApplication :
                 stripeModule,
                 googlePayModule,
                 squareModule,
+                omiseModule,
                 mobileMoneyModule(
                     listOf(
                         mpesaConfig,
