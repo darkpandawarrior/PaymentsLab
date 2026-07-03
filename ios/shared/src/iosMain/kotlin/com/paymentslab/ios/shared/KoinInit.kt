@@ -4,10 +4,13 @@ import com.paymentslab.core.data.di.dataModule
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
+import com.paymentslab.core.paymentsapi.PaymentGateway
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
 import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
 /**
  * B8's composition root — the iOS counterpart to `app/PaymentsLabApplication.kt`. Deliberately
@@ -15,9 +18,12 @@ import org.koin.core.context.startKoin
  * so `core:security` (Android-only VAPT suite) and every native-SDK archetype-A provider module
  * are correctly absent here, not silently missing.
  *
- * Called once from Swift (`KoinInitKt.doInitKoin()`) before `MainViewController()` is presented.
+ * Called once from Swift (`KoinInitKt.doInitKoin(stripeCheckoutHost:)`) before
+ * `MainViewController()` is presented. [stripeCheckoutHost] is Swift's real `PaymentSheet`
+ * implementation of [StripeCheckoutHost] — constructed in Swift (where the real Stripe SDK lives)
+ * and handed down, rather than Kotlin reaching up into a framework it can't cinterop against.
  */
-fun doInitKoin() {
+fun doInitKoin(stripeCheckoutHost: StripeCheckoutHost) {
     startKoin {
         modules(
             dataModule,
@@ -26,6 +32,10 @@ fun doInitKoin() {
             hostedWebViewModule(iosHostedGatewayConfigs),
             mobileMoneyModule(iosMobileMoneyConfigs),
             labModule,
+            module {
+                single { stripeCheckoutHost }
+                single<PaymentGateway>(qualifier = named("stripe")) { StripeIosGateway(get()) }
+            },
         )
     }
 }
