@@ -72,6 +72,7 @@ include(":provider:omise")
 include(":feature:lab")
 include(":feature:checkout-demo")
 include(":feature:history")
+include(":feature:home")
 
 // ── iOS (B8) ─────────────────────────────────────────────────────────────────
 include(":ios:shared")
