@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paymentslab.core.designsystem.AnimatedCounter
@@ -121,7 +122,7 @@ private fun HeroStatCard(
             Text(
                 text = "Welcome back",
                 style = MaterialTheme.typography.titleMedium,
-                color = androidx.compose.ui.graphics.Color.White,
+                color = Color.White,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -130,29 +131,29 @@ private fun HeroStatCard(
                 Column {
                     AnimatedCounter(
                         target = state.gatewayCount,
-                        style = MaterialTheme.typography.displaySmall.copy(color = androidx.compose.ui.graphics.Color.White),
+                        style = MaterialTheme.typography.displaySmall.copy(color = Color.White),
                     )
                     Text(
                         text = "gateways integrated",
                         style = MaterialTheme.typography.labelMedium,
-                        color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.85f),
+                        color = Color.White.copy(alpha = 0.85f),
                     )
                 }
                 Column {
                     AnimatedCounter(
                         target = state.successRatePercent,
                         suffix = "%",
-                        style = MaterialTheme.typography.displaySmall.copy(color = androidx.compose.ui.graphics.Color.White),
+                        style = MaterialTheme.typography.displaySmall.copy(color = Color.White),
                     )
                     Text(
                         text = "success rate",
                         style = MaterialTheme.typography.labelMedium,
-                        color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.85f),
+                        color = Color.White.copy(alpha = 0.85f),
                     )
                 }
             }
             TextButton(onClick = onOpenExplore) {
-                Text("Explore gateways →", color = androidx.compose.ui.graphics.Color.White)
+                Text("Explore gateways →", color = Color.White)
             }
         }
     }
