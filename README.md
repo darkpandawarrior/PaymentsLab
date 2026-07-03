@@ -234,6 +234,18 @@ Sandbox credentials are read from environment variables (see `backend/.env.examp
 ever ships publishable keys, never secrets. Real end-to-end payment execution needs a device plus
 each provider's sandbox keys — the SDK integrations compile and the flows are fully wired regardless.
 
+Every gateway below the original three (Razorpay/Stripe/Cashfree) follows one convention —
+`PLAB_<GATEWAY>_<MODE>_<KEY>` — resolved by `core:config`'s `EnvCredentialStore`. Unset → the
+gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code change either way.
+`backend/.env.example` predates the Tier-1 real-SDK batch, so the current full set is:
+
+| Gateway | Vars | Self-serve sandbox? |
+|---|---|---|
+| Paystack | `PLAB_PAYSTACK_TEST_SECRET_KEY` | Yes — paystack.com |
+| PayPal | `PLAB_PAYPAL_TEST_CLIENT_ID`, `_CLIENT_SECRET` | Yes — developer.paypal.com |
+| Square | `PLAB_SQUARE_TEST_APPLICATION_ID`, `_ACCESS_TOKEN`, `_LOCATION_ID` | Yes — developer.squareup.com/apps |
+| Omise | `PLAB_OMISE_TEST_PUBLIC_KEY`, `_SECRET_KEY` | Yes — dashboard.omise.co/signup |
+
 <details>
 <summary><b>All build &amp; tooling commands</b></summary>
 

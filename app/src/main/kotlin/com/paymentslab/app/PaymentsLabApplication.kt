@@ -150,6 +150,7 @@ class PaymentsLabApplication :
                         peachHostedGatewayConfig,
                         areebaHostedGatewayConfig,
                         conektaHostedGatewayConfig,
+                        midtransHostedGatewayConfig,
                     ),
                 ),
                 stubGatewayModule(
