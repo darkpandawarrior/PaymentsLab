@@ -73,6 +73,11 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                     publicBaseUrl = config.publicBaseUrl,
                     httpClient = outboundHttpClient,
                 ),
+                PayPalAdapter(
+                    credentials = config.paypalCredentials,
+                    publicBaseUrl = config.publicBaseUrl,
+                    httpClient = outboundHttpClient,
+                ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
                     payeeName = "PaymentsLab",

@@ -448,3 +448,18 @@ val twintHostedGatewayConfig =
         region = "Switzerland",
         blurb = "No direct SDK — PSP-wrapped (Datatrans/Adyen/myPOS), API itself certification-gated.",
     )
+
+/**
+ * Tier-1: PayPal. Unlike the Tier-2 batch above, this one has a real backend adapter
+ * (`PayPalAdapter`) — real Orders v2 API when `PLAB_PAYPAL_TEST_CLIENT_ID`/`_CLIENT_SECRET` are
+ * configured, mock fallback otherwise. Self-serve sandbox credentials, no business approval needed.
+ */
+val paypalHostedGatewayConfig =
+    mockHostedGatewayConfig(
+        id = "paypal",
+        displayName = "PayPal",
+        region = "Global",
+        blurb =
+            "Real Orders v2 REST API when sandbox credentials are configured (self-serve, no " +
+                "business approval) — falls back to the generic mock path otherwise.",
+    )

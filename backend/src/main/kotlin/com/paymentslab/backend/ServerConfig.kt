@@ -24,6 +24,8 @@ data class ServerConfig(
     val cashfreeSecret: String,
     /** PLAB_PAYSTACK_TEST_* — [GatewayCredentials.enabled] is false when unset; PaystackAdapter mock-falls-back. */
     val paystackCredentials: GatewayCredentials,
+    /** PLAB_PAYPAL_TEST_* — same auto-degrade pattern as [paystackCredentials]. */
+    val paypalCredentials: GatewayCredentials,
 ) {
     companion object {
         private fun env(
@@ -49,6 +51,12 @@ data class ServerConfig(
                         gatewayId = GatewayId("paystack"),
                         mode = CredentialMode.TEST,
                         requiredKeyNames = listOf("secret_key"),
+                    ),
+                paypalCredentials =
+                    credentialStore.credentialsFor(
+                        gatewayId = GatewayId("paypal"),
+                        mode = CredentialMode.TEST,
+                        requiredKeyNames = listOf("client_id", "client_secret"),
                     ),
             )
         }
