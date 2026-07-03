@@ -18,6 +18,7 @@ import com.paymentslab.core.security.SecurityPosture
 import com.paymentslab.core.security.di.securityModule
 import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
+import com.paymentslab.feature.home.di.homeModule
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
@@ -165,6 +166,7 @@ class PaymentsLabApplication :
                 labModule,
                 historyModule,
                 checkoutDemoModule,
+                homeModule,
             )
         }
 

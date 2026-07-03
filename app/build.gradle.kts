@@ -149,6 +149,7 @@ dependencies {
     implementation(project(":feature:lab"))
     implementation(project(":feature:history"))
     implementation(project(":feature:checkout-demo"))
+    implementation(project(":feature:home"))
 
     // Compose (androidx BOM) + navigation
     implementation(platform(libs.compose.bom))
