@@ -31,10 +31,16 @@ import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.designsystem.TimelineStep
+import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.paymentslab.feature.lab.LabHomeScreen
+import com.paymentslab.feature.lab.LabHomeUiState
 import com.paymentslab.feature.lab.ProviderLabScreen
 import com.paymentslab.feature.lab.ProviderLabUiState
+import com.paymentslab.feature.lab.ProviderRow
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -223,6 +229,47 @@ class ScreenshotCatalogTest {
                 priceLabel = "₹149",
                 onPay = {},
                 onBack = {},
+            )
+        }
+
+    // ── LabHomeScreen (B4 catalog) — region map + search + status-sectioned rows ────────────────
+    @Test
+    fun labHomeScreen_catalog() =
+        snapshotScreen("lab_home_screen_catalog") {
+            LabHomeScreen(
+                state =
+                    LabHomeUiState(
+                        allProviders =
+                            listOf(
+                                ProviderRow(
+                                    id = GatewayId("razorpay"),
+                                    displayName = "Razorpay",
+                                    status = GatewayStatusUi.SANDBOX_READY,
+                                    region = "India",
+                                    blurb = "Real Razorpay Checkout SDK, sandbox-ready.",
+                                    capabilities = persistentListOf("One-time", "UPI"),
+                                ),
+                                ProviderRow(
+                                    id = GatewayId("paystack"),
+                                    displayName = "Paystack",
+                                    status = GatewayStatusUi.MOCK_MODE,
+                                    region = "Africa",
+                                    blurb = "Hosted checkout via Paystack's Standard Checkout.",
+                                    capabilities = persistentListOf("One-time", "Cards"),
+                                ),
+                                ProviderRow(
+                                    id = GatewayId("cybersource"),
+                                    displayName = "Cybersource",
+                                    status = GatewayStatusUi.COMING_SOON,
+                                    region = "Global",
+                                    blurb = "Flex Microform tokenization — not yet wired up.",
+                                    capabilities = persistentListOf("One-time"),
+                                ),
+                            ).toImmutableList(),
+                        selectedStatuses = persistentSetOf(),
+                        selectedRegions = persistentSetOf(),
+                    ),
+                onOpenProvider = {},
             )
         }
 }

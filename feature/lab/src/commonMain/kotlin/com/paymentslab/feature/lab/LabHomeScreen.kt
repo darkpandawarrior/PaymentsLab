@@ -10,11 +10,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,7 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.designsystem.GatewayStatusBadge
+import com.paymentslab.core.designsystem.GatewayStatusUi
 import com.paymentslab.core.designsystem.LabScaffold
+import com.paymentslab.core.designsystem.RegionCoverageMap
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.paymentsapi.GatewayId
 import kotlinx.collections.immutable.ImmutableList
@@ -39,18 +47,29 @@ fun LabHomeRoot(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LabHomeScreen(
         state = state,
+        onSearchQueryChange = viewModel::onSearchQueryChange,
+        onToggleStatusFilter = viewModel::onToggleStatusFilter,
+        onToggleRegionFilter = viewModel::onToggleRegionFilter,
+        onClearFilters = viewModel::onClearFilters,
         onOpenProvider = onOpenProvider,
         modifier = modifier,
     )
 }
 
-/** Stateless catalog of payment providers. Tapping a card opens that provider's live lab. */
+/** Stateless catalog of payment providers — search, region map, status chips, sectioned rows. */
 @Composable
 fun LabHomeScreen(
     state: LabHomeUiState,
     onOpenProvider: (GatewayId) -> Unit,
     modifier: Modifier = Modifier,
+    onSearchQueryChange: (String) -> Unit = {},
+    onToggleStatusFilter: (GatewayStatusUi) -> Unit = {},
+    onToggleRegionFilter: (String) -> Unit = {},
+    onClearFilters: () -> Unit = {},
 ) {
+    val hasActiveFilters =
+        state.searchQuery.isNotBlank() || state.selectedStatuses.isNotEmpty() || state.selectedRegions.isNotEmpty()
+
     LabScaffold(title = "Integration Lab") { padding ->
         LazyColumn(
             modifier =
@@ -61,17 +80,92 @@ fun LabHomeScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
         ) {
             item {
-                SectionHeader(text = "Providers")
-            }
-            items(state.providers, key = { it.id.value }) { provider ->
-                ProviderCard(
-                    provider = provider,
-                    onClick = { onOpenProvider(provider.id) },
+                SectionHeader(text = "Coverage")
+                RegionCoverageMap(
+                    regions = state.regionCounts,
+                    selectedRegions = state.selectedRegions,
+                    onToggleRegion = onToggleRegionFilter,
+                    modifier = Modifier.padding(bottom = DesignTokens.Spacing.md),
                 )
+            }
+            item {
+                OutlinedTextField(
+                    value = state.searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("Search providers, regions…") },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    singleLine = true,
+                )
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StatusFilterChips(
+                        selected = state.selectedStatuses,
+                        onToggle = onToggleStatusFilter,
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (hasActiveFilters) {
+                        TextButton(onClick = onClearFilters) { Text("Clear") }
+                    }
+                }
+            }
+            if (state.sections.isEmpty()) {
+                item {
+                    Text(
+                        text = "No providers match the current filters.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = DesignTokens.Spacing.xl),
+                    )
+                }
+            }
+            state.sections.forEach { section ->
+                item(key = "header_${section.status.name}") {
+                    SectionHeader(text = "${section.label} (${section.providers.size})")
+                }
+                items(section.providers, key = { it.id.value }) { provider ->
+                    ProviderCard(
+                        provider = provider,
+                        onClick = { onOpenProvider(provider.id) },
+                    )
+                }
             }
         }
     }
 }
+
+@Composable
+private fun StatusFilterChips(
+    selected: Set<GatewayStatusUi>,
+    onToggle: (GatewayStatusUi) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sm),
+    ) {
+        GatewayStatusUi.entries.forEach { status ->
+            FilterChip(
+                selected = status in selected,
+                onClick = { onToggle(status) },
+                label = { Text(status.chipLabel()) },
+            )
+        }
+    }
+}
+
+private fun GatewayStatusUi.chipLabel(): String =
+    when (this) {
+        GatewayStatusUi.SANDBOX_READY -> "Sandbox ready"
+        GatewayStatusUi.MOCK_MODE -> "Mock mode"
+        GatewayStatusUi.KYC_GATED -> "KYC gated"
+        GatewayStatusUi.COMING_SOON -> "Coming soon"
+    }
 
 @Composable
 private fun ProviderCard(
