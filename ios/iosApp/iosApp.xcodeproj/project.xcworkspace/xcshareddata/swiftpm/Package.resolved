@@ -1,6 +1,42 @@
 {
-  "originHash" : "f8a0db239c6de4472428fbeb321c7ff5b436762d439ad53f723aadd3e23e5cb2",
+  "originHash" : "ab521606e0b41f6db50cc6893a171c5c168adc86c5de8c40c728dc0b5ef095f7",
   "pins" : [
+    {
+      "identity" : "core-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/cashfree/core-ios-sdk",
+      "state" : {
+        "branch" : "master",
+        "revision" : "eb5fbab7125016b58e576b98d39119e8142e5f10"
+      }
+    },
+    {
+      "identity" : "omise-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/omise/omise-ios",
+      "state" : {
+        "revision" : "ad51e009245e4c8e08d7a60df56cb675c40da280",
+        "version" : "5.6.3"
+      }
+    },
+    {
+      "identity" : "omise-ios-3ds",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/omise/omise-ios-3ds.git",
+      "state" : {
+        "revision" : "ae77e32b5dd1cc92661b90d5e34c21891fd05b24",
+        "version" : "2.4.0"
+      }
+    },
+    {
+      "identity" : "razorpay-pod",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/razorpay/razorpay-pod",
+      "state" : {
+        "revision" : "55825c43d5b7fad08e17201f6dfe6095703fcb30",
+        "version" : "1.5.4"
+      }
+    },
     {
       "identity" : "stripe-ios",
       "kind" : "remoteSourceControl",
