@@ -78,7 +78,9 @@ class FakePendingPaymentJournal(
         status: PaymentStatus,
         paymentId: String?,
     ) {
-        state.update { list -> list.map { if (it.orderId == orderId) it.copy(status = status) else it } }
+        state.update { list ->
+            list.map { if (it.orderId == orderId) it.copy(status = status, paymentId = paymentId) else it }
+        }
     }
 
     override suspend fun unresolved(): List<PendingPayment> = state.value.filter { !it.status.isTerminal }
