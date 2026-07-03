@@ -1,7 +1,7 @@
 # Fastlane for PaymentsLab. Versioning is single-source (repo-root VERSION + BUILD_NUMBER); the app's
-# build.gradle.kts reads them. Distribution lanes (Play/Firebase) are documented but require signing
-# config + a service-account JSON that a public sandbox repo intentionally doesn't ship — see the
-# comments in `deploy_internal`.
+# build.gradle.kts reads them. Play deploy lanes below build against a real signingConfig
+# (app/build.gradle.kts reads keystore.properties or RELEASE_* env vars) but stay no-ops until a
+# real keystore + PLAYSTORE_CREDS_B64 service-account secret are configured in CI.
 
 default_platform(:android)
 
@@ -41,17 +41,73 @@ platform :android do
     gradle(task: ":app:bundleRelease")
   end
 
-  # ── Distribution (needs config a public sandbox repo doesn't ship) ─────────────────────────────
-  #
-  # To enable Play Store upload:
-  #   1. Add a signing config to app/build.gradle.kts (keystore from env, never committed).
-  #   2. Provide a Google Play service-account JSON (base64 in CI secret PLAY_SERVICE_ACCOUNT_JSON).
-  #   3. Uncomment and use the lane below.
-  #
-  # desc "Upload the signed AAB to the Play Store internal track"
-  # lane :deploy_internal do
-  #   gradle(task: "fastGate")
-  #   gradle(task: ":app:bundleRelease")   # with signingConfig
-  #   upload_to_play_store(track: "internal", aab: "app/build/outputs/bundle/release/app-release.aab")
-  # end
+  # ── Play Store deploy lanes (internal / beta / production) ─────────────────────────────────────
+  # The service-account json is materialized from PLAYSTORE_CREDS_B64 in CI; keystore secrets
+  # materialize RELEASE_STORE_FILE etc., read by app/build.gradle.kts's signingConfig.
+  def play_json_key
+    ENV["PLAY_STORE_KEY_FILE_PATH"] || "../secrets/play-service-account.json"
+  end
+
+  def current_version_code
+    File.read(BUILD_NUMBER_FILE).strip.to_i
+  end
+
+  desc "Generate fastlane/metadata changelog from git commits for the current versionCode"
+  private_lane :prepare_changelog do
+    log = changelog_from_git_commits(
+      pretty: "- %s",
+      merge_commit_filtering: "exclude_merges",
+      commits_count: 20
+    ) || ""
+    if log.length > 500
+      log = log[0, 497].gsub(/\n-[^\n]*\z/, "") + "..."
+    end
+    FileUtils.mkdir_p("fastlane/metadata/android/en-US/changelogs")
+    File.write(
+      "fastlane/metadata/android/en-US/changelogs/#{current_version_code}.txt",
+      log.empty? ? "Bug fixes and improvements." : log
+    )
+  end
+
+  def build_release_aab
+    gradle(task: "fastGate")
+    gradle(task: ":app:bundleRelease")
+  end
+
+  desc "Build the release AAB + upload to the Play internal track"
+  lane :deploy_internal do
+    prepare_changelog
+    build_release_aab
+    upload_to_play_store(
+      track: "internal",
+      aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+      json_key: play_json_key,
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Build + upload to the Play beta (closed testing) track"
+  lane :deploy_beta do
+    prepare_changelog
+    build_release_aab
+    upload_to_play_store(
+      track: "beta",
+      aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+      json_key: play_json_key,
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Build + upload to Play production with a staged rollout (ROLLOUT env, default 0.1)"
+  lane :deploy_production do
+    prepare_changelog
+    build_release_aab
+    upload_to_play_store(
+      track: "production",
+      aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
+      json_key: play_json_key,
+      skip_upload_apk: true,
+      rollout: ENV["ROLLOUT"] || "0.1"
+    )
+  end
 end

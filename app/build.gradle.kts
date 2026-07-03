@@ -1,9 +1,29 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("paymentslab.android.application")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.dependency.guard)
     alias(libs.plugins.roborazzi)
 }
+
+// Release signing, reads from keystore.properties (gitignored) or env vars (CI). Falls back to
+// debug signing if neither is present, so `assembleRelease` still succeeds locally and in CI
+// without secrets configured.
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties =
+    Properties().apply {
+        if (keystorePropertiesFile.exists()) {
+            FileInputStream(keystorePropertiesFile).use { load(it) }
+        }
+    }
+val hasReleaseSigning =
+    keystorePropertiesFile.exists() || System.getenv("RELEASE_STORE_FILE") != null
+
+// F-Droid reproducible build flag (`./gradlew :app:assembleRelease -Pfdroid`). Disables R8/resource
+// shrinking, which isn't bit-for-bit reproducible across machines.
+val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 
 // Locks the app's runtime dependency graph. A silent transitive version bump fails
 // `./gradlew :app:dependencyGuard`; re-baseline intentionally with `:app:dependencyGuardBaseline`.
@@ -44,15 +64,42 @@ android {
         buildConfigField("String", "BACKEND_URL", "\"http://10.0.2.2:8080\"")
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile =
+                    file(
+                        keystoreProperties.getProperty("storeFile")
+                            ?: System.getenv("RELEASE_STORE_FILE"),
+                    )
+                storePassword =
+                    keystoreProperties.getProperty("storePassword")
+                        ?: System.getenv("RELEASE_STORE_PASSWORD")
+                keyAlias =
+                    keystoreProperties.getProperty("keyAlias")
+                        ?: System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword =
+                    keystoreProperties.getProperty("keyPassword")
+                        ?: System.getenv("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = !fdroidBuild
+            isShrinkResources = !fdroidBuild
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
             buildConfigField("String", "BACKEND_URL", "\"https://api.paymentslab.example\"")
+            signingConfig =
+                if (hasReleaseSigning) {
+                    signingConfigs.getByName("release")
+                } else {
+                    signingConfigs.getByName("debug")
+                }
         }
 
         // VAPT / pen-test variant: a debuggable build that flips the security BYPASS_* flags so a
