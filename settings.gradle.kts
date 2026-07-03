@@ -73,6 +73,9 @@ include(":feature:lab")
 include(":feature:checkout-demo")
 include(":feature:history")
 
+// ── iOS (B8) ─────────────────────────────────────────────────────────────────
+include(":ios:shared")
+
 // ── App + backend ───────────────────────────────────────────────────────────
 include(":app")
 include(":backend")

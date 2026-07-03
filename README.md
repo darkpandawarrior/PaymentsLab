@@ -123,6 +123,27 @@ The Lab timeline — the app's centerpiece — rendered as a deterministic Robor
 > [`docs/screenshots/`](docs/screenshots/) — see `ScreenshotCatalogTest`. Refresh with
 > `./gradlew :app:recordRoborazziDebug`.
 
+Catalog → provider lab → settled, stitched from the same committed Roborazzi frames (no emulator
+was used to record this — see [`docs/demo/`](docs/demo/) for how it's built):
+
+<div align="center">
+<img src="docs/demo/android_flow.gif" alt="Catalog to settled payment flow" width="320" />
+</div>
+
+### Also runs on iOS
+
+`ios/shared` packages the KMP-safe surface (archetype C hosted-webview + archetype D mobile-money —
+the native-SDK gateways are correctly Android-only) into a real `.framework`, consumed by a genuine
+Xcode project at `ios/iosApp/`. The screenshot below is a real iOS Simulator run of the same Compose
+UI, not a mockup:
+
+<div align="center">
+<img src="docs/screenshots/ios_catalog.png" alt="The same catalog UI running on iOS" width="320" />
+</div>
+
+Build it yourself: `cd ios/iosApp && xcodebuild -scheme iosApp -sdk iphonesimulator build` (the
+`EmbedKotlinFramework` build phase runs the Gradle framework build automatically).
+
 ## Architecture
 
 The heart of the design is a deliberately tiny, platform-agnostic contract, with all the messy
