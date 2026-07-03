@@ -2,14 +2,17 @@ package com.paymentslab.feature.lab
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
@@ -25,9 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paymentslab.core.designsystem.DesignTokens
+import com.paymentslab.core.designsystem.GatewayBrandAsset
+import com.paymentslab.core.designsystem.GatewayBranding
 import com.paymentslab.core.designsystem.GatewayStatusBadge
 import com.paymentslab.core.designsystem.GatewayStatusUi
 import com.paymentslab.core.designsystem.LabScaffold
@@ -189,11 +196,17 @@ private fun ProviderCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = provider.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    GatewayBrandBadge(id = provider.id.value, displayName = provider.displayName)
+                    Text(
+                        text = provider.displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
                 GatewayStatusBadge(status = provider.status)
             }
             Text(
@@ -208,6 +221,38 @@ private fun ProviderCard(
             )
             CapabilityChips(capabilities = provider.capabilities)
         }
+    }
+}
+
+@Composable
+private fun GatewayBrandBadge(
+    id: String,
+    displayName: String,
+    modifier: Modifier = Modifier,
+) {
+    when (val asset = GatewayBranding.forId(id, displayName)) {
+        is GatewayBrandAsset.Logo ->
+            Icon(
+                imageVector = asset.imageVector,
+                contentDescription = null,
+                modifier = modifier.size(24.dp),
+                tint = Color.Unspecified,
+            )
+        is GatewayBrandAsset.Monogram ->
+            Surface(
+                modifier = modifier.size(24.dp),
+                shape = CircleShape,
+                color = asset.color,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = asset.letter.toString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
+            }
     }
 }
 
