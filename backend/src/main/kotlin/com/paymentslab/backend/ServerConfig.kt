@@ -26,6 +26,8 @@ data class ServerConfig(
     val paystackCredentials: GatewayCredentials,
     /** PLAB_PAYPAL_TEST_* — same auto-degrade pattern as [paystackCredentials]. */
     val paypalCredentials: GatewayCredentials,
+    /** PLAB_SQUARE_TEST_* (application_id/access_token/location_id) — same auto-degrade pattern. */
+    val squareCredentials: GatewayCredentials,
 ) {
     companion object {
         private fun env(
@@ -57,6 +59,12 @@ data class ServerConfig(
                         gatewayId = GatewayId("paypal"),
                         mode = CredentialMode.TEST,
                         requiredKeyNames = listOf("client_id", "client_secret"),
+                    ),
+                squareCredentials =
+                    credentialStore.credentialsFor(
+                        gatewayId = GatewayId("square"),
+                        mode = CredentialMode.TEST,
+                        requiredKeyNames = listOf("application_id", "access_token", "location_id"),
                     ),
             )
         }

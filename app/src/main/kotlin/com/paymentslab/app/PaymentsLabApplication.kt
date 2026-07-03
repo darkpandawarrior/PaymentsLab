@@ -24,6 +24,7 @@ import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
+import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
 import io.github.aakira.napier.DebugAntilog
@@ -85,6 +86,7 @@ class PaymentsLabApplication :
                 cashfreeModule,
                 stripeModule,
                 googlePayModule,
+                squareModule,
                 mobileMoneyModule(
                     listOf(
                         mpesaConfig,
