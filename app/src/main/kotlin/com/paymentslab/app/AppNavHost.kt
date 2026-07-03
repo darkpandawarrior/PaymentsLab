@@ -1,12 +1,19 @@
 package com.paymentslab.app
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -15,12 +22,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.paymentslab.core.designsystem.AppShell
+import com.paymentslab.core.designsystem.AppShellDestination
+import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentHost
 import com.paymentslab.core.security.SecureScreen
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
+import com.paymentslab.feature.home.HomeRoot
 import com.paymentslab.feature.lab.LabHomeRoot
 import com.paymentslab.feature.lab.ProviderLabRoot
 import com.paymentslab.provider.hostedwebview.HostedCheckoutHost
@@ -28,23 +39,18 @@ import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
 import org.koin.compose.koinInject
 
-private data class TopDestination(
-    val route: String,
-    val label: String,
-    val glyph: String,
-)
-
-private val topDestinations =
+private val bottomBarDestinations =
     listOf(
-        TopDestination("lab", "Lab", "🧪"),
-        TopDestination("checkout", "Checkout", "🛒"),
-        TopDestination("history", "History", "🧾"),
+        AppShellDestination("home", "Home", Icons.Filled.Home),
+        AppShellDestination("explore", "Explore", Icons.Filled.Search),
+        AppShellDestination("activity", "Activity", Icons.Filled.Receipt),
     )
 
 /**
- * The app's navigation. Three top-level destinations (Lab, Checkout, History) plus a per-provider
- * lab detail. Features are decoupled — this is the only place their screens are composed together,
- * and the real [PaymentHost] is threaded down to the screens that launch payments.
+ * The app's navigation. Three bottom-bar destinations (Home, Explore, Activity) plus a center FAB
+ * that opens Checkout, plus the `provider/{id}` detail route. Features are decoupled — this is the
+ * only place their screens are composed together, and the real [PaymentHost] is threaded down to
+ * the screens that launch payments.
  */
 @Composable
 fun AppNavHost(paymentHost: PaymentHost) {
@@ -53,40 +59,69 @@ fun AppNavHost(paymentHost: PaymentHost) {
     val hostedCheckoutRelay = koinInject<HostedCheckoutRelay>()
     val hostedGatewayConfigs = koinInject<List<HostedGatewayConfig>>()
 
-    Scaffold(
-        bottomBar = {
-            val backStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = backStackEntry?.destination
-            NavigationBar {
-                topDestinations.forEach { dest ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(dest.route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Text(dest.glyph) },
-                        label = { Text(dest.label) },
-                    )
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = backStackEntry?.destination
+    val selectedRoute =
+        bottomBarDestinations.firstOrNull { dest ->
+            currentDestination?.hierarchy?.any { it.route == dest.route } == true
+        }?.route ?: "home"
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AppShell(
+            destinations = bottomBarDestinations,
+            selectedRoute = selectedRoute,
+            onSelectDestination = { route ->
+                navController.navigate(route) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
                 }
-            }
-        },
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            },
+            onFabClick = { navController.navigate("checkout") },
+        ) { padding ->
             NavHost(
                 navController = navController,
-                startDestination = "lab",
+                startDestination = "home",
+                modifier = Modifier.padding(padding),
+                enterTransition = {
+                    slideInHorizontally(tween(DesignTokens.Motion.MEDIUM_MS)) { it / 4 } +
+                        fadeIn(tween(DesignTokens.Motion.MEDIUM_MS))
+                },
+                exitTransition = {
+                    slideOutHorizontally(tween(DesignTokens.Motion.MEDIUM_MS)) { -it / 4 } +
+                        fadeOut(tween(DesignTokens.Motion.MEDIUM_MS))
+                },
             ) {
-                composable("lab") {
+                composable("home") {
+                    HomeRoot(
+                        onOpenExplore = {
+                            navController.navigate("explore") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            }
+                        },
+                        onOpenActivity = {
+                            navController.navigate("activity") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            }
+                        },
+                    )
+                }
+                composable("explore") {
                     LabHomeRoot(
                         onOpenProvider = { gatewayId -> navController.navigate("provider/${gatewayId.value}") },
                     )
                 }
-                composable("provider/{id}") { entry ->
+                composable(
+                    "provider/{id}",
+                    enterTransition = {
+                        scaleIn(tween(DesignTokens.Motion.MEDIUM_MS), initialScale = 0.9f) +
+                            fadeIn(tween(DesignTokens.Motion.MEDIUM_MS))
+                    },
+                    exitTransition = {
+                        scaleOut(tween(DesignTokens.Motion.MEDIUM_MS), targetScale = 0.9f) +
+                            fadeOut(tween(DesignTokens.Motion.MEDIUM_MS))
+                    },
+                ) { entry ->
                     val id = entry.arguments?.getString("id").orEmpty()
                     val meta = registry.byId(GatewayId(id))?.meta
                     // SecureScreen: block screenshots / screen-recording / recents-thumbnail on the
@@ -102,23 +137,33 @@ fun AppNavHost(paymentHost: PaymentHost) {
                         )
                     }
                 }
-                composable("checkout") {
+                composable(
+                    "checkout",
+                    enterTransition = {
+                        scaleIn(tween(DesignTokens.Motion.MEDIUM_MS), initialScale = 0.85f) +
+                            fadeIn(tween(DesignTokens.Motion.MEDIUM_MS))
+                    },
+                    exitTransition = {
+                        scaleOut(tween(DesignTokens.Motion.MEDIUM_MS), targetScale = 0.85f) +
+                            fadeOut(tween(DesignTokens.Motion.MEDIUM_MS))
+                    },
+                ) {
                     SecureScreen {
-                        CheckoutRoot(paymentHost = paymentHost)
+                        CheckoutRoot(paymentHost = paymentHost, onBack = { navController.popBackStack() })
                     }
                 }
-                composable("history") {
+                composable("activity") {
                     HistoryRoot()
                 }
             }
-
-            // Overlays the active screen whenever a hosted-webview gateway (Paystack) is mid-checkout —
-            // the archetype-C flow has no nav route of its own; it's driven by the relay instead.
-            HostedCheckoutHost(
-                relay = hostedCheckoutRelay,
-                configs = hostedGatewayConfigs,
-                modifier = Modifier.fillMaxSize(),
-            )
         }
+
+        // Overlays the active screen whenever a hosted-webview gateway (Paystack) is mid-checkout —
+        // the archetype-C flow has no nav route of its own; it's driven by the relay instead.
+        HostedCheckoutHost(
+            relay = hostedCheckoutRelay,
+            configs = hostedGatewayConfigs,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
