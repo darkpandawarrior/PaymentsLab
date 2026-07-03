@@ -17,10 +17,12 @@
 		1A0000000000000000000031 /* CashfreePG in Frameworks */ = {isa = PBXBuildFile; productRef = 1A000000000000000000002E /* CashfreePG */; };
 		1A0000000000000000000032 /* CashfreePGCoreSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A000000000000000000002F /* CashfreePGCoreSDK */; };
 		1A0000000000000000000033 /* CashfreePGUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000030 /* CashfreePGUISDK */; };
-		1A0000000000000000000039 /* CFNetworkSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000090 /* CFNetworkSDK */; };
-		1A000000000000000000003A /* CashfreeAnalyticsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000091 /* CashfreeAnalyticsSDK */; };
 		1A0000000000000000000035 /* OmiseCheckoutHostImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000034 /* OmiseCheckoutHostImpl.swift */; };
 		1A0000000000000000000038 /* OmiseSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000037 /* OmiseSDK */; };
+		1A000000000000000000003C /* SquareCheckoutHostImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000003B /* SquareCheckoutHostImpl.swift */; };
+		1A0000000000000000000039 /* CFNetworkSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000090 /* CFNetworkSDK */; };
+		1A000000000000000000003A /* CashfreeAnalyticsSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000091 /* CashfreeAnalyticsSDK */; };
+		5DD6D0B59D70E1D3B7D47743 /* Pods_iosApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A9535382696BE4DE6C7F675 /* Pods_iosApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,10 @@
 		1A0000000000000000000026 /* RazorpayCheckoutHostImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RazorpayCheckoutHostImpl.swift; sourceTree = "<group>"; };
 		1A000000000000000000002B /* CashfreeCheckoutHostImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashfreeCheckoutHostImpl.swift; sourceTree = "<group>"; };
 		1A0000000000000000000034 /* OmiseCheckoutHostImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmiseCheckoutHostImpl.swift; sourceTree = "<group>"; };
+		1A000000000000000000003B /* SquareCheckoutHostImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareCheckoutHostImpl.swift; sourceTree = "<group>"; };
+		1E6B55AD78D21BFB2DBFD38B /* Pods-iosApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosApp.release.xcconfig"; path = "Target Support Files/Pods-iosApp/Pods-iosApp.release.xcconfig"; sourceTree = "<group>"; };
+		54A83CFB272F48B32A2B886C /* Pods-iosApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-iosApp.debug.xcconfig"; path = "Target Support Files/Pods-iosApp/Pods-iosApp.debug.xcconfig"; sourceTree = "<group>"; };
+		8A9535382696BE4DE6C7F675 /* Pods_iosApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_iosApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,17 +53,20 @@
 				1A0000000000000000000039 /* CFNetworkSDK in Frameworks */,
 				1A000000000000000000003A /* CashfreeAnalyticsSDK in Frameworks */,
 				1A0000000000000000000038 /* OmiseSDK in Frameworks */,
+				5DD6D0B59D70E1D3B7D47743 /* Pods_iosApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A0000000000000000000002 /* */ = {
+		1A0000000000000000000002 = {
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000003 /* iosApp */,
 				1A0000000000000000000004 /* Products */,
+				532CE5F89169CECA74231E69 /* Pods */,
+				4113AD9700CF9CFC48B60A86 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -70,6 +79,7 @@
 				1A0000000000000000000026 /* RazorpayCheckoutHostImpl.swift */,
 				1A000000000000000000002B /* CashfreeCheckoutHostImpl.swift */,
 				1A0000000000000000000034 /* OmiseCheckoutHostImpl.swift */,
+				1A000000000000000000003B /* SquareCheckoutHostImpl.swift */,
 				1A0000000000000000000009 /* Info.plist */,
 			);
 			path = iosApp;
@@ -83,6 +93,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4113AD9700CF9CFC48B60A86 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8A9535382696BE4DE6C7F675 /* Pods_iosApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		532CE5F89169CECA74231E69 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				54A83CFB272F48B32A2B886C /* Pods-iosApp.debug.xcconfig */,
+				1E6B55AD78D21BFB2DBFD38B /* Pods-iosApp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -90,10 +118,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1A0000000000000000000013 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				85DFA14DB2FCD3739636E1C2 /* [CP] Check Pods Manifest.lock */,
 				1A000000000000000000000F /* EmbedKotlinFramework */,
 				1A000000000000000000000C /* Sources */,
 				1A000000000000000000000D /* Frameworks */,
 				1A000000000000000000000E /* Resources */,
+				B672725E2CA570F0FF127243 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -177,6 +207,45 @@
 			shellPath = /bin/sh;
 			shellScript = "cd \"$SRCROOT/../..\"\n./gradlew :ios:shared:embedAndSignAppleFrameworkForXcode\n";
 		};
+		85DFA14DB2FCD3739636E1C2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-iosApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B672725E2CA570F0FF127243 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -190,6 +259,7 @@
 				1A0000000000000000000027 /* RazorpayCheckoutHostImpl.swift in Sources */,
 				1A000000000000000000002C /* CashfreeCheckoutHostImpl.swift in Sources */,
 				1A0000000000000000000035 /* OmiseCheckoutHostImpl.swift in Sources */,
+				1A000000000000000000003C /* SquareCheckoutHostImpl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,11 +304,12 @@
 		};
 		1A0000000000000000000014 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 54A83CFB272F48B32A2B886C /* Pods-iosApp.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
@@ -264,11 +335,12 @@
 		};
 		1A0000000000000000000015 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E6B55AD78D21BFB2DBFD38B /* Pods-iosApp.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
@@ -336,8 +408,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/cashfree/core-ios-sdk";
 			requirement = {
-				kind = branch;
 				branch = master;
+				kind = branch;
 			};
 		};
 		1A0000000000000000000036 /* XCRemoteSwiftPackageReference "omise-ios" */ = {

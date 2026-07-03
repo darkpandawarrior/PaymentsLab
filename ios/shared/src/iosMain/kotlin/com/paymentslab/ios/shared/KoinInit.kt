@@ -16,10 +16,9 @@ import org.koin.dsl.module
  * B8's composition root — the iOS counterpart to `app/PaymentsLabApplication.kt`. Registers the
  * KMP-safe archetype C/D providers (see `IosGatewayConfigs.kt`) plus every native-SDK gateway that
  * has a real iOS SDK and a Swift-side [*CheckoutHost] implementation: Stripe, Razorpay, Cashfree,
- * Omise. `core:security` (Android-only VAPT suite) and Square (CocoaPods-only SDK, blocked by this
- * environment's Ruby 2.6.10 vs CocoaPods' Ruby >=3.0 requirement — see `docs/providers/square-ios.md`)
- * are correctly absent, not silently missing. Google Pay has no iOS equivalent at all (Apple Pay is
- * a separate Apple product, not a Google Pay port) — also correctly absent.
+ * Omise, Square. `core:security` (Android-only VAPT suite) is correctly absent. Google Pay has no
+ * iOS equivalent at all (Apple Pay is a separate Apple product, not a Google Pay port) — also
+ * correctly absent.
  *
  * Called once from Swift (`KoinInitKt.doInitKoin(...)`) before `MainViewController()` is presented.
  * Every `*CheckoutHost` parameter is Swift's real SDK implementation, constructed in Swift (where
@@ -31,6 +30,7 @@ fun doInitKoin(
     razorpayCheckoutHost: RazorpayCheckoutHost,
     cashfreeCheckoutHost: CashfreeCheckoutHost,
     omiseCheckoutHost: OmiseCheckoutHost,
+    squareCheckoutHost: SquareCheckoutHost,
 ) {
     startKoin {
         modules(
@@ -52,6 +52,9 @@ fun doInitKoin(
 
                 single { omiseCheckoutHost }
                 single<PaymentGateway>(qualifier = named("omise")) { OmiseIosGateway(get()) }
+
+                single { squareCheckoutHost }
+                single<PaymentGateway>(qualifier = named("square")) { SquareIosGateway(get()) }
             },
         )
     }
