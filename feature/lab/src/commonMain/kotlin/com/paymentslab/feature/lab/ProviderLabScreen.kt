@@ -2,6 +2,7 @@ package com.paymentslab.feature.lab
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import com.paymentslab.core.designsystem.LabScaffold
 import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.SectionHeader
+import com.paymentslab.core.designsystem.ShieldPulse
 import com.paymentslab.core.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.paymentsapi.GatewayId
@@ -78,6 +80,18 @@ fun ProviderLabScreen(
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
+            ) {
+                ShieldPulse()
+                Text(
+                    text = "Protected — screenshots and screen recording are blocked here",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             // Pinned at top per the plan: shows this run's specific hops (SDK vs WebView vs intent
             // vs poll) and the trust boundary — a client result stays "unverified" colour until the
             // backend actually confirms it.

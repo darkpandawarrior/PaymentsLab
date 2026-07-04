@@ -28,6 +28,7 @@ import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.designsystem.LabScaffold
 import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.SectionHeader
+import com.paymentslab.core.designsystem.ShieldPulse
 import com.paymentslab.core.designsystem.StepTimeline
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentHost
@@ -78,6 +79,18 @@ fun CheckoutScreen(
                     .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
+            ) {
+                ShieldPulse()
+                Text(
+                    text = "Protected — screenshots and screen recording are blocked here",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             SectionHeader(text = "1 · Pick a product")
             state.products.forEach { product ->
                 ProductRow(
