@@ -147,7 +147,10 @@ private fun ProductRow(
             modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = DesignTokens.Elevation.card),
+        elevation =
+            CardDefaults.elevatedCardElevation(
+                defaultElevation = if (selected) DesignTokens.Elevation.floating else DesignTokens.Elevation.raised,
+            ),
         colors =
             if (selected) {
                 CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
