@@ -25,38 +25,53 @@ data class HistoryRow(
     val createdAtEpochMs: Long,
 )
 
-/** Immutable state for [HistoryScreen]: the full payment history stream, newest first. */
+/** Immutable state for [HistoryScreen]: the filtered payment history stream, newest first. */
 @Immutable
 data class HistoryUiState(
     val rows: ImmutableList<HistoryRow> = persistentListOf(),
     val isLoading: Boolean = true,
+    val selectedStatuses: Set<PaymentStatus> = emptySet(),
 )
 
 /**
  * Collects the journal's full history stream and projects each [PendingPayment] into a display
- * [HistoryRow], newest first. The stream is hot and driven by Room, so the state updates live as
- * payments are recorded and resolved.
+ * [HistoryRow], newest first, filtered by [HistoryUiState.selectedStatuses] (empty = show all —
+ * mirrors [com.paymentslab.feature.lab.LabHomeViewModel]'s status-filter shape).
  */
 class HistoryViewModel(
-    journal: PendingPaymentJournal,
+    private val journal: PendingPaymentJournal,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
+    private var allPayments: List<PendingPayment> = emptyList()
+
     init {
         viewModelScope.launch {
             journal.observeAll().collect { payments ->
-                _uiState.value =
-                    HistoryUiState(
-                        rows =
-                            payments
-                                .sortedByDescending { it.createdAtEpochMs }
-                                .map { it.toRow() }
-                                .toImmutableList(),
-                        isLoading = false,
-                    )
+                allPayments = payments
+                recompute()
             }
         }
+    }
+
+    fun onToggleStatusFilter(status: PaymentStatus) {
+        val current = _uiState.value.selectedStatuses
+        recompute(selected = if (status in current) current - status else current + status)
+    }
+
+    private fun recompute(selected: Set<PaymentStatus> = _uiState.value.selectedStatuses) {
+        val filtered = if (selected.isEmpty()) allPayments else allPayments.filter { it.status in selected }
+        _uiState.value =
+            _uiState.value.copy(
+                rows =
+                    filtered
+                        .sortedByDescending { it.createdAtEpochMs }
+                        .map { it.toRow() }
+                        .toImmutableList(),
+                isLoading = false,
+                selectedStatuses = selected,
+            )
     }
 
     private companion object {

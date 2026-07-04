@@ -3,6 +3,7 @@ package com.paymentslab.feature.history
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,37 +36,64 @@ fun HistoryRoot(
     viewModel: HistoryViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    HistoryScreen(state = state, onBack = onBack, modifier = modifier)
+    HistoryScreen(
+        state = state,
+        onToggleStatusFilter = viewModel::onToggleStatusFilter,
+        onBack = onBack,
+        modifier = modifier,
+    )
 }
 
-/** Stateless payment history: a list of rows with a status chip, or an empty state. */
+/** Stateless payment history: status filter chips, a list of rows, or an empty state. */
 @Composable
 fun HistoryScreen(
     state: HistoryUiState,
+    onToggleStatusFilter: (PaymentStatus) -> Unit = {},
     onBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     LabScaffold(title = "History", onBack = onBack) { padding ->
-        if (!state.isLoading && state.rows.isEmpty()) {
-            EmptyState(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .padding(padding),
+        Column(modifier = modifier.fillMaxSize().padding(padding)) {
+            StatusFilterChips(
+                selected = state.selectedStatuses,
+                onToggle = onToggleStatusFilter,
+                modifier = Modifier.padding(horizontal = DesignTokens.Spacing.lg, vertical = DesignTokens.Spacing.sm),
             )
-        } else {
-            LazyColumn(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = DesignTokens.Spacing.lg),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
-            ) {
-                items(state.rows, key = { it.orderId }) { row ->
-                    HistoryCard(row = row)
+            if (!state.isLoading && state.rows.isEmpty()) {
+                EmptyState(modifier = Modifier.fillMaxSize())
+            } else {
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = DesignTokens.Spacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.md),
+                ) {
+                    items(state.rows, key = { it.orderId }) { row ->
+                        HistoryCard(row = row)
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun StatusFilterChips(
+    selected: Set<PaymentStatus>,
+    onToggle: (PaymentStatus) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sm),
+    ) {
+        PaymentStatus.entries.forEach { status ->
+            FilterChip(
+                selected = status in selected,
+                onClick = { onToggle(status) },
+                label = { Text(status.name) },
+            )
         }
     }
 }

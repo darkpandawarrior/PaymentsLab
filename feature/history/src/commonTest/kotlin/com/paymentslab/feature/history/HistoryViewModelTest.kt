@@ -88,4 +88,28 @@ class HistoryViewModelTest {
                 assertEquals(PaymentStatus.CREATED, updated.rows[0].status)
             }
         }
+
+    @Test
+    fun toggling_a_status_filter_narrows_the_visible_rows() = runTest {
+        val journal =
+            FakePendingPaymentJournal(
+                listOf(
+                    payment("order_a", "coffee", "razorpay", 149, PaymentStatus.SUCCESS, createdAt = 100),
+                    payment("order_b", "book", "upi_intent", 499, PaymentStatus.FAILED, createdAt = 200),
+                ),
+            )
+        val vm = HistoryViewModel(journal)
+
+        vm.uiState.test {
+            awaitItem() // initial, unfiltered
+            vm.onToggleStatusFilter(PaymentStatus.SUCCESS)
+            val filtered = awaitItem()
+            assertEquals(1, filtered.rows.size)
+            assertEquals("order_a", filtered.rows[0].orderId)
+
+            vm.onToggleStatusFilter(PaymentStatus.SUCCESS) // toggle back off
+            val cleared = awaitItem()
+            assertEquals(2, cleared.rows.size)
+        }
+    }
 }
