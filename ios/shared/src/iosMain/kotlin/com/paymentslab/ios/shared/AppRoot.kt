@@ -62,6 +62,8 @@ fun AppRoot() {
         val selectedRoute =
             when (screen) {
                 IosScreen.Home -> "home"
+                // Provider detail is a child of Explore for tab-highlight purposes, mirroring
+                // Android's NavDestination.hierarchy check on "provider/{id}" in AppNavHost.kt.
                 IosScreen.Explore, is IosScreen.Provider -> "explore"
                 IosScreen.Checkout -> "checkout"
                 IosScreen.Activity -> "activity"
