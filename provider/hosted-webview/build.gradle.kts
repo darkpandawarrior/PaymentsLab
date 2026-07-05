@@ -1,5 +1,5 @@
 plugins {
-    id("paymentslab.cmp.feature")
+    id("shared.cmp.feature")
 }
 
 kotlin {
