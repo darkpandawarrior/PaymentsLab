@@ -109,11 +109,14 @@ class ScreenshotCatalogTest {
     /** For a full screen (its own Scaffold/topbar/padding) rather than an isolated component. */
     private fun snapshotScreen(
         name: String,
+        reducedMotion: Boolean = false,
         content: @Composable () -> Unit,
     ) {
         compose.setContent {
-            PaymentsLabTheme {
-                Surface(modifier = Modifier.width(360.dp).height(720.dp)) { content() }
+            CompositionLocalProvider(LocalReducedMotion provides reducedMotion) {
+                PaymentsLabTheme {
+                    Surface(modifier = Modifier.width(360.dp).height(720.dp)) { content() }
+                }
             }
         }
         compose.onRoot().captureRoboImage("../docs/screenshots/$name.png")
@@ -190,14 +193,31 @@ class ScreenshotCatalogTest {
             PrimaryButton(text = "Pay ₹499 (sandbox)", onClick = {}, modifier = Modifier.fillMaxWidth())
         }
 
+    // reducedMotion = true: MOCK_MODE's shimmer is an infiniteRepeatable transition, which by
+    // definition never settles - compose-ui-test's idling can't wait it out, so the captured frame
+    // is whatever the transition happened to be on, nondeterministic run to run. Forcing reduced
+    // motion (which the shimmer modifier already checks) captures the static, correct baseline.
     @Test
-    fun mockModeBadgeShimmer() = snapshot("mock_mode_badge_shimmer") { GatewayStatusBadge(GatewayStatusUi.MOCK_MODE) }
+    fun mockModeBadgeShimmer() =
+        snapshot("mock_mode_badge_shimmer") {
+            CompositionLocalProvider(LocalReducedMotion provides true) {
+                GatewayStatusBadge(GatewayStatusUi.MOCK_MODE)
+            }
+        }
 
     @Test
     fun successBurst() = snapshot("success_burst") { SuccessBurst() }
 
+    // reducedMotion = true: FailureShake's shake is a real (non-infinite) Animatable tween, but its
+    // LaunchedEffect races the initial capture under Robolectric - same nondeterminism class as
+    // mockModeBadgeShimmer above. FailureShake already checks LocalReducedMotion for exactly this.
     @Test
-    fun failureShake() = snapshot("failure_shake") { FailureShake() }
+    fun failureShake() =
+        snapshot("failure_shake") {
+            CompositionLocalProvider(LocalReducedMotion provides true) {
+                FailureShake()
+            }
+        }
 
     @Test
     fun animatedAmount() = snapshot("animated_amount") { AnimatedAmount(amountMinor = 49_900L, currency = "INR") }
@@ -268,9 +288,11 @@ class ScreenshotCatalogTest {
         }
 
     // ── LabHomeScreen (B4 catalog) — region map + search + status-sectioned rows ────────────────
+    // reducedMotion = true: the Paystack row below is MOCK_MODE, whose badge shimmer is an
+    // infiniteRepeatable transition - same nondeterminism as mockModeBadgeShimmer above.
     @Test
     fun labHomeScreen_catalog() =
-        snapshotScreen("lab_home_screen_catalog") {
+        snapshotScreen("lab_home_screen_catalog", reducedMotion = true) {
             LabHomeScreen(
                 state =
                     LabHomeUiState(

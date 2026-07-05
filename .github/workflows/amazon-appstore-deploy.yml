@@ -16,33 +16,41 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ !!secrets.AMAZON_APPSTORE_CLIENT_ID }}
     env:
+      HAS_SECRET: ${{ secrets.AMAZON_APPSTORE_CLIENT_ID != '' }}
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     steps:
       - uses: actions/checkout@v4
+        if: env.HAS_SECRET == 'true'
 
       - name: Set up JDK 21
+        if: env.HAS_SECRET == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Use CI JDK 21 (strip machine-specific java.home)
+        if: env.HAS_SECRET == 'true'
         run: sed -i '/^org\.gradle\.java\.home/d; /^org\.gradle\.java\.installations\.paths/d' gradle.properties
 
       - name: Setup Gradle
+        if: env.HAS_SECRET == 'true'
         uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Android SDK
+        if: env.HAS_SECRET == 'true'
         uses: android-actions/setup-android@v3
 
       - name: Install SDK 37 platform & build-tools
+        if: env.HAS_SECRET == 'true'
         run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
 
       - run: chmod +x ./gradlew
+        if: env.HAS_SECRET == 'true'
 
       - name: Materialize signing secrets
+        if: env.HAS_SECRET == 'true'
         run: |
           set -euo pipefail
           mkdir -p secrets
@@ -62,9 +70,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Build release APK
+        if: env.HAS_SECRET == 'true'
         run: ./gradlew :app:assembleRelease
 
       - name: Upload to Amazon Appstore
+        if: env.HAS_SECRET == 'true'
         uses: galonga/upload-amazon-appstore@v1.0.2
         with:
           clientId: ${{ secrets.AMAZON_APPSTORE_CLIENT_ID }}
