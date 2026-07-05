@@ -5,6 +5,9 @@ import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
 import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
+import com.paymentslab.feature.history.di.historyModule
+import com.paymentslab.feature.home.di.homeModule
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
@@ -40,6 +43,9 @@ fun doInitKoin(
             hostedWebViewModule(iosHostedGatewayConfigs),
             mobileMoneyModule(iosMobileMoneyConfigs),
             labModule,
+            checkoutDemoModule,
+            historyModule,
+            homeModule,
             module {
                 single { stripeCheckoutHost }
                 single<PaymentGateway>(qualifier = named("stripe")) { StripeIosGateway(get()) }

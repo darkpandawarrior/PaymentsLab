@@ -39,6 +39,9 @@ kotlin {
             implementation(project(":provider:hosted-webview"))
             implementation(project(":provider:mobile-money"))
             implementation(project(":feature:lab"))
+            implementation(project(":feature:checkout-demo"))
+            implementation(project(":feature:history"))
+            implementation(project(":feature:home"))
 
             implementation(libs.koin.core)
             implementation(compose.runtime)
