@@ -60,6 +60,9 @@ class HistoryViewModel(
         recompute(selected = if (status in current) current - status else current + status)
     }
 
+    // Takes `selected` explicitly (rather than always reading it back from `_uiState.value`) so a
+    // toggle writes `_uiState` exactly once — folding the selection change and the row recompute
+    // into the same assignment avoids a second, separate emission per toggle.
     private fun recompute(selected: Set<PaymentStatus> = _uiState.value.selectedStatuses) {
         val filtered = if (selected.isEmpty()) allPayments else allPayments.filter { it.status in selected }
         _uiState.value =
