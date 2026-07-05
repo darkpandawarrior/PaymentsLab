@@ -1,8 +1,8 @@
 package com.paymentslab.feature.lab.di
 
+import com.paymentslab.core.orchestration.OrchestratorFlowRunner
+import com.paymentslab.core.orchestration.PaymentFlowRunner
 import com.paymentslab.feature.lab.LabHomeViewModel
-import com.paymentslab.feature.lab.OrchestratorFlowRunner
-import com.paymentslab.feature.lab.PaymentFlowRunner
 import com.paymentslab.feature.lab.ProviderLabViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

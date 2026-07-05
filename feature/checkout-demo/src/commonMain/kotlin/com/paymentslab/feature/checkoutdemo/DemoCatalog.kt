@@ -1,6 +1,7 @@
 package com.paymentslab.feature.checkoutdemo
 
 import androidx.compose.runtime.Immutable
+import com.paymentslab.core.designsystem.format
 import com.paymentslab.core.paymentsapi.Money
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

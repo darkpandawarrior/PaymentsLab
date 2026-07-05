@@ -1,8 +1,8 @@
 package com.paymentslab.feature.checkoutdemo.di
 
+import com.paymentslab.core.orchestration.OrchestratorFlowRunner
+import com.paymentslab.core.orchestration.PaymentFlowRunner
 import com.paymentslab.feature.checkoutdemo.CheckoutViewModel
-import com.paymentslab.feature.checkoutdemo.OrchestratorFlowRunner
-import com.paymentslab.feature.checkoutdemo.PaymentFlowRunner
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 

@@ -1,9 +1,12 @@
-package com.paymentslab.feature.checkoutdemo
+package com.paymentslab.core.designsystem
 
 import com.paymentslab.core.paymentsapi.Money
 
-/** Presentation-only formatting of [Money] — formatting lives at the UI edge, never in the value type. */
-internal fun Money.format(): String {
+/**
+ * Presentation-only formatting of [Money] into a human string. Formatting lives at the UI edge —
+ * never in the [Money] value type — per the money-handling rule the whole app teaches.
+ */
+fun Money.format(): String {
     val symbol =
         when (currency) {
             "INR" -> "₹"

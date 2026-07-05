@@ -3,9 +3,18 @@ package com.paymentslab.feature.lab
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paymentslab.core.designsystem.ClientResultCopy
+import com.paymentslab.core.designsystem.ErroredCopy
 import com.paymentslab.core.designsystem.FlowHop
+import com.paymentslab.core.designsystem.LaunchingCopy
+import com.paymentslab.core.designsystem.OrderCreatedCopy
+import com.paymentslab.core.designsystem.SettledCopy
 import com.paymentslab.core.designsystem.StepState
+import com.paymentslab.core.designsystem.TimelineCopy
 import com.paymentslab.core.designsystem.TimelineStep
+import com.paymentslab.core.designsystem.VerifyingCopy
+import com.paymentslab.core.designsystem.toTimelineStep
+import com.paymentslab.core.orchestration.PaymentFlowRunner
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentHost
 import com.paymentslab.core.paymentsapi.PaymentStatus
@@ -18,6 +27,44 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+/** The Lab's technical, dev-facing wording for the shared timeline mapping. */
+private val LabTimelineCopy =
+    TimelineCopy(
+        orderCreated =
+            OrderCreatedCopy(
+                title = "Order created",
+                subtitle = { amount -> "Server resolved the price · $amount" },
+            ),
+        launching =
+            LaunchingCopy(
+                title = { gatewayId -> "Launching $gatewayId" },
+                subtitle = "Journal row written before the SDK opens",
+            ),
+        clientResult =
+            ClientResultCopy(
+                title = "Client result",
+                successSubtitle = "SDK reported success (unverified)",
+                failureSubtitle = { code -> "SDK reported failure: $code" },
+                pendingSubtitle = { reason -> "SDK reported pending: $reason" },
+                cancelledSubtitle = "User cancelled",
+            ),
+        verifying =
+            VerifyingCopy(
+                title = "Verifying",
+                subtitle = "Confirming against the server — a client success is only a hint",
+            ),
+        settled =
+            SettledCopy(
+                title = "Settled",
+                subtitle = { statusName -> "Server-authoritative: $statusName" },
+            ),
+        errored =
+            ErroredCopy(
+                title = "Error",
+                fallbackSubtitle = "The flow broke before settling",
+            ),
+    )
 
 /**
  * State for [ProviderLabScreen]: the live timeline built from the orchestrator's [PaymentStep]
@@ -87,7 +134,7 @@ class ProviderLabViewModel(
      * step pulses ACTIVE; once the flow completes every step keeps its mapped state.
      */
     private fun List<PaymentStep>.toTimeline(runInFlight: Boolean): ImmutableList<TimelineStep> {
-        val mapped = map { it.toTimelineStep() }.toMutableList()
+        val mapped = map { it.toTimelineStep(LabTimelineCopy) }.toMutableList()
         if (runInFlight && mapped.isNotEmpty()) {
             val lastIndex = mapped.lastIndex
             val last = mapped[lastIndex]
