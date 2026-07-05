@@ -1,22 +1,19 @@
 package com.paymentslab.feature.lab
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import com.paymentslab.core.designsystem.GatewayStatusUi
 import com.paymentslab.core.designsystem.RegionCount
 import com.paymentslab.core.paymentsapi.Capability
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
+import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 /** One provider row on the Lab home — everything the card needs, no domain types leaking to UI. */
 @Immutable
@@ -114,44 +111,42 @@ private fun GatewayStatusUi.sectionLabel(): String =
  */
 class LabHomeViewModel(
     registry: PaymentGatewayRegistry,
-) : ViewModel() {
-    private val _uiState =
-        MutableStateFlow(
-            LabHomeUiState(
-                allProviders =
-                    registry.gateways
-                        .map { gateway ->
-                            ProviderRow(
-                                id = gateway.id,
-                                displayName = gateway.meta.displayName,
-                                status = gateway.meta.status.toUi(),
-                                region = gateway.meta.region,
-                                blurb = gateway.meta.blurb,
-                                capabilities =
-                                    gateway.meta.capabilities
-                                        .map { it.label() }
-                                        .toImmutableList(),
-                            )
-                        }.toImmutableList(),
-            ),
-        )
-    val uiState: StateFlow<LabHomeUiState> = _uiState.asStateFlow()
+) : StateViewModel<LabHomeUiState>(
+        LabHomeUiState(
+            allProviders =
+                registry.gateways
+                    .map { gateway ->
+                        ProviderRow(
+                            id = gateway.id,
+                            displayName = gateway.meta.displayName,
+                            status = gateway.meta.status.toUi(),
+                            region = gateway.meta.region,
+                            blurb = gateway.meta.blurb,
+                            capabilities =
+                                gateway.meta.capabilities
+                                    .map { it.label() }
+                                    .toImmutableList(),
+                        )
+                    }.toImmutableList(),
+        ),
+    ) {
+    val uiState: StateFlow<LabHomeUiState> get() = state
 
     fun onSearchQueryChange(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
+        setState { copy(searchQuery = query) }
     }
 
     fun onToggleStatusFilter(status: GatewayStatusUi) {
-        _uiState.update { it.copy(selectedStatuses = it.selectedStatuses.toggle(status)) }
+        setState { copy(selectedStatuses = selectedStatuses.toggle(status)) }
     }
 
     fun onToggleRegionFilter(region: String) {
-        _uiState.update { it.copy(selectedRegions = it.selectedRegions.toggle(region)) }
+        setState { copy(selectedRegions = selectedRegions.toggle(region)) }
     }
 
     fun onClearFilters() {
-        _uiState.update {
-            it.copy(
+        setState {
+            copy(
                 searchQuery = "",
                 selectedStatuses = persistentSetOf(),
                 selectedRegions = persistentSetOf(),

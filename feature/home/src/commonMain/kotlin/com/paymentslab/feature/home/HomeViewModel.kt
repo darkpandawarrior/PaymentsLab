@@ -1,18 +1,16 @@
 package com.paymentslab.feature.home
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PendingPayment
 import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** One row in the "Recent activity" preview — a small subset of [HistoryRow]'s fields. */
@@ -40,15 +38,14 @@ data class HomeUiState(
 class HomeViewModel(
     registry: PaymentGatewayRegistry,
     journal: PendingPaymentJournal,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(HomeUiState(gatewayCount = registry.gateways.size))
-    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+) : StateViewModel<HomeUiState>(HomeUiState(gatewayCount = registry.gateways.size)) {
+    val uiState: StateFlow<HomeUiState> get() = state
 
     init {
         viewModelScope.launch {
             journal.observeAll().collect { payments ->
-                _uiState.value =
-                    _uiState.value.copy(
+                setState {
+                    copy(
                         successRatePercent = payments.successRatePercent(),
                         recentActivity =
                             payments
@@ -57,6 +54,7 @@ class HomeViewModel(
                                 .map { RecentActivityRow(it.orderId, it.catalogItemId, it.status) }
                                 .toImmutableList(),
                     )
+                }
             }
         }
     }

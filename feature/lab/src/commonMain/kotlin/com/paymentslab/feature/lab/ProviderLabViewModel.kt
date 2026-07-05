@@ -1,7 +1,6 @@
 package com.paymentslab.feature.lab
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paymentslab.core.designsystem.ClientResultCopy
 import com.paymentslab.core.designsystem.ErroredCopy
@@ -19,13 +18,12 @@ import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentHost
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PaymentStep
+import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** The Lab's technical, dev-facing wording for the shared timeline mapping. */
@@ -91,40 +89,41 @@ data class ProviderLabUiState(
  */
 class ProviderLabViewModel(
     private val flowRunner: PaymentFlowRunner,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(ProviderLabUiState())
-    val uiState: StateFlow<ProviderLabUiState> = _uiState.asStateFlow()
+) : StateViewModel<ProviderLabUiState>(ProviderLabUiState()) {
+    val uiState: StateFlow<ProviderLabUiState> get() = state
 
     fun start(
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
     ) {
-        if (_uiState.value.isRunning) return
-        _uiState.value = ProviderLabUiState(isRunning = true, hasRun = true)
+        if (currentState.isRunning) return
+        setState { ProviderLabUiState(isRunning = true, hasRun = true) }
 
         viewModelScope.launch {
             val accumulated = mutableListOf<PaymentStep>()
             try {
                 flowRunner.run(host, gatewayId, catalogItemId).collect { step ->
                     accumulated += step
-                    _uiState.value =
-                        _uiState.value.copy(
+                    setState {
+                        copy(
                             steps = accumulated.toTimeline(runInFlight = true),
                             currentHop = step.toFlowHop(),
                             verified = step.isVerified(),
                         )
+                    }
                 }
-                _uiState.value =
-                    _uiState.value.copy(
+                setState {
+                    copy(
                         steps = accumulated.toTimeline(runInFlight = false),
                         isRunning = false,
                         finalStatus = accumulated.terminalStatus(),
                     )
+                }
             } catch (ce: CancellationException) {
                 throw ce
             } catch (t: Throwable) {
-                _uiState.value = _uiState.value.copy(isRunning = false)
+                setState { copy(isRunning = false) }
             }
         }
     }
