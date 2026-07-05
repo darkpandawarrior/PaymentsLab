@@ -17,38 +17,47 @@ jobs:
   deploy:
     name: Build & deploy AAB
     runs-on: ubuntu-latest
-    if: ${{ !!secrets.INDUS_API_KEY }}
     env:
+      HAS_SECRET: ${{ secrets.INDUS_API_KEY != '' }}
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     steps:
       - uses: actions/checkout@v4
+        if: env.HAS_SECRET == 'true'
 
       - name: Set up JDK 21
+        if: env.HAS_SECRET == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Use CI JDK 21 (strip machine-specific java.home)
+        if: env.HAS_SECRET == 'true'
         run: sed -i '/^org\.gradle\.java\.home/d; /^org\.gradle\.java\.installations\.paths/d' gradle.properties
 
       - name: Setup Gradle
+        if: env.HAS_SECRET == 'true'
         uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Android SDK
+        if: env.HAS_SECRET == 'true'
         uses: android-actions/setup-android@v3
 
       - name: Install SDK 37 platform & build-tools
+        if: env.HAS_SECRET == 'true'
         run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
 
       - run: chmod +x ./gradlew
+        if: env.HAS_SECRET == 'true'
 
       # Requires a signingConfig on :app (see fastlane/Fastfile's deploy_internal comments) —
       # otherwise Indus Appstore will reject the unsigned bundle.
       - name: Build release AAB
+        if: env.HAS_SECRET == 'true'
         run: ./gradlew :app:bundleRelease
 
       - name: Deploy to Indus Appstore
+        if: env.HAS_SECRET == 'true'
         uses: PhonePe/Indus-Flows@v1
         with:
           app_bundle_path: 'app/build/outputs/bundle/release/app-release.aab'
