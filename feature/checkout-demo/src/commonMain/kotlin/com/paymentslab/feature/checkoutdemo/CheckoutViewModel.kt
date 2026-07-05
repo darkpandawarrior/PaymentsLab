@@ -1,7 +1,6 @@
 package com.paymentslab.feature.checkoutdemo
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.TimelineStep
@@ -11,13 +10,12 @@ import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentHost
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PaymentStep
+import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** A gateway the demo can actually run — only SANDBOX_READY providers are offered. */
@@ -50,59 +48,59 @@ data class CheckoutUiState(
 class CheckoutViewModel(
     private val flowRunner: PaymentFlowRunner,
     registry: PaymentGatewayRegistry,
-) : ViewModel() {
-    private val _uiState =
-        MutableStateFlow(
-            CheckoutUiState(
-                gateways =
-                    registry.gateways
-                        .filter { it.meta.status == GatewayStatus.SANDBOX_READY }
-                        .map { CheckoutGateway(it.id, it.meta.displayName) }
-                        .toImmutableList(),
-            ),
-        )
-    val uiState: StateFlow<CheckoutUiState> = _uiState.asStateFlow()
+) : StateViewModel<CheckoutUiState>(
+        CheckoutUiState(
+            gateways =
+                registry.gateways
+                    .filter { it.meta.status == GatewayStatus.SANDBOX_READY }
+                    .map { CheckoutGateway(it.id, it.meta.displayName) }
+                    .toImmutableList(),
+        ),
+    ) {
+    val uiState: StateFlow<CheckoutUiState> get() = state
 
     fun selectProduct(product: DemoProduct) {
-        if (_uiState.value.isRunning) return
-        _uiState.value = _uiState.value.copy(selectedProduct = product)
+        if (currentState.isRunning) return
+        setState { copy(selectedProduct = product) }
     }
 
     fun selectGateway(gatewayId: GatewayId) {
-        if (_uiState.value.isRunning) return
-        _uiState.value = _uiState.value.copy(selectedGatewayId = gatewayId)
+        if (currentState.isRunning) return
+        setState { copy(selectedGatewayId = gatewayId) }
     }
 
     fun pay(host: PaymentHost) {
-        val current = _uiState.value
+        val current = currentState
         if (!current.canPay) return
         val product = current.selectedProduct ?: return
         val gatewayId = current.selectedGatewayId ?: return
 
-        _uiState.value =
-            current.copy(
+        setState {
+            copy(
                 isRunning = true,
                 steps = persistentListOf(),
                 finalStatus = null,
             )
+        }
 
         viewModelScope.launch {
             val accumulated = mutableListOf<PaymentStep>()
             try {
                 flowRunner.run(host, gatewayId, product.catalogItemId).collect { step ->
                     accumulated += step
-                    _uiState.value = _uiState.value.copy(steps = accumulated.toTimeline(runInFlight = true))
+                    setState { copy(steps = accumulated.toTimeline(runInFlight = true)) }
                 }
-                _uiState.value =
-                    _uiState.value.copy(
+                setState {
+                    copy(
                         steps = accumulated.toTimeline(runInFlight = false),
                         isRunning = false,
                         finalStatus = accumulated.terminalStatus(),
                     )
+                }
             } catch (ce: CancellationException) {
                 throw ce
             } catch (t: Throwable) {
-                _uiState.value = _uiState.value.copy(isRunning = false)
+                setState { copy(isRunning = false) }
             }
         }
     }

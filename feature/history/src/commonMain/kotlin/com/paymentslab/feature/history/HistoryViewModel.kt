@@ -1,17 +1,15 @@
 package com.paymentslab.feature.history
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PendingPayment
 import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** One row in the payment history, fully formatted for display. */
@@ -40,9 +38,8 @@ data class HistoryUiState(
  */
 class HistoryViewModel(
     private val journal: PendingPaymentJournal,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(HistoryUiState())
-    val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
+) : StateViewModel<HistoryUiState>(HistoryUiState()) {
+    val uiState: StateFlow<HistoryUiState> get() = state
 
     private var allPayments: List<PendingPayment> = emptyList()
 
@@ -56,17 +53,17 @@ class HistoryViewModel(
     }
 
     fun onToggleStatusFilter(status: PaymentStatus) {
-        val current = _uiState.value.selectedStatuses
+        val current = currentState.selectedStatuses
         recompute(selected = if (status in current) current - status else current + status)
     }
 
-    // Takes `selected` explicitly (rather than always reading it back from `_uiState.value`) so a
-    // toggle writes `_uiState` exactly once — folding the selection change and the row recompute
-    // into the same assignment avoids a second, separate emission per toggle.
-    private fun recompute(selected: Set<PaymentStatus> = _uiState.value.selectedStatuses) {
+    // Takes `selected` explicitly (rather than always reading it back from `currentState`) so a
+    // toggle writes state exactly once — folding the selection change and the row recompute into
+    // the same assignment avoids a second, separate emission per toggle.
+    private fun recompute(selected: Set<PaymentStatus> = currentState.selectedStatuses) {
         val filtered = if (selected.isEmpty()) allPayments else allPayments.filter { it.status in selected }
-        _uiState.value =
-            _uiState.value.copy(
+        setState {
+            copy(
                 rows =
                     filtered
                         .sortedByDescending { it.createdAtEpochMs }
@@ -75,6 +72,7 @@ class HistoryViewModel(
                 isLoading = false,
                 selectedStatuses = selected,
             )
+        }
     }
 
     private companion object {
