@@ -25,7 +25,7 @@ detekt {
     allRules = false
 }
 
-tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach { jvmTarget = "21" }
 
 dependencies {
     // Aggregate coverage from the logic-bearing modules (skip UI-only + generated-heavy ones,
@@ -57,13 +57,13 @@ kover {
 
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "dev.detekt")
     apply(plugin = "org.jetbrains.kotlinx.kover")
     extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         // Never lint generated code (Room KSP, etc.).
         filter { exclude { entry -> entry.file.path.contains("${"/build/"}") } }
     }
-    extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+    extensions.configure<dev.detekt.gradle.extensions.DetektExtension> {
         config.setFrom(rootProject.files("config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
         baseline = file("detekt-baseline.xml")
@@ -78,9 +78,8 @@ subprojects {
             "src/main/java",
         )
     }
-    // Detekt 1.23.x cannot run on JDK 23+; the whole build is pinned to JDK 21 (see gradle.properties).
-    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach { jvmTarget = "21" }
-    tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach { jvmTarget = "21" }
+    tasks.withType<dev.detekt.gradle.Detekt>().configureEach { jvmTarget = "21" }
+    tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach { jvmTarget = "21" }
 }
 
 // ── Workflow task aliases: the local dev + CI verification loop ──────────────
