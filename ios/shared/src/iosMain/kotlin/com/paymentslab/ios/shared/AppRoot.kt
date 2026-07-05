@@ -1,5 +1,8 @@
 package com.paymentslab.ios.shared
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Receipt
@@ -9,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.paymentslab.core.designsystem.AppShell
 import com.paymentslab.core.designsystem.AppShellDestination
 import com.paymentslab.core.designsystem.PaymentsLabTheme
@@ -82,27 +86,29 @@ fun AppRoot() {
                     }
             },
             onFabClick = { screen = IosScreen.Checkout },
-        ) { _ ->
-            when (val current = screen) {
-                IosScreen.Home ->
-                    HomeRoot(
-                        onOpenExplore = { screen = IosScreen.Explore },
-                        onOpenActivity = { screen = IosScreen.Activity },
-                    )
-                IosScreen.Explore ->
-                    LabHomeRoot(onOpenProvider = { id -> screen = IosScreen.Provider(id) })
-                is IosScreen.Provider ->
-                    ProviderLabRoot(
-                        paymentHost = IosPaymentHost,
-                        gatewayId = current.gatewayId,
-                        providerName = current.gatewayId.value,
-                        priceLabel = "₹149",
-                        catalogItemId = "coffee_149",
-                        onBack = { screen = IosScreen.Explore },
-                    )
-                IosScreen.Checkout ->
-                    CheckoutRoot(paymentHost = IosPaymentHost, onBack = { screen = IosScreen.Home })
-                IosScreen.Activity -> HistoryRoot()
+        ) { padding ->
+            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+                when (val current = screen) {
+                    IosScreen.Home ->
+                        HomeRoot(
+                            onOpenExplore = { screen = IosScreen.Explore },
+                            onOpenActivity = { screen = IosScreen.Activity },
+                        )
+                    IosScreen.Explore ->
+                        LabHomeRoot(onOpenProvider = { id -> screen = IosScreen.Provider(id) })
+                    is IosScreen.Provider ->
+                        ProviderLabRoot(
+                            paymentHost = IosPaymentHost,
+                            gatewayId = current.gatewayId,
+                            providerName = current.gatewayId.value,
+                            priceLabel = "₹149",
+                            catalogItemId = "coffee_149",
+                            onBack = { screen = IosScreen.Explore },
+                        )
+                    IosScreen.Checkout ->
+                        CheckoutRoot(paymentHost = IosPaymentHost, onBack = { screen = IosScreen.Home })
+                    IosScreen.Activity -> HistoryRoot()
+                }
             }
         }
     }
