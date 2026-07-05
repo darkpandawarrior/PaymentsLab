@@ -1,5 +1,5 @@
 plugins {
-    id("paymentslab.kmp.compose")
+    id("shared.kmp.compose")
 }
 
 kotlin {

@@ -1,6 +1,6 @@
 plugins {
     id("paymentslab.android.library")
-    id("paymentslab.test")
+    id("shared.test")
 }
 
 android {

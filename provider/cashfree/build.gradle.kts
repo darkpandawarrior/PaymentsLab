@@ -1,6 +1,6 @@
 plugins {
     id("paymentslab.android.provider")
-    id("paymentslab.test")
+    id("shared.test")
 }
 
 android {

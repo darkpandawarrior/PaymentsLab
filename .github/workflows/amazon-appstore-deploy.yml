@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: env.HAS_SECRET == 'true'
+        with:
+          submodules: recursive
 
       - name: Set up JDK 21
         if: env.HAS_SECRET == 'true'

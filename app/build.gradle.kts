@@ -2,7 +2,7 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("paymentslab.android.application")
+    id("shared.android.application")
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.dependency.guard)
     alias(libs.plugins.roborazzi)
@@ -43,6 +43,14 @@ val appBuildNumber =
 
 android {
     namespace = "com.paymentslab.app"
+
+    // The shared `shared.android.application` convention plugin defaults `buildConfig = false`
+    // (matches AGP 9's own default). This app relies on BuildConfig — PaymentsLabApplication reads
+    // BuildConfig.BUILD_TYPE/VERSION_NAME, security/network read BACKEND_URL + BYPASS_* — so it must
+    // opt back in explicitly. Without this the buildConfigField(...) calls below don't compile.
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.paymentslab.app"
