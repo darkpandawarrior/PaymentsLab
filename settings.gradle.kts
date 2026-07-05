@@ -47,6 +47,17 @@ dependencyResolutionManagement {
 
 rootProject.name = "PaymentsLab"
 
+// mvi-core's KMP root publication is renamed "mvi-core" only at *publish* time (see its
+// lib/build.gradle.kts: artifactId = "mvi-core" for the kotlinMultiplatform publication) — the
+// actual subproject is ":lib". Gradle's default project-name substitution looks for
+// com.siddharth.kmp:lib and fails to resolve com.siddharth.kmp:mvi-core, so the substitution
+// below is required (proven on the Kursi adoption of this same library).
+includeBuild("external/kmp-mvi-core") {
+    dependencySubstitution {
+        substitute(module("com.siddharth.kmp:mvi-core")).using(project(":lib"))
+    }
+}
+
 // ── Core (KMP-ready) ────────────────────────────────────────────────────────
 include(":core:payments-api")
 include(":core:config")
