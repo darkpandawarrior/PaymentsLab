@@ -8,7 +8,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
-![Modules](https://img.shields.io/badge/modules-19-success)
+![Modules](https://img.shields.io/badge/modules-25-success)
 
 </div>
 
@@ -46,15 +46,29 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
 
 ## Highlights
 
-- 🧩 **19-module KMP architecture.** One Gradle module per provider, contributed into a registry via
-  Koin `getAll<PaymentGateway>()` — adding gateway *N+1* touches no existing code. Feature modules
-  never depend on each other; they meet only at the `:app` composition root.
-- 🔌 **One contract, four real SDKs — plus a generic hosted-webview archetype.** Razorpay, Cashfree,
-  Stripe (+ Google Pay) and a raw UPI intent flow all implement the same tiny `PaymentGateway`
-  interface. The Activity-callback SDKs are bridged into suspending coroutines by a `PaymentHost`
-  that never leaks an `Activity` upward. `provider:hosted-webview` covers the whole class of
-  gateways with no native SDK (redirect-and-return-URL checkout, e.g. MoMo-style flows) behind the
-  same contract.
+- 🧩 **25-module KMP architecture, 66 gateways behind it.** One Gradle module per native-SDK
+  provider, contributed into a registry via Koin `getAll<PaymentGateway>()` — adding gateway *N+1*
+  touches no existing code. Feature modules never depend on each other; they meet only at the
+  `:app` composition root. The catalog spans 7 native-SDK integrations, 47 hosted-webview gateways,
+  8 mobile-money flows, and 4 catalog-only/KYC-gated entries — all behind the one contract below.
+- 🔌 **One contract, seven real SDKs — plus two generic archetypes.** Razorpay, Cashfree, Stripe
+  (+ Google Pay), Square, Omise, and a raw UPI intent flow all implement the same tiny
+  `PaymentGateway` interface. The Activity-callback SDKs are bridged into suspending coroutines by
+  a `PaymentHost` that never leaks an `Activity` upward. `provider:hosted-webview` and
+  `provider:mobile-money` cover the other 55 gateways generically — redirect-and-return-URL
+  checkout and confirm-on-the-payer's-phone flows, respectively — behind the same contract.
+- 🏠 **A real Home dashboard, not just a catalog.** Animated gateway-count and success-rate stats,
+  recent activity, one tap into Explore — the redesign's front door, backed by the same
+  server-authoritative payment journal every other screen reads.
+- 🎨 **Real gateway branding, honestly degraded.** A `GatewayBranding` registry renders each
+  provider's actual logo where a rights-cleared source exists (8 gateways today, sourced from
+  `simple-icons`, CC0), and falls back to a deterministic, hash-colored monogram for the other 58 —
+  every gateway gets an intentional-looking badge, and adding gateway *N+1* needs zero registry
+  upkeep.
+- 🔒 **Motion that reinforces security, not just decorates.** A brief `ShieldPulse` shield-icon
+  draw-in on every payment-bearing screen visually reflects the `FLAG_SECURE` protection already in
+  place underneath it — a half-second cue, not a gimmick, and it respects `LocalReducedMotion` like
+  every other animated component in the app.
 - 🪪 **Env-backed credentials that auto-degrade honestly.** `core:config` resolves each gateway's
   sandbox keys from `PLAB_<GATEWAY>_<MODE>_<KEY>` env vars; a gateway with no resolved credentials
   auto-degrades from `SANDBOX_READY` to `MOCK_MODE` instead of silently pretending to work — the Lab
@@ -73,12 +87,15 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   (zero coroutines/DI/IO); the orchestrator just executes its effects. A payment's path is a
   recorded event log that replays byte-for-byte identically — the auditing property money movement
   wants.
-- 🧪 **A real quality gate.** ktlint + detekt across all 19 modules (including KMP `commonMain`),
-  fake-based unit tests for the orchestrator/ViewModels/backend, run on every push via GitHub Actions.
+- 🧪 **A real quality gate.** ktlint + detekt across all 25 modules (including KMP `commonMain`),
+  fake-based unit tests for the orchestrator/ViewModels/backend, **20 deterministic Roborazzi
+  screenshot tests** covering every redesigned screen, run on every push via GitHub Actions.
 
 ## Provider status matrix
 
 The whole app is honest about what a solo developer can actually run without a business account.
+This table highlights the native-SDK flagships and a few notable others — see the in-app catalog
+(the Explore tab) for the full 66-gateway list, each with its own status badge and region.
 
 | Provider | Category | Region | Sandbox (no KYC)? | In v1 | Notes |
 |---|---|---|:--:|:--:|---|
@@ -87,54 +104,76 @@ The whole app is honest about what a solo developer can actually run without a b
 | **UPI intent** | Platform flow | India | ✅ | ✅ | Raw `upi://` intent, no SDK; client response is *unverifiable* by design |
 | **Stripe** | Gateway | Global | ✅ | ✅ | PaymentSheet; 3DS2; Google Pay rides Stripe as the gateway |
 | **Google Pay** | Method | Global | ✅ | ✅ | `ENVIRONMENT_TEST`, processed via Stripe |
+| **Square** | Gateway | Global | ✅ | ✅ | In-App Payments SDK; real card-entry tokenization |
+| **Omise** | Gateway | SE Asia | ✅ | ✅ | Manual tokenization; sandbox public/secret keypair |
+| Paytm All-in-One | Gateway | India | ⚠️ | ✅ | Hosted-webview, `MOCK_MODE` — real MID needs business KYC |
 | PhonePe PG | Gateway | India | ❌ | 📄 | MID needs business KYC — documented only |
 | Juspay HyperSDK | Orchestrator | India | ❌ | 📄 | Credentials are B2B-issued — documented only |
-| PayU / Paytm | Gateway | India | ⚠️ | 📄 | Later milestone / documented |
+| PayU | Gateway | India | ⚠️ | 📄 | Hosted-webview `MOCK_MODE`; shared test creds still a roadmap item |
 | Play Billing | IAP | — | ⚠️ | 🔜 | Needs a Play Console listing — later milestone |
 
-✅ runnable in sandbox · 📄 catalog + docs only (gated) · 🔜 planned
+✅ runnable in sandbox · ⚠️ runs in `MOCK_MODE` (real integration code, no business KYC yet) ·
+📄 catalog + docs only (gated) · 🔜 planned
 
 ## Screens & flows
 
-Two modes, one engine:
+Four screens behind one center action, not a flat list of tabs:
 
-- **Integration Lab** — the home screen catalogs every provider with a status badge. Tapping one
-  opens a lab that executes the full lifecycle and renders it as a **live timeline**: order created →
-  SDK launched → client result → server verification → settled, each step expandable to its actual
-  redacted payload. This is the teaching surface — the sequence, and the fact that a client `Success`
-  still has to pass through *Verifying* before it's trusted, is the whole point.
-- **Demo Checkout** — a product checkout (cart → pay) that reuses the exact same provider registry
-  and orchestrator, with an inline mini-timeline so the "normal" flow is explained as it runs.
-- **History** — the transaction log, streamed from the Room journal.
+- **Home** — the front door. A gradient hero card with an animated gateway-count and success-rate
+  stat (both server-derived, not hardcoded), a recent-activity preview pulled from the same Room
+  journal every other screen reads, and one tap into Explore.
+- **Explore** (the Integration Lab) — catalogs every provider with a status badge *and* its real
+  logo or a deterministic monogram fallback. Tapping one opens a lab that executes the full
+  lifecycle and renders it as a **live timeline**: order created → SDK launched → client result →
+  server verification → settled, each step expandable to its actual redacted payload. This is the
+  teaching surface — the sequence, and the fact that a client `Success` still has to pass through
+  *Verifying* before it's trusted, is the whole point.
+- **Checkout** — reached via the bottom bar's center "Pay" FAB, not a peer tab: a product checkout
+  (cart → pay) that reuses the exact same provider registry and orchestrator, with an inline
+  mini-timeline so the "normal" flow is explained as it runs.
+- **Activity** (was History) — the transaction log, streamed from the Room journal, with status
+  filter chips to narrow it down.
 
-Motion is deliberate, not decorative: a shimmer on the `MOCK_MODE` badge, `SuccessBurst`/
-`FailureShake` terminal feedback, a scramble-to-mask `RedactionReveal`, and an animated
-`PaymentFlowDiagram` that visualizes the client-success-is-not-server-truth trust boundary as a
-moving packet. Every animated component reads `LocalReducedMotion`, so system-level reduce-motion
-is honored everywhere, not bolted onto one screen.
+Every payment-bearing screen (Explore's provider lab, Checkout) opens with a brief `ShieldPulse`
+shield-icon draw-in — visual reassurance that lines up with the real `FLAG_SECURE` protection
+already active underneath it (screenshots/recording blocked). Motion elsewhere is deliberate, not
+decorative: a shimmer on the `MOCK_MODE` badge, `SuccessBurst`/`FailureShake` terminal feedback, a
+scramble-to-mask `RedactionReveal`, and an animated `PaymentFlowDiagram` that visualizes the
+client-success-is-not-server-truth trust boundary as a moving packet. Every animated component
+reads `LocalReducedMotion`, so system-level reduce-motion is honored everywhere, not bolted onto
+one screen.
 
-The Lab timeline — the app's centerpiece — rendered as a deterministic Roborazzi screenshot:
+Home — the redesign's centerpiece — rendered as a deterministic Roborazzi screenshot:
 
 <div align="center">
-<img src="docs/screenshots/step_timeline_light.png" alt="Payment lifecycle timeline" width="320" />
+<img src="docs/screenshots/home_screen_dashboard.png" alt="Home dashboard — animated gateway count and success rate, recent activity" width="320" />
+</div>
+
+Real gateway logos where a rights-cleared source exists, a generated monogram everywhere else —
+the same `GatewayBranding` registry Explore's provider cards use:
+
+<div align="center">
+<img src="docs/screenshots/gateway_brand_badges.png" alt="Real logos (Stripe, PayPal) next to generated monogram fallbacks" width="320" />
 </div>
 
 > Screenshots are generated on the JVM (Robolectric, no emulator) and committed to
 > [`docs/screenshots/`](docs/screenshots/) — see `ScreenshotCatalogTest`. Refresh with
 > `./gradlew :app:recordRoborazziDebug`.
 
-Catalog → provider lab → settled, stitched from the same committed Roborazzi frames (no emulator
+Explore → provider lab → settled, stitched from the same committed Roborazzi frames (no emulator
 was used to record this — see [`docs/demo/`](docs/demo/) for how it's built):
 
 <div align="center">
-<img src="docs/demo/android_flow.gif" alt="Catalog to settled payment flow" width="320" />
+<img src="docs/demo/android_flow.gif" alt="Explore to settled payment flow" width="320" />
 </div>
 
 ### Also runs on iOS
 
-`ios/shared` packages the KMP-safe surface (archetype C hosted-webview + archetype D mobile-money)
-into a real `.framework`, consumed by a genuine Xcode project at `ios/iosApp/`. The screenshot below
-is a real iOS Simulator run of the same Compose UI, not a mockup:
+`ios/shared` packages the full 5-screen app — Home, Explore, provider lab, Checkout, Activity, the
+same shared bottom-bar-plus-FAB chrome as Android — into a real `.framework`, consumed by a genuine
+Xcode project at `ios/iosApp/`. Navigation is a plain `remember`-backed state machine instead of
+Android's `NavController` (Navigation3 is Android-only), but the screen set is identical. The
+screenshot below is a real iOS Simulator run of the same Compose UI, not a mockup:
 
 <div align="center">
 <img src="docs/screenshots/ios_catalog.png" alt="The same catalog UI running on iOS" width="320" />
@@ -212,16 +251,19 @@ core/
   network/                 Ktor client implementing PaymentBackend
   data/                    Room KMP journal (process-death recovery)
   designsystem/            Compose Multiplatform theme, tokens, StepTimeline, Motion Kit
-                           (shimmer, terminal feedback, flow diagram), PayloadCard
+                           (shimmer, terminal feedback, flow diagram, ShieldPulse), PayloadCard,
+                           GatewayBranding (real logo / monogram fallback), AppShell (nav chrome)
   security/                Keystore AES-256-GCM store, FLAG_SECURE, device-integrity, pinning config
   common/                  UiText, KMP logging, initKoin()/platformModule() (iOS-ready DI entry point)
 provider/
-  razorpay/  cashfree/  upi-intent/  stripe/    one module per gateway, behind the contract
-  hosted-webview/          generic archetype for SDK-less, redirect-and-return-URL gateways
+  razorpay/ cashfree/ upi-intent/ stripe/ googlepay/ square/ omise/  one module per native SDK
+  hosted-webview/          generic archetype for SDK-less, redirect-and-return-URL gateways (47)
+  mobile-money/            generic archetype for confirm-on-payer's-phone flows (8)
 feature/
-  lab/                     catalog home + live per-provider lab timeline
-  checkout-demo/           product checkout that reuses the same registry (the "explained" mode)
-  history/                 transaction log from the Room journal
+  home/                    dashboard — animated stats, recent activity (the app's front door)
+  lab/                     provider catalog (Explore) + live per-provider lab timeline
+  checkout-demo/           product checkout, reached via the bottom bar's center FAB
+  history/                 transaction log from the Room journal (Activity), with status filters
 app/ .../work/             PaymentReconciliationWorker — WorkManager process-death reconciliation
 build-logic/               convention plugins (kmp.library / kmp.compose / cmp.feature / …)
 ```
@@ -354,20 +396,23 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
 
 ## Roadmap
 
-- Braintree (headless v5) · PayU (shared test creds) · Paytm All-in-One
+- Braintree (headless v5) · PayU with real shared test creds (the gateway is already wired in
+  `MOCK_MODE` — this is about upgrading it, not building it)
 - Refunds (full/partial) and saved-cards backed by RBI network tokens
 - UPI Autopay / e-mandates + Stripe Billing subscriptions
 - Google Play Billing v8 (needs a Play Console listing)
-- iOS app entry point (the KMP core already compiles for iOS today)
-- Real certificate pins + a signing config to make the release/Play Fastlane lanes live
 - Extract & publish `core:payments-api` as a standalone KMP library
+- Expand `GatewayBranding`'s curated real-logo tier beyond the current 8 (the other 58 gateways
+  render a generated monogram today — accurate, not broken, but a growing real-logo set would be
+  nice)
 
 ## iOS readiness
 
-The core is Kotlin Multiplatform and **compiles for iOS today** (`payments-api`, `protocol`,
-`common`, `orchestration` all build `iosArm64` / `iosSimulatorArm64`). The provider SDKs are
-Android-only by nature, so the contract stays in `commonMain` and only the implementations are
-`androidMain`-shaped. v1 ships the Android app; an iOS entry point is a roadmap item, not a rewrite.
+The core is Kotlin Multiplatform, and iOS isn't a roadmap item anymore — it's a real, working app.
+`ios/shared` packages the KMP-safe core plus all 5 native-SDK gateways with real Swift-side SDK
+implementations (Stripe, Razorpay, Cashfree, Omise, Square) into a `.framework`, consumed by a
+genuine Xcode project at `ios/iosApp/` with its own 5-screen navigation shell mirroring Android's.
+See [Also runs on iOS](#also-runs-on-ios) above for the details and a real Simulator screenshot.
 
 ---
 
