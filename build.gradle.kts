@@ -87,7 +87,13 @@ subprojects {
 tasks.register("fastGate") {
     description = "ktlint + detekt + unit tests + coverage floor + dependency lock: the fast CI gate."
     dependsOn("ktlintCheck", "detekt", "koverVerify")
-    findProject(":app")?.let { dependsOn(":app:dependencyGuard") }
+    findProject(":app")?.let {
+        dependsOn(":app:dependencyGuard")
+        // verifyRoborazziDebug runs :app's unit tests (incl. ScreenshotCatalogTest) AND fails the
+        // build if a rendered screen no longer matches its committed docs/screenshots/ baseline —
+        // the actual verification recordRoborazziDebug's "diffs cleanly in PRs" claim depends on.
+        dependsOn(":app:verifyRoborazziDebug")
+    }
     findProject(":backend")?.let { dependsOn(":backend:test") }
     listOf(
         ":core:orchestration",
@@ -96,6 +102,7 @@ tasks.register("fastGate") {
         ":feature:lab",
         ":feature:history",
         ":feature:checkout-demo",
+        ":feature:home",
     ).forEach { path -> findProject(path)?.let { dependsOn("$path:testAndroidHostTest") } }
     listOf(":provider:upi-intent", ":provider:razorpay", ":provider:cashfree").forEach { path ->
         findProject(path)?.let { dependsOn("$path:testDebugUnitTest") }
