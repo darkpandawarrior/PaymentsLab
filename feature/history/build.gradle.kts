@@ -17,6 +17,7 @@ kotlin {
             implementation(project(":core:designsystem"))
             implementation(project(":core:common"))
             implementation(libs.kotlinx.collections.immutable)
+            implementation("com.siddharth.kmp:mvi-core:1.0.0")
         }
         androidMain.dependencies {
             implementation(libs.lifecycle.runtime.compose)
