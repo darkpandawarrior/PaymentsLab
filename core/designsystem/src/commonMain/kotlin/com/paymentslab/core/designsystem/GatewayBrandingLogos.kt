@@ -55,6 +55,10 @@ private fun registerCuratedLogo(
     paths.forEach { logoPath ->
         builder.addPath(
             pathData = PathParser().parsePathString(logoPath.pathData).toNodes(),
+            // Verified, not copy-pasted: rendered all 9 curated logos (incl. hole letterforms like
+            // Paytm's "a"/"p" and the Square cutout) under EvenOdd vs NonZero — pixel-identical in
+            // every case, since the source paths wind holes opposite to their outer contour. Don't
+            // assume this holds for a new gateway added here — re-verify before reusing EvenOdd.
             pathFillType = PathFillType.EvenOdd,
             fill = SolidColor(Color(logoPath.colorArgb)),
         )
