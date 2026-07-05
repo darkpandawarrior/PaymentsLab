@@ -3,6 +3,7 @@ package com.paymentslab.feature.history
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paymentslab.core.designsystem.format
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PendingPayment
 import com.paymentslab.core.paymentsapi.PendingPaymentJournal

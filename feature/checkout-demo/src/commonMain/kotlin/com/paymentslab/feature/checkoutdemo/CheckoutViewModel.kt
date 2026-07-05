@@ -3,8 +3,17 @@ package com.paymentslab.feature.checkoutdemo
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.paymentslab.core.designsystem.ClientResultCopy
+import com.paymentslab.core.designsystem.ErroredCopy
+import com.paymentslab.core.designsystem.LaunchingCopy
+import com.paymentslab.core.designsystem.OrderCreatedCopy
+import com.paymentslab.core.designsystem.SettledCopy
 import com.paymentslab.core.designsystem.StepState
+import com.paymentslab.core.designsystem.TimelineCopy
 import com.paymentslab.core.designsystem.TimelineStep
+import com.paymentslab.core.designsystem.VerifyingCopy
+import com.paymentslab.core.designsystem.toTimelineStep
+import com.paymentslab.core.orchestration.PaymentFlowRunner
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.GatewayStatus
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
@@ -19,6 +28,44 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+/** The checkout demo's friendlier, consumer-facing wording for the shared timeline mapping. */
+private val CheckoutTimelineCopy =
+    TimelineCopy(
+        orderCreated =
+            OrderCreatedCopy(
+                title = "Order confirmed",
+                subtitle = { amount -> "We asked the server for the price — $amount" },
+            ),
+        launching =
+            LaunchingCopy(
+                title = { gatewayId -> "Opening $gatewayId" },
+                subtitle = "Saved a recovery note before opening the payment sheet",
+            ),
+        clientResult =
+            ClientResultCopy(
+                title = "Payment sheet returned",
+                successSubtitle = "Reported success (not yet verified)",
+                failureSubtitle = { code -> "Reported failure: $code" },
+                pendingSubtitle = { reason -> "Reported pending: $reason" },
+                cancelledSubtitle = "You cancelled the payment",
+            ),
+        verifying =
+            VerifyingCopy(
+                title = "Double-checking with the server",
+                subtitle = "A success on the phone is only trusted once the server agrees",
+            ),
+        settled =
+            SettledCopy(
+                title = "Done",
+                subtitle = { statusName -> "Server says: $statusName" },
+            ),
+        errored =
+            ErroredCopy(
+                title = "Something went wrong",
+                fallbackSubtitle = "The checkout could not complete",
+            ),
+    )
 
 /** A gateway the demo can actually run — only SANDBOX_READY providers are offered. */
 @Immutable
@@ -108,7 +155,7 @@ class CheckoutViewModel(
     }
 
     private fun List<PaymentStep>.toTimeline(runInFlight: Boolean): ImmutableList<TimelineStep> {
-        val mapped = map { it.toTimelineStep() }.toMutableList()
+        val mapped = map { it.toTimelineStep(CheckoutTimelineCopy) }.toMutableList()
         if (runInFlight && mapped.isNotEmpty()) {
             val lastIndex = mapped.lastIndex
             val last = mapped[lastIndex]

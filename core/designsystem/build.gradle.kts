@@ -11,6 +11,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:payments-api"))
+            implementation(project(":core:common"))
             implementation(libs.runtime)
             implementation(libs.ui)
             implementation(libs.material3)
