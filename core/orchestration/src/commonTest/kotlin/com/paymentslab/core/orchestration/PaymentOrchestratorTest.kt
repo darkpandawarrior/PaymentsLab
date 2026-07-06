@@ -10,6 +10,8 @@ import com.paymentslab.core.paymentsapi.PendingPayment
 import com.paymentslab.core.paymentsapi.PendingReason
 import com.paymentslab.core.paymentsapi.RedactedPayload
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -121,6 +123,32 @@ class PaymentOrchestratorTest {
             val (orchestrator, _) = orchestrator()
             val steps = orchestrator.pay(NoopHost, GatewayId("nope"), "item_1", "idem_test").toList()
             assertTrue(steps.single() is PaymentStep.Errored)
+        }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun processDeathMidLaunch_journalRowSurvives_forRecoveryOnColdStart() =
+        runTest {
+            // A hosted/redirect gateway that never returns (its result would come from a WebView
+            // return-URL or a GPay/UPI intent) — this is the window where the app can die.
+            val journal = FakeJournal()
+            val registry = DefaultPaymentGatewayRegistry(listOf(HangingGateway(gid)))
+            val orchestrator = PaymentOrchestrator(registry = registry, backend = FakeBackend(), journal = journal)
+
+            // Launch the payment and let it suspend inside gateway.pay(); never deliver a relay result.
+            val job = launch { orchestrator.pay(NoopHost, gid, "item_1").toList() }
+            advanceUntilIdle()
+            job.cancel() // simulate process death: nothing ever resolves the journal row.
+
+            // "Cold start": read the SAME durable store the orchestrator wrote to (in production this
+            // is the same on-disk Room table) via a fresh journal reference, the way recoverPending()
+            // does on app launch. Proves the row was committed BEFORE launch, not after.
+            val unresolved = journal.unresolved()
+
+            assertEquals(1, unresolved.size, "journal row must survive process death: ${journal.recorded}")
+            val row = unresolved.single()
+            assertEquals("order_1", row.orderId)
+            assertEquals(PaymentStatus.CREATED, row.status)
         }
 
     @Test

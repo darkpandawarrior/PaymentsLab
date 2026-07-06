@@ -18,6 +18,7 @@ import com.paymentslab.core.paymentsapi.PendingPaymentJournal
 import com.paymentslab.core.paymentsapi.PreparedPayment
 import com.paymentslab.core.paymentsapi.RedactedPayload
 import com.paymentslab.core.paymentsapi.VerificationRequest
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -61,6 +62,23 @@ class FakeGateway(
         log?.record("pay")
         return result
     }
+}
+
+/**
+ * A gateway whose [pay] never returns until cancelled — models a hosted/redirect checkout where the
+ * process dies before the WebView return-URL (or GPay/UPI intent result) ever arrives.
+ */
+class HangingGateway(
+    override val id: GatewayId,
+    override val meta: GatewayMeta = testMeta(),
+) : PaymentGateway {
+    override suspend fun prepare(created: CreatedOrder): PreparedPayment =
+        PreparedPayment(id, created.order.orderId, created.order.amount, created.providerParams)
+
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult = awaitCancellation()
 }
 
 class FakeBackend(
