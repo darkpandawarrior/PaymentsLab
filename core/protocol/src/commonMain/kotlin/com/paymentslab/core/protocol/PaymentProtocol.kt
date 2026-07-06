@@ -241,3 +241,57 @@ data class MandateDebitResponse(
     val status: PaymentStatusDto,
     val updatedAtEpochMs: Long,
 )
+
+// ── Vault (roadmap #7 — Stripe Customer + stored instruments) ──────────────────────────────────
+
+/**
+ * `POST /vault/{customerId}/instruments` request — saves a card token against a Stripe-style
+ * Customer. [cardToken] is the raw opaque token from the client SDK; the server never echoes it
+ * back — only [SavedInstrumentDto] (masked last4/brand) is ever returned. [idempotencyKey] follows
+ * the same dedup contract as [CreateOrderRequest.idempotencyKey].
+ */
+@Serializable
+data class SaveInstrumentRequest(
+    val cardToken: String,
+    val brand: String,
+    val last4: String,
+    val idempotencyKey: String,
+)
+
+/** A saved instrument as the client ever sees it — masked, never the raw token. */
+@Serializable
+data class SavedInstrumentDto(
+    val instrumentId: String,
+    val customerId: String,
+    val brand: String,
+    val last4: String,
+    val createdAtEpochMs: Long,
+)
+
+@Serializable
+data class SavedInstrumentsResponse(
+    val customerId: String,
+    val instruments: List<SavedInstrumentDto>,
+)
+
+/**
+ * `POST /vault/{customerId}/instruments/{instrumentId}/charge` request — charges an order using a
+ * previously saved instrument, mirroring how a stored `card_id` was charged. [idempotencyKey]
+ * follows the same dedup contract as [CreateOrderRequest.idempotencyKey].
+ */
+@Serializable
+data class ChargeInstrumentRequest(
+    val catalogItemId: String,
+    val idempotencyKey: String,
+)
+
+@Serializable
+data class InstrumentChargeResponse(
+    val chargeId: String,
+    val customerId: String,
+    val instrumentId: String,
+    val amountMinor: Long,
+    val currency: String,
+    val status: PaymentStatusDto,
+    val updatedAtEpochMs: Long,
+)
