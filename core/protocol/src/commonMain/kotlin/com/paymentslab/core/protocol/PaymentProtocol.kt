@@ -178,3 +178,66 @@ data class PayoutResponse(
     val status: PayoutStatusDto,
     val updatedAtEpochMs: Long,
 )
+
+// ── Mandates / subscriptions (roadmap #6 — Razorpay recurring) ─────────────────────────────────
+
+/** Mandate lifecycle. A mandate is authorized once (SETUP → ACTIVE), then debited repeatedly. */
+@Serializable
+enum class MandateStatusDto {
+    @SerialName("created")
+    CREATED,
+
+    @SerialName("active")
+    ACTIVE,
+
+    @SerialName("failed")
+    FAILED,
+
+    @SerialName("cancelled")
+    CANCELLED,
+}
+
+/**
+ * `POST /mandates` request — sets up a recurring mandate (authorize, not a one-time charge).
+ * Same idempotency-key dedup contract as [CreateOrderRequest.idempotencyKey].
+ */
+@Serializable
+data class CreateMandateRequest(
+    val catalogItemId: String,
+    val gatewayId: String,
+    val idempotencyKey: String,
+)
+
+@Serializable
+data class MandateResponse(
+    val mandateId: String,
+    val catalogItemId: String,
+    val gatewayId: String,
+    val amountMinor: Long,
+    val currency: String,
+    val status: MandateStatusDto,
+    val providerParams: Map<String, String> = emptyMap(),
+    val updatedAtEpochMs: Long,
+)
+
+/**
+ * `POST /mandates/{mandateId}/debits` request — one recurring debit charged against an ACTIVE
+ * mandate. [idempotencyKey] follows the same dedup contract as order/payout creation: a retried
+ * debit for the same logical attempt must not charge twice. A real recurring schedule (charging
+ * automatically on a cadence) needs a backend scheduler — out of scope here; this models a single
+ * debit call, which is what a scheduler would invoke per cycle.
+ */
+@Serializable
+data class DebitMandateRequest(
+    val idempotencyKey: String,
+)
+
+@Serializable
+data class MandateDebitResponse(
+    val debitId: String,
+    val mandateId: String,
+    val amountMinor: Long,
+    val currency: String,
+    val status: PaymentStatusDto,
+    val updatedAtEpochMs: Long,
+)
