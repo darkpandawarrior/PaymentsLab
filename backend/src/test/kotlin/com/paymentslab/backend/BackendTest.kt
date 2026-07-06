@@ -6,6 +6,9 @@ import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.PaymentStatusResponse
 import com.paymentslab.core.protocol.VerifyRequest
 import com.paymentslab.core.protocol.VerifyResponse
+import com.paymentslab.core.protocol.WalletBalanceResponse
+import com.paymentslab.core.protocol.WalletDebitRequest
+import com.paymentslab.core.protocol.WalletTransactionResponse
 import com.paymentslab.core.protocol.WebhookAck
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -326,5 +329,33 @@ class BackendTest {
             val second = createOrder("idem_b")
 
             assertTrue(first.orderId != second.orderId)
+        }
+
+    // ── Test 12: wallet ledger routes — seed, balance, debit, insufficient funds ───────────────────
+    @Test
+    fun `wallet debit route moves balance and rejects overdraft`() =
+        testApplication {
+            application { module() }
+            val accountId = "wallet_route_user"
+
+            client.post("/wallet/$accountId/seed?amountMinor=5000")
+            val seeded = decode<WalletBalanceResponse>(client.get("/wallet/$accountId/balance").bodyAsText())
+            assertEquals(5000, seeded.balanceMinor)
+
+            val debitResp =
+                client.post("/wallet/$accountId/debit") {
+                    contentType(ContentType.Application.Json)
+                    setBody(json.encodeToString(WalletDebitRequest("wallet_route_key", 2000)))
+                }
+            assertEquals(HttpStatusCode.OK, debitResp.status)
+            val txn = decode<WalletTransactionResponse>(debitResp.bodyAsText())
+            assertEquals(3000, txn.balanceMinor)
+
+            val overdraft =
+                client.post("/wallet/$accountId/debit") {
+                    contentType(ContentType.Application.Json)
+                    setBody(json.encodeToString(WalletDebitRequest("wallet_route_overdraft", 9000)))
+                }
+            assertEquals(HttpStatusCode.BadRequest, overdraft.status)
         }
 }
