@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.multiplatform.webview.web.PlatformWebViewParams
 import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
@@ -18,6 +19,10 @@ import com.multiplatform.webview.web.rememberWebViewState
  * pattern. `docs: https://github.com/KevinnZou/compose-webview-multiplatform` — `state.lastLoadedUrl`
  * is the interception point; the moment [matchReturn] recognizes a redirect as terminal, [onResult]
  * fires exactly once (the `reported` guard survives re-navigation inside the same page load).
+ *
+ * SECURITY: SSL/certificate errors fail closed. [SslFailClosedWebViewClient] cancels the load and
+ * reports [HostedReturnOutcome.Failure] through [onResult]; never call `handler.proceed()` — a
+ * flaky regional cert is not a reason to bypass certificate validation on a checkout page.
  */
 @Composable
 fun HostedCheckoutScreen(
@@ -30,16 +35,28 @@ fun HostedCheckoutScreen(
     val navigator = rememberWebViewNavigator()
     var reported by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.lastLoadedUrl) {
-        if (reported) return@LaunchedEffect
-        val url = state.lastLoadedUrl ?: return@LaunchedEffect
-        matchReturn(url)?.let { outcome ->
-            reported = true
-            onResult(outcome)
-        }
+    fun reportOnce(outcome: HostedReturnOutcome) {
+        if (reported) return
+        reported = true
+        onResult(outcome)
     }
 
-    WebView(state = state, navigator = navigator, modifier = modifier.fillMaxSize())
+    LaunchedEffect(state.lastLoadedUrl) {
+        val url = state.lastLoadedUrl ?: return@LaunchedEffect
+        matchReturn(url)?.let { reportOnce(it) }
+    }
+
+    val sslClient =
+        remember {
+            SslFailClosedWebViewClient(onSslError = { reportOnce(HostedReturnOutcome.Failure("ssl_error")) })
+        }
+
+    WebView(
+        state = state,
+        navigator = navigator,
+        modifier = modifier.fillMaxSize(),
+        platformWebViewParams = PlatformWebViewParams(client = sslClient),
+    )
 }
 
 /**
