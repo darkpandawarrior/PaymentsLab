@@ -231,3 +231,20 @@ class MobileMoneyAdapter(
 
     override suspend fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
 }
+
+/**
+ * Record-only cash adapter: no provider at all, so `createProviderOrder` mints only a local
+ * reference. Always PENDING until a merchant hits `POST /mock/cash/{orderId}/settle` (see
+ * `MockCheckoutRoutes.kt`) — the purest demo of the reconciliation loop since there's no webhook
+ * signature or SDK callback in the way, just a human confirming cash changed hands.
+ */
+class CashAdapter : GatewayAdapter {
+    override val gatewayId: String = "cash"
+
+    override suspend fun createProviderOrder(
+        orderId: String,
+        item: CatalogItemDto,
+    ): Map<String, String> = mapOf("cash_ref" to "cash_$orderId")
+
+    override suspend fun verify(req: VerifyRequest): PaymentStatusDto = PaymentStatusDto.PENDING
+}

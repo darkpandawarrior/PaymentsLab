@@ -261,6 +261,34 @@ class BackendTest {
             assertEquals("momo_pay_$orderId", status.paymentId)
         }
 
+    // ── Test 8b: mock cash settle flips the order to SUCCESS, and is idempotent on repeat ─────────
+    @Test
+    fun `mock cash settle resolves the order and is idempotent`() =
+        testApplication {
+            application { module() }
+            val orderId =
+                decode<OrderResponse>(
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "cash", "idem_cash")))
+                        }.bodyAsText(),
+                ).orderId
+
+            val firstSettle = client.post("/mock/cash/$orderId/settle")
+            assertEquals(HttpStatusCode.OK, firstSettle.status)
+            assertEquals("false", decode<Map<String, String>>(firstSettle.bodyAsText())["duplicate"])
+
+            val status = decode<PaymentStatusResponse>(client.get("/payments/$orderId").bodyAsText())
+            assertEquals(PaymentStatusDto.SUCCESS, status.status)
+            assertEquals("cash_pay_$orderId", status.paymentId)
+
+            // Settling again (double-click / retry) must not error and must report duplicate=true.
+            val secondSettle = client.post("/mock/cash/$orderId/settle")
+            assertEquals(HttpStatusCode.OK, secondSettle.status)
+            assertEquals("true", decode<Map<String, String>>(secondSettle.bodyAsText())["duplicate"])
+        }
+
     // ── Test 9: idempotencyKey dedup — same key twice → one order, same orderId ──────────────────
     @Test
     fun `createOrder with the same idempotencyKey twice returns the same order`() =

@@ -83,6 +83,7 @@ include(":provider:square")
 include(":provider:omise")
 include(":provider:wallet")
 include(":provider:paytm")
+include(":provider:cash")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

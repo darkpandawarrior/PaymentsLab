@@ -156,6 +156,9 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 MobileMoneyAdapter(HostedGatewayServerConfig("ecocash", "EcoCash")),
                 MobileMoneyAdapter(HostedGatewayServerConfig("easypaisa", "Easypaisa")),
                 MobileMoneyAdapter(HostedGatewayServerConfig("vukapay", "VukaPay")),
+                // Archetype D-simplest (record-only cash) — resolved only via a merchant hitting the
+                // mock settle route, no webhook/SDK involved at all.
+                CashAdapter(),
             ),
         )
 

@@ -20,6 +20,7 @@ import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.home.di.homeModule
 import com.paymentslab.feature.lab.di.labModule
+import com.paymentslab.provider.cash.di.cashModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
 import com.paymentslab.provider.flutterwave.di.flutterwaveModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
@@ -97,6 +98,7 @@ class PaymentsLabApplication :
                 squareModule,
                 omiseModule,
                 paytmModule,
+                cashModule,
                 walletModule(listOf(walletConfig)),
                 mobileMoneyModule(
                     listOf(

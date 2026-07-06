@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
  *   `/mock/return/success` / `/mock/return/failure` redirect this page links to.
  * - `POST /mock/momo/{provider}` — schedules a delayed status flip (async mobile-money has no
  *   synchronous result at all; the client polls `GET /payments/{id}` until this fires).
+ * - `POST /mock/cash/{orderId}/settle` — the cash gateway's reconciliation action: a merchant marks
+ *   an order paid the moment cash is physically received. Unlike the momo flip, there is no delay/
+ *   background coroutine — a human decides exactly when this fires, so it resolves synchronously.
  */
 fun Route.mockCheckoutRoutes(actor: PaymentActor) {
     get("/mock/checkout/{provider}") {
@@ -75,6 +78,33 @@ fun Route.mockCheckoutRoutes(actor: PaymentActor) {
                 "provider" to provider,
                 "orderId" to orderId,
                 "delayMs" to delayMs.toString(),
+            ),
+        )
+    }
+
+    post("/mock/cash/{orderId}/settle") {
+        val orderId =
+            call.parameters["orderId"]
+                ?: throw BadRequestException("missing_order_id", "orderId path param required")
+
+        // Same eventId every time this order is settled → applyWebhook's dedup makes a repeat
+        // settle call (double-click, retried request) a no-op rather than a second state transition.
+        val result =
+            actor.applyWebhook(
+                WebhookEvent(
+                    eventId = "cash_settle_$orderId",
+                    orderId = orderId,
+                    status = PaymentStatusDto.SUCCESS,
+                    paymentId = "cash_pay_$orderId",
+                ),
+            )
+        call.application.log.info("[mock-cash] order=$orderId settled duplicate=${result.duplicate}")
+
+        call.respond(
+            mapOf(
+                "orderId" to orderId,
+                "status" to PaymentStatusDto.SUCCESS.name,
+                "duplicate" to result.duplicate.toString(),
             ),
         )
     }
