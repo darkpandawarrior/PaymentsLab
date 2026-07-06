@@ -136,7 +136,7 @@ class PaymentOrchestratorTest {
             val orchestrator = PaymentOrchestrator(registry = registry, backend = FakeBackend(), journal = journal)
 
             // Launch the payment and let it suspend inside gateway.pay(); never deliver a relay result.
-            val job = launch { orchestrator.pay(NoopHost, gid, "item_1").toList() }
+            val job = launch { orchestrator.pay(NoopHost, gid, "item_1", "idem_death").toList() }
             advanceUntilIdle()
             job.cancel() // simulate process death: nothing ever resolves the journal row.
 
