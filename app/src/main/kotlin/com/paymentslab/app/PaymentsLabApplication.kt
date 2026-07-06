@@ -21,6 +21,7 @@ import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.home.di.homeModule
 import com.paymentslab.feature.lab.di.labModule
 import com.paymentslab.provider.cashfree.di.cashfreeModule
+import com.paymentslab.provider.flutterwave.di.flutterwaveModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
@@ -88,6 +89,7 @@ class PaymentsLabApplication :
                 upiIntentModule,
                 razorpayModule,
                 paystackModule,
+                flutterwaveModule,
                 cashfreeModule,
                 stripeModule,
                 googlePayModule,
