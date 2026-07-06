@@ -389,15 +389,10 @@ val worldpayHostedGatewayConfig =
         blurb = "Real SDK: access-checkout-android:2.0.0. Demoed via the generic mock path.",
     )
 
-val paytmaioHostedGatewayConfig =
-    mockHostedGatewayConfig(
-        id = "paytmaio",
-        displayName = "Paytm All-in-One",
-        region = "India",
-        blurb =
-            "Real SDK: appinvokesdk. Staging MID access is flaky per research — demoed via the " +
-                "generic mock path.",
-    )
+// Paytm All-in-One was demoed on this generic hosted config; it has since been promoted to its
+// own native module (`provider:paytm`, see `PaytmGateway` + `paytmModule`) — roadmap #9,
+// completing the India quartet. Superseded here rather than kept in parallel: two `PaymentGateway`s
+// bound to the same `GatewayId("paytmaio")` would collide in the registry.
 
 val payuHostedGatewayConfig =
     mockHostedGatewayConfig(

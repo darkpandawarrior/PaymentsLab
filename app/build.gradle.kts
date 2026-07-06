@@ -155,6 +155,7 @@ dependencies {
     implementation(project(":provider:square"))
     implementation(project(":provider:omise"))
     implementation(project(":provider:wallet"))
+    implementation(project(":provider:paytm"))
 
     // Features
     implementation(project(":feature:lab"))

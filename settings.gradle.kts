@@ -82,6 +82,7 @@ include(":provider:mobile-money")
 include(":provider:square")
 include(":provider:omise")
 include(":provider:wallet")
+include(":provider:paytm")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")
