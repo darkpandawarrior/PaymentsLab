@@ -145,6 +145,7 @@ dependencies {
     // Providers
     implementation(project(":provider:upi-intent"))
     implementation(project(":provider:razorpay"))
+    implementation(project(":provider:paystack"))
     implementation(project(":provider:cashfree"))
     implementation(project(":provider:stripe"))
     implementation(project(":provider:hosted-webview"))

@@ -6,11 +6,15 @@ import com.paymentslab.core.paymentsapi.Money
 import com.paymentslab.core.paymentsapi.OrderRef
 import com.paymentslab.core.paymentsapi.PaymentSnapshot
 import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.paymentslab.core.paymentsapi.PayoutSnapshot
+import com.paymentslab.core.paymentsapi.PayoutStatus
 import com.paymentslab.core.paymentsapi.VerificationRequest
 import com.paymentslab.core.protocol.CreateOrderRequest
 import com.paymentslab.core.protocol.OrderResponse
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.PaymentStatusResponse
+import com.paymentslab.core.protocol.PayoutResponse
+import com.paymentslab.core.protocol.PayoutStatusDto
 import com.paymentslab.core.protocol.VerifyRequest
 import com.paymentslab.core.protocol.VerifyResponse
 
@@ -97,4 +101,22 @@ fun PaymentStatusResponse.toSnapshot(): PaymentSnapshot =
         paymentId = paymentId,
         status = status.toDomain(),
         providerRef = providerRef,
+    )
+
+/** Payout lifecycle: wire enum → domain enum. Total (every DTO value maps). */
+fun PayoutStatusDto.toDomain(): PayoutStatus =
+    when (this) {
+        PayoutStatusDto.PENDING -> PayoutStatus.PENDING
+        PayoutStatusDto.SETTLED -> PayoutStatus.SETTLED
+        PayoutStatusDto.FAILED -> PayoutStatus.FAILED
+    }
+
+/** `POST /payouts` or `GET /payouts/{id}` response → domain [PayoutSnapshot]. */
+fun PayoutResponse.toSnapshot(): PayoutSnapshot =
+    PayoutSnapshot(
+        payoutId = payoutId,
+        gatewayId = GatewayId(gatewayId),
+        recipientRef = recipientRef,
+        amount = Money(amountMinor = amountMinor, currency = currency),
+        status = status.toDomain(),
     )

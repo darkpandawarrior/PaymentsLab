@@ -138,3 +138,43 @@ data class WalletTransactionResponse(
     val accountId: String,
     val balanceMinor: Long,
 )
+
+// ── Payouts / Transfers (the first real payout rail, MOCK_MODE/KYC_GATED — see PayoutStatusDto) ───
+
+/** Payout lifecycle. Real payout rails are KYC-gated, so SETTLED only ever arrives via the mock webhook. */
+@Serializable
+enum class PayoutStatusDto {
+    @SerialName("pending")
+    PENDING,
+
+    @SerialName("settled")
+    SETTLED,
+
+    @SerialName("failed")
+    FAILED,
+}
+
+/**
+ * `POST /payouts` request. [idempotencyKey] follows the same dedup contract as
+ * [CreateOrderRequest.idempotencyKey] — a retried initiate for the same logical attempt must not mint
+ * a second live payout.
+ */
+@Serializable
+data class InitiatePayoutRequest(
+    val gatewayId: String,
+    val recipientRef: String,
+    val amountMinor: Long,
+    val currency: String,
+    val idempotencyKey: String,
+)
+
+@Serializable
+data class PayoutResponse(
+    val payoutId: String,
+    val gatewayId: String,
+    val recipientRef: String,
+    val amountMinor: Long,
+    val currency: String,
+    val status: PayoutStatusDto,
+    val updatedAtEpochMs: Long,
+)

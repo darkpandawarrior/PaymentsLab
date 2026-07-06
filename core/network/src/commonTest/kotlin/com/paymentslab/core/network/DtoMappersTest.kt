@@ -2,10 +2,13 @@ package com.paymentslab.core.network
 
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.paymentslab.core.paymentsapi.PayoutStatus
 import com.paymentslab.core.paymentsapi.VerificationRequest
 import com.paymentslab.core.protocol.OrderResponse
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.PaymentStatusResponse
+import com.paymentslab.core.protocol.PayoutResponse
+import com.paymentslab.core.protocol.PayoutStatusDto
 import com.paymentslab.core.protocol.VerifyResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -115,5 +118,35 @@ class DtoMappersTest {
         assertEquals("pay_9", snapshot.paymentId)
         assertEquals(PaymentStatus.PENDING, snapshot.status)
         assertEquals("ref_xyz", snapshot.providerRef)
+    }
+
+    @Test
+    fun payoutStatusDto_mapsEachValueExplicitly() {
+        assertEquals(PayoutStatus.PENDING, PayoutStatusDto.PENDING.toDomain())
+        assertEquals(PayoutStatus.SETTLED, PayoutStatusDto.SETTLED.toDomain())
+        assertEquals(PayoutStatus.FAILED, PayoutStatusDto.FAILED.toDomain())
+    }
+
+    @Test
+    fun payoutResponse_mapsToSnapshot() {
+        val response =
+            PayoutResponse(
+                payoutId = "payout_1",
+                gatewayId = "paystack",
+                recipientRef = "recipient_1",
+                amountMinor = 5_000L,
+                currency = "NGN",
+                status = PayoutStatusDto.PENDING,
+                updatedAtEpochMs = 1_700_000_000_000,
+            )
+
+        val snapshot = response.toSnapshot()
+
+        assertEquals("payout_1", snapshot.payoutId)
+        assertEquals(GatewayId("paystack"), snapshot.gatewayId)
+        assertEquals("recipient_1", snapshot.recipientRef)
+        assertEquals(5_000L, snapshot.amount.amountMinor)
+        assertEquals("NGN", snapshot.amount.currency)
+        assertEquals(PayoutStatus.PENDING, snapshot.status)
     }
 }

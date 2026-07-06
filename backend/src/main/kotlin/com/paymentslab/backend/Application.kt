@@ -60,6 +60,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
     val actor = PaymentActor(store, this)
     val catalog = CatalogService()
     val ledger = LedgerStore()
+    val payoutStore = PayoutStore()
     val outboundHttpClient = HttpClient(OkHttp) { install(ClientContentNegotiation) { json(BackendJson) } }
     val gateways =
         GatewayRegistry(
@@ -304,6 +305,8 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
         mockCheckoutRoutes(actor)
 
         walletLedgerRoutes(ledger)
+
+        payoutRoutes(payoutStore)
 
         // ── Poll payment status ─────────────────────────────────────────────
         get("/payments/{orderId}") {

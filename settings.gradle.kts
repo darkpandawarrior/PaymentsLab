@@ -72,6 +72,7 @@ include(":core:security")
 // ── Providers (Android libraries; one per gateway) ──────────────────────────
 include(":provider:upi-intent")
 include(":provider:razorpay")
+include(":provider:paystack")
 include(":provider:cashfree")
 include(":provider:stripe")
 include(":provider:hosted-webview")
