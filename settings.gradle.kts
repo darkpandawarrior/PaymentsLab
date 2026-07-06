@@ -84,6 +84,8 @@ include(":provider:omise")
 include(":provider:wallet")
 include(":provider:paytm")
 include(":provider:cash")
+include(":provider:xendit")
+include(":provider:mpesa")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

@@ -114,7 +114,6 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("vistamoney", "VistaMoney", config.publicBaseUrl),
                 mockHostedAdapter("cmi", "CMI", config.publicBaseUrl),
                 mockHostedAdapter("mypos", "myPOS", config.publicBaseUrl),
-                mockHostedAdapter("xendit", "Xendit", config.publicBaseUrl),
                 mockHostedAdapter("woyopay", "Woyo Pay", config.publicBaseUrl),
                 mockHostedAdapter("amole", "Amole", config.publicBaseUrl),
                 mockHostedAdapter("placetopay", "PlaceToPay", config.publicBaseUrl),
@@ -148,6 +147,11 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 mockHostedAdapter("midtrans", "Midtrans", config.publicBaseUrl),
                 // Archetype D (async mobile-money) — same MOCK_MODE adapter shape as B0 built it,
                 // registered for the first time now that provider:mobile-money exists client-side.
+                // Xendit + M-Pesa (roadmap #10) moved off the shared momo-flip/hosted-webview paths
+                // onto their own dedicated mock settle routes (`/mock/xendit`, `/mock/mpesa`) — see
+                // `provider:xendit`/`provider:mpesa` and `MockCheckoutRoutes.kt` — but server-side
+                // order creation still rides this same generic archetype-D adapter shape unchanged.
+                MobileMoneyAdapter(HostedGatewayServerConfig("xendit", "Xendit")),
                 MobileMoneyAdapter(HostedGatewayServerConfig("mpesa", "M-Pesa")),
                 MobileMoneyAdapter(HostedGatewayServerConfig("mtnmomo", "MTN MoMo")),
                 MobileMoneyAdapter(HostedGatewayServerConfig("beyonic", "Beyonic")),

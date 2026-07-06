@@ -289,6 +289,39 @@ class BackendTest {
             assertEquals("true", decode<Map<String, String>>(secondSettle.bodyAsText())["duplicate"])
         }
 
+    // ── Test 8c: mock Xendit/M-Pesa webhook settle flips the order to SUCCESS, idempotently ───────
+    @Test
+    fun `mock xendit settle resolves the order and is idempotent`() = mockWebhookSettleResolvesOrder("xendit")
+
+    @Test
+    fun `mock mpesa settle resolves the order and is idempotent`() = mockWebhookSettleResolvesOrder("mpesa")
+
+    private fun mockWebhookSettleResolvesOrder(provider: String) =
+        testApplication {
+            application { module() }
+            val orderId =
+                decode<OrderResponse>(
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", provider, "idem_$provider")))
+                        }.bodyAsText(),
+                ).orderId
+
+            val firstSettle = client.post("/mock/$provider/$orderId/settle")
+            assertEquals(HttpStatusCode.OK, firstSettle.status)
+            assertEquals("false", decode<Map<String, String>>(firstSettle.bodyAsText())["duplicate"])
+
+            val status = decode<PaymentStatusResponse>(client.get("/payments/$orderId").bodyAsText())
+            assertEquals(PaymentStatusDto.SUCCESS, status.status)
+            assertEquals("${provider}_pay_$orderId", status.paymentId)
+
+            // Settling again (double-click / retried webhook) must not error and must report duplicate=true.
+            val secondSettle = client.post("/mock/$provider/$orderId/settle")
+            assertEquals(HttpStatusCode.OK, secondSettle.status)
+            assertEquals("true", decode<Map<String, String>>(secondSettle.bodyAsText())["duplicate"])
+        }
+
     // ── Test 9: idempotencyKey dedup — same key twice → one order, same orderId ──────────────────
     @Test
     fun `createOrder with the same idempotencyKey twice returns the same order`() =

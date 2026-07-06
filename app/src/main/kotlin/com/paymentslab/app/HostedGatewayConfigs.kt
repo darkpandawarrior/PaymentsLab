@@ -175,16 +175,6 @@ val myposHostedGatewayConfig =
         blurb = "Hosted checkout. API contract not verified against live docs this pass.",
     )
 
-val xenditHostedGatewayConfig =
-    mockHostedGatewayConfig(
-        id = "xendit",
-        displayName = "Xendit",
-        region = "Indonesia",
-        blurb =
-            "DANA/OVO/LinkAja e-wallets. Shipped as archetype C for catalog consistency; the " +
-                "plan flags this as possibly archetype D (async, no sync result) — unresolved this pass.",
-    )
-
 val woyopayHostedGatewayConfig =
     mockHostedGatewayConfig(
         id = "woyopay",

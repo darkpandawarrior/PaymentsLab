@@ -26,6 +26,7 @@ import com.paymentslab.provider.flutterwave.di.flutterwaveModule
 import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
+import com.paymentslab.provider.mpesa.di.mpesaModule
 import com.paymentslab.provider.omise.di.omiseModule
 import com.paymentslab.provider.paystack.di.paystackModule
 import com.paymentslab.provider.paytm.di.paytmModule
@@ -34,6 +35,7 @@ import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
 import com.paymentslab.provider.wallet.di.walletModule
+import com.paymentslab.provider.xendit.di.xenditModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -100,9 +102,10 @@ class PaymentsLabApplication :
                 paytmModule,
                 cashModule,
                 walletModule(listOf(walletConfig)),
+                xenditModule(),
+                mpesaModule(),
                 mobileMoneyModule(
                     listOf(
-                        mpesaConfig,
                         mtnMomoConfig,
                         beyonicConfig,
                         orangeMoneyConfig,
@@ -128,7 +131,6 @@ class PaymentsLabApplication :
                         vistamoneyHostedGatewayConfig,
                         cmiHostedGatewayConfig,
                         myposHostedGatewayConfig,
-                        xenditHostedGatewayConfig,
                         woyopayHostedGatewayConfig,
                         amoleHostedGatewayConfig,
                         placetopayHostedGatewayConfig,

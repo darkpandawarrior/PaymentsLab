@@ -157,6 +157,8 @@ dependencies {
     implementation(project(":provider:wallet"))
     implementation(project(":provider:paytm"))
     implementation(project(":provider:cash"))
+    implementation(project(":provider:xendit"))
+    implementation(project(":provider:mpesa"))
 
     // Features
     implementation(project(":feature:lab"))

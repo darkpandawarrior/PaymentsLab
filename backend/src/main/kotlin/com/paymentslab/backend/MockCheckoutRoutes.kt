@@ -6,6 +6,7 @@ import io.ktor.server.application.log
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlinx.coroutines.delay
@@ -25,6 +26,11 @@ import kotlinx.coroutines.launch
  * - `POST /mock/cash/{orderId}/settle` — the cash gateway's reconciliation action: a merchant marks
  *   an order paid the moment cash is physically received. Unlike the momo flip, there is no delay/
  *   background coroutine — a human decides exactly when this fires, so it resolves synchronously.
+ * - `POST /mock/xendit/{orderId}/settle` / `POST /mock/mpesa/{orderId}/settle` — the mock webhook
+ *   each of those two gateways calls from `pay()` (see `provider:xendit`/`provider:mpesa`). Same
+ *   idempotent-via-`applyWebhook` shape as the cash settle route, just triggered by the gateway
+ *   itself instead of a human, and resolved synchronously (no artificial delay needed — the
+ *   client-side gateway already fires this from a best-effort background POST).
  */
 fun Route.mockCheckoutRoutes(actor: PaymentActor) {
     get("/mock/checkout/{provider}") {
@@ -108,6 +114,47 @@ fun Route.mockCheckoutRoutes(actor: PaymentActor) {
             ),
         )
     }
+
+    post("/mock/xendit/{orderId}/settle") {
+        mockWebhookSettle(actor, provider = "xendit", eventPrefix = "xendit_settle")
+    }
+
+    post("/mock/mpesa/{orderId}/settle") {
+        mockWebhookSettle(actor, provider = "mpesa", eventPrefix = "mpesa_settle")
+    }
+}
+
+/**
+ * Shared body for the Xendit/M-Pesa mock webhook settle routes — same idempotent-flip-to-SUCCESS
+ * shape as `/mock/cash/{orderId}/settle`, factored out since both providers are near-copies.
+ */
+private suspend fun RoutingContext.mockWebhookSettle(
+    actor: PaymentActor,
+    provider: String,
+    eventPrefix: String,
+) {
+    val orderId =
+        call.parameters["orderId"]
+            ?: throw BadRequestException("missing_order_id", "orderId path param required")
+
+    val result =
+        actor.applyWebhook(
+            WebhookEvent(
+                eventId = "${eventPrefix}_$orderId",
+                orderId = orderId,
+                status = PaymentStatusDto.SUCCESS,
+                paymentId = "${provider}_pay_$orderId",
+            ),
+        )
+    call.application.log.info("[mock-$provider] order=$orderId settled duplicate=${result.duplicate}")
+
+    call.respond(
+        mapOf(
+            "orderId" to orderId,
+            "status" to PaymentStatusDto.SUCCESS.name,
+            "duplicate" to result.duplicate.toString(),
+        ),
+    )
 }
 
 private const val DEFAULT_MOMO_DELAY_MS = 3_000L

@@ -21,7 +21,6 @@ private fun momoConfig(
     blurb = "Async mobile money — confirmation happens on the payer's phone, no in-app SDK/UI.",
 )
 
-val mpesaConfig = momoConfig("mpesa", "M-Pesa", "Kenya/Tanzania")
 val mtnMomoConfig = momoConfig("mtnmomo", "MTN MoMo", "Africa")
 val beyonicConfig = momoConfig("beyonic", "Beyonic", "Africa")
 val orangeMoneyConfig = momoConfig("orangemoney", "Orange Money", "Africa")
