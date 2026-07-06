@@ -79,6 +79,7 @@ include(":provider:googlepay")
 include(":provider:mobile-money")
 include(":provider:square")
 include(":provider:omise")
+include(":provider:wallet")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

@@ -152,6 +152,7 @@ dependencies {
     implementation(project(":provider:mobile-money"))
     implementation(project(":provider:square"))
     implementation(project(":provider:omise"))
+    implementation(project(":provider:wallet"))
 
     // Features
     implementation(project(":feature:lab"))

@@ -29,6 +29,7 @@ import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
+import com.paymentslab.provider.wallet.di.walletModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -90,6 +91,7 @@ class PaymentsLabApplication :
                 googlePayModule,
                 squareModule,
                 omiseModule,
+                walletModule(listOf(walletConfig)),
                 mobileMoneyModule(
                     listOf(
                         mpesaConfig,
