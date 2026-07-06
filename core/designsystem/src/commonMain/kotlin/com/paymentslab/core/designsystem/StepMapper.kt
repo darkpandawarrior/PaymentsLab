@@ -123,6 +123,22 @@ fun PaymentStep.toTimelineStep(copy: TimelineCopy): TimelineStep =
                 state = StepState.ERROR,
                 payload = payload.rows(),
             )
+
+        is PaymentStep.LegSettled ->
+            TimelineStep(
+                title = copy.settled.title + " (" + leg.name.lowercase() + ")",
+                subtitle = copy.settled.subtitle(settled.status.name),
+                state = if (settled.status.isSettledOk()) StepState.DONE else StepState.ERROR,
+                payload = payload.rows(),
+            )
+
+        is PaymentStep.Compensated ->
+            TimelineStep(
+                title = "Wallet compensated",
+                subtitle = "Refunded " + walletAmount.format() + " · txn " + refundTxnId,
+                state = StepState.DONE,
+                payload = payload.rows(),
+            )
     }
 
 private fun PaymentResult.clientSubtitle(copy: ClientResultCopy): String =

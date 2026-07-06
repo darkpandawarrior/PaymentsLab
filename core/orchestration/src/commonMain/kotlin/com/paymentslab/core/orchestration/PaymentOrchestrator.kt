@@ -10,7 +10,9 @@ import com.paymentslab.core.orchestration.fsm.PaymentReducer
 import com.paymentslab.core.orchestration.fsm.PaymentState
 import com.paymentslab.core.paymentsapi.CreatedOrder
 import com.paymentslab.core.paymentsapi.GatewayId
+import com.paymentslab.core.paymentsapi.Money
 import com.paymentslab.core.paymentsapi.PaymentBackend
+import com.paymentslab.core.paymentsapi.PaymentGateway
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentHost
 import com.paymentslab.core.paymentsapi.PaymentResult
@@ -20,7 +22,9 @@ import com.paymentslab.core.paymentsapi.PaymentStep
 import com.paymentslab.core.paymentsapi.PendingPayment
 import com.paymentslab.core.paymentsapi.PendingPaymentJournal
 import com.paymentslab.core.paymentsapi.Redactor
+import com.paymentslab.core.paymentsapi.SplitLeg
 import com.paymentslab.core.paymentsapi.VerificationRequest
+import com.paymentslab.core.paymentsapi.WalletLedgerPort
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -67,98 +71,200 @@ class PaymentOrchestrator(
                 emit(PaymentStep.Errored(UiText.Dynamic("No gateway registered for '${gatewayId.value}'")))
                 return@flow
             }
+            driveFsm(host, gateway, gatewayId, catalogItemId, idempotencyKey) { emit(it) }
+        }
 
-            val fsmPoll = FsmPollConfig(maxAttempts = pollConfig.maxAttempts)
-            var transition = PaymentReducer.start(catalogItemId, gatewayId)
-            var created: CreatedOrder? = null
+    /**
+     * Split payment: one logical purchase paid as two legs — [walletAmount] debited from the wallet
+     * ([walletGatewayId], [walletLedgerPort]) first, the remainder charged via [gatewayId] second.
+     * Modeled as two independent FSM runs (reusing [driveFsm], the same machine [pay] drives) against
+     * two orders priced by the SAME [catalogItemId] — the wallet order capped to [walletAmount], the
+     * gateway order for the rest. Per-leg idempotency keys (`"$idempotencyKey:wallet"` /
+     * `"$idempotencyKey:gateway"`) make replaying the whole split safe: each leg's `createOrder` and
+     * each gateway's own internal idempotency (keyed off its stable per-leg orderId) dedups exactly
+     * as a single [pay] call would.
+     *
+     * Compensation: if the gateway leg fails to reach [PaymentStatus.SUCCESS], the wallet leg's debit
+     * is reversed with a compensating credit ([WalletLedgerPort.refund]) so the user is never left
+     * partially charged — net wallet movement zero. Guard: if the wallet leg itself can't complete
+     * (e.g. insufficient balance), the gateway is never touched.
+     */
+    fun paySplit(
+        host: PaymentHost,
+        walletGatewayId: GatewayId,
+        walletAccountId: String,
+        walletAmount: Money,
+        walletLedgerPort: WalletLedgerPort,
+        gatewayId: GatewayId,
+        catalogItemId: String,
+        idempotencyKey: String,
+    ): Flow<PaymentStep> =
+        flow {
+            val walletGateway = registry.byId(walletGatewayId)
+            val gateway = registry.byId(gatewayId)
+            if (walletGateway == null || gateway == null) {
+                val missing = if (walletGateway == null) walletGatewayId else gatewayId
+                emit(PaymentStep.Errored(UiText.Dynamic("No gateway registered for '${missing.value}'")))
+                return@flow
+            }
 
-            try {
-                // Drive the machine: execute the current effect, feed its result back as an event, repeat.
-                while (transition.state.phase != PaymentPhase.TERMINAL) {
-                    val effect = transition.effects.single()
-                    val event =
-                        when (effect) {
-                            PaymentEffect.CreateOrder -> {
-                                val c = backend.createOrder(catalogItemId, gatewayId, idempotencyKey)
-                                created = c
-                                emit(
-                                    PaymentStep.OrderCreated(
-                                        orderId = c.order.orderId,
-                                        amount = c.order.amount,
-                                        payload =
-                                            Redactor.redact(
-                                                "order",
-                                                c.providerParams + mapOf("order_id" to c.order.orderId),
-                                            ),
-                                    ),
-                                )
-                                PaymentEvent.OrderCreated(c.order.orderId)
-                            }
+            val walletKey = "$idempotencyKey:wallet"
+            val gatewayKey = "$idempotencyKey:gateway"
 
-                            PaymentEffect.RecordJournalAndLaunch -> {
-                                val c = requireNotNull(created)
-                                // Journal BEFORE launch — the process-death insurance.
-                                journal.record(
-                                    PendingPayment(
-                                        orderId = c.order.orderId,
-                                        catalogItemId = catalogItemId,
-                                        gatewayId = gatewayId,
-                                        amount = c.order.amount,
-                                        createdAtEpochMs = now(),
-                                        status = PaymentStatus.CREATED,
-                                    ),
-                                )
-                                emit(PaymentStep.Launching(gatewayId))
-                                val prepared = gateway.prepare(c)
-                                val result = gateway.pay(host, prepared)
-                                emit(PaymentStep.ClientResult(result, result.raw))
-                                PaymentEvent.ClientReturned(result)
-                            }
-
-                            is PaymentEffect.Verify -> {
-                                emit(PaymentStep.Verifying())
-                                val snapshot =
-                                    backend.verify(
-                                        verificationRequest(gatewayId, transition.state.orderId!!, effect.result),
-                                    )
-                                PaymentEvent.ServerAnswered(snapshot)
-                            }
-
-                            PaymentEffect.CheckStatus -> {
-                                val orderId = transition.state.orderId!!
-                                val snapshot =
-                                    if (transition.state.phase == PaymentPhase.POLLING) {
-                                        // Polling loop — back off, then ask the server for authoritative state.
-                                        delay(backoffDelayMs(transition.state.pollAttempts))
-                                        backend.status(orderId)
-                                    } else {
-                                        // First server consult after a client-reported failure (server can disagree).
-                                        emit(PaymentStep.Verifying())
-                                        backend.status(orderId)
-                                    }
-                                PaymentEvent.ServerAnswered(snapshot)
-                            }
-
-                            is PaymentEffect.Settle -> error("Settle is terminal and handled after the loop")
-                        }
-                    transition = PaymentReducer.reduce(transition.state, event, fsmPoll)
+            val walletSettled =
+                driveFsm(host, walletGateway, walletGatewayId, catalogItemId, walletKey, capAmount = walletAmount) {
+                    emit(if (it is PaymentStep.Settled) PaymentStep.LegSettled(SplitLeg.WALLET, it) else it)
                 }
 
-                settle(transition.state) { emit(it) }
-            } catch (ce: CancellationException) {
-                throw ce
-            } catch (t: Throwable) {
-                AppLog.e(TAG, "Payment flow failed for order=${transition.state.orderId}", t)
-                transition.state.orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
-                emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
+            if (walletSettled.status != PaymentStatus.SUCCESS) {
+                // Wallet leg never actually moved money (or the FSM already settled it FAILED/CANCELLED) —
+                // guard: fail clean, the gateway leg is never attempted.
+                return@flow
+            }
+
+            val gatewaySettled =
+                driveFsm(host, gateway, gatewayId, catalogItemId, gatewayKey) {
+                    emit(if (it is PaymentStep.Settled) PaymentStep.LegSettled(SplitLeg.GATEWAY, it) else it)
+                }
+
+            if (gatewaySettled.status != PaymentStatus.SUCCESS) {
+                compensateWalletLeg(walletLedgerPort, walletAccountId, walletAmount, walletKey) { emit(it) }
             }
         }
+
+    /** Reverse the wallet leg's debit — the split-payment compensating credit. */
+    private suspend fun compensateWalletLeg(
+        walletLedgerPort: WalletLedgerPort,
+        walletAccountId: String,
+        walletAmount: Money,
+        walletKey: String,
+        emit: suspend (PaymentStep) -> Unit,
+    ) {
+        try {
+            val refundKey = "$walletKey:compensate"
+            val txnId = walletLedgerPort.refund(walletAccountId, refundKey, walletAmount.amountMinor)
+            emit(
+                PaymentStep.Compensated(
+                    walletAmount = walletAmount,
+                    refundTxnId = txnId,
+                    payload = Redactor.redact("wallet_compensated", mapOf("txn_id" to txnId)),
+                ),
+            )
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            AppLog.e(TAG, "Compensating wallet refund failed for key=$walletKey", t)
+            emit(PaymentStep.Errored(UiText.of("Wallet compensation failed: ${t.message}")))
+        }
+    }
+
+    /**
+     * Drives the FSM for one leg to a terminal state, optionally capping the created order's amount
+     * to [capAmount] (used by the split's wallet leg, which pays only a portion of the priced order).
+     * Shared by [pay] and [paySplit] so both go through the identical, fully-tested reducer loop.
+     */
+    private suspend fun driveFsm(
+        host: PaymentHost,
+        gateway: PaymentGateway,
+        gatewayId: GatewayId,
+        catalogItemId: String,
+        idempotencyKey: String,
+        capAmount: Money? = null,
+        emit: suspend (PaymentStep) -> Unit,
+    ): PaymentSnapshot {
+        val fsmPoll = FsmPollConfig(maxAttempts = pollConfig.maxAttempts)
+        var transition = PaymentReducer.start(catalogItemId, gatewayId)
+        var created: CreatedOrder? = null
+
+        try {
+            // Drive the machine: execute the current effect, feed its result back as an event, repeat.
+            while (transition.state.phase != PaymentPhase.TERMINAL) {
+                val effect = transition.effects.single()
+                val event =
+                    when (effect) {
+                        PaymentEffect.CreateOrder -> {
+                            val raw = backend.createOrder(catalogItemId, gatewayId, idempotencyKey)
+                            val c = if (capAmount != null) raw.copy(order = raw.order.copy(amount = capAmount)) else raw
+                            created = c
+                            emit(
+                                PaymentStep.OrderCreated(
+                                    orderId = c.order.orderId,
+                                    amount = c.order.amount,
+                                    payload =
+                                        Redactor.redact(
+                                            "order",
+                                            c.providerParams + mapOf("order_id" to c.order.orderId),
+                                        ),
+                                ),
+                            )
+                            PaymentEvent.OrderCreated(c.order.orderId)
+                        }
+
+                        PaymentEffect.RecordJournalAndLaunch -> {
+                            val c = requireNotNull(created)
+                            // Journal BEFORE launch — the process-death insurance.
+                            journal.record(
+                                PendingPayment(
+                                    orderId = c.order.orderId,
+                                    catalogItemId = catalogItemId,
+                                    gatewayId = gatewayId,
+                                    amount = c.order.amount,
+                                    createdAtEpochMs = now(),
+                                    status = PaymentStatus.CREATED,
+                                ),
+                            )
+                            emit(PaymentStep.Launching(gatewayId))
+                            val prepared = gateway.prepare(c)
+                            val result = gateway.pay(host, prepared)
+                            emit(PaymentStep.ClientResult(result, result.raw))
+                            PaymentEvent.ClientReturned(result)
+                        }
+
+                        is PaymentEffect.Verify -> {
+                            emit(PaymentStep.Verifying())
+                            val snapshot =
+                                backend.verify(
+                                    verificationRequest(gatewayId, transition.state.orderId!!, effect.result),
+                                )
+                            PaymentEvent.ServerAnswered(snapshot)
+                        }
+
+                        PaymentEffect.CheckStatus -> {
+                            val orderId = transition.state.orderId!!
+                            val snapshot =
+                                if (transition.state.phase == PaymentPhase.POLLING) {
+                                    // Polling loop — back off, then ask the server for authoritative state.
+                                    delay(backoffDelayMs(transition.state.pollAttempts))
+                                    backend.status(orderId)
+                                } else {
+                                    // First server consult after a client-reported failure (server can disagree).
+                                    emit(PaymentStep.Verifying())
+                                    backend.status(orderId)
+                                }
+                            PaymentEvent.ServerAnswered(snapshot)
+                        }
+
+                        is PaymentEffect.Settle -> error("Settle is terminal and handled after the loop")
+                    }
+                transition = PaymentReducer.reduce(transition.state, event, fsmPoll)
+            }
+
+            return settle(transition.state, emit)
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            AppLog.e(TAG, "Payment flow failed for order=${transition.state.orderId}", t)
+            transition.state.orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
+            emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
+            return PaymentSnapshot(transition.state.orderId ?: "", transition.state.paymentId, PaymentStatus.FAILED)
+        }
+    }
 
     /** Run the terminal [PaymentEffect.Settle]: resolve the journal and emit the final step. */
     private suspend fun settle(
         state: PaymentState,
         emit: suspend (PaymentStep) -> Unit,
-    ) {
+    ): PaymentSnapshot {
         val status = requireNotNull(state.terminalStatus)
         val orderId = state.orderId
         orderId?.let { journal.markResolved(it, status, state.paymentId) }
@@ -174,6 +280,7 @@ class PaymentOrchestrator(
                     ),
             ),
         )
+        return snapshot
     }
 
     private fun verificationRequest(

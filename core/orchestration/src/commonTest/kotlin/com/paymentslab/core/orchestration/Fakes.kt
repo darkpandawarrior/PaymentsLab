@@ -5,11 +5,13 @@ import com.paymentslab.core.paymentsapi.CreatedOrder
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.GatewayMeta
 import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.paymentslab.core.paymentsapi.InsufficientWalletBalanceException
 import com.paymentslab.core.paymentsapi.Money
 import com.paymentslab.core.paymentsapi.OrderRef
 import com.paymentslab.core.paymentsapi.PaymentBackend
 import com.paymentslab.core.paymentsapi.PaymentGateway
 import com.paymentslab.core.paymentsapi.PaymentHost
+import com.paymentslab.core.paymentsapi.PaymentPreparationException
 import com.paymentslab.core.paymentsapi.PaymentResult
 import com.paymentslab.core.paymentsapi.PaymentSnapshot
 import com.paymentslab.core.paymentsapi.PaymentStatus
@@ -18,6 +20,7 @@ import com.paymentslab.core.paymentsapi.PendingPaymentJournal
 import com.paymentslab.core.paymentsapi.PreparedPayment
 import com.paymentslab.core.paymentsapi.RedactedPayload
 import com.paymentslab.core.paymentsapi.VerificationRequest
+import com.paymentslab.core.paymentsapi.WalletLedgerPort
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -153,3 +156,135 @@ fun success(paymentId: String = "pay_1") =
         verification = mapOf("signature" to "abc", "payment_id" to paymentId),
         raw = RedactedPayload.of("client", "payment_id" to paymentId),
     )
+
+/**
+ * A tiny in-memory ledger shared by [FakeWalletGateway] (the wallet leg's debit) and
+ * [FakeWalletLedgerPort] (the orchestrator's compensating credit) — mirrors the real
+ * `LedgerStore`/`WalletGateway` split closely enough to exercise split-payment idempotency and
+ * insufficient-balance guards without any HTTP.
+ */
+class FakeLedger(
+    initialBalanceMinor: Long,
+) {
+    var balanceMinor: Long = initialBalanceMinor
+        private set
+    private val postedKeys = mutableMapOf<String, Long>() // idempotencyKey -> txnId ordinal
+    var txnCounter = 0
+        private set
+
+    /** Idempotent debit — replaying the same key never moves the balance twice. */
+    fun debit(
+        idempotencyKey: String,
+        amountMinor: Long,
+    ): String {
+        postedKeys[idempotencyKey]?.let { return "txn_$it" }
+        check(balanceMinor >= amountMinor) { "insufficient balance" }
+        balanceMinor -= amountMinor
+        val id = ++txnCounter
+        postedKeys[idempotencyKey] = id.toLong()
+        return "txn_$id"
+    }
+
+    /** Idempotent credit — the compensating refund. */
+    fun refund(
+        idempotencyKey: String,
+        amountMinor: Long,
+    ): String {
+        postedKeys[idempotencyKey]?.let { return "txn_$it" }
+        balanceMinor += amountMinor
+        val id = ++txnCounter
+        postedKeys[idempotencyKey] = id.toLong()
+        return "txn_$id"
+    }
+}
+
+/** Wallet-leg gateway: prepares against [FakeLedger]'s balance, pays by debiting it — like [WalletGateway]. */
+class FakeWalletGateway(
+    override val id: GatewayId,
+    private val ledger: FakeLedger,
+    override val meta: GatewayMeta = testMeta("Wallet"),
+) : PaymentGateway {
+    override suspend fun prepare(created: CreatedOrder): PreparedPayment {
+        if (ledger.balanceMinor < created.order.amount.amountMinor) {
+            throw PaymentPreparationException("Insufficient wallet balance")
+        }
+        return PreparedPayment(id, created.order.orderId, created.order.amount, created.providerParams)
+    }
+
+    override suspend fun pay(
+        host: PaymentHost,
+        prepared: PreparedPayment,
+    ): PaymentResult {
+        val txnId = ledger.debit("pay_${prepared.orderId}", prepared.amount.amountMinor)
+        return PaymentResult.Success(
+            paymentId = txnId,
+            verification = mapOf("txn_id" to txnId),
+            raw = RedactedPayload.of("wallet_debit", "txn_id" to txnId),
+        )
+    }
+}
+
+/** [WalletLedgerPort] over the same [FakeLedger] — the orchestrator's compensation seam. */
+class FakeWalletLedgerPort(
+    private val ledger: FakeLedger,
+) : WalletLedgerPort {
+    val refundCalls = mutableListOf<Pair<String, Long>>() // idempotencyKey to amountMinor
+
+    override suspend fun debit(
+        walletAccountId: String,
+        idempotencyKey: String,
+        amountMinor: Long,
+    ): String =
+        try {
+            ledger.debit(idempotencyKey, amountMinor)
+        } catch (e: IllegalStateException) {
+            throw InsufficientWalletBalanceException(walletAccountId)
+        }
+
+    override suspend fun refund(
+        walletAccountId: String,
+        idempotencyKey: String,
+        amountMinor: Long,
+    ): String {
+        refundCalls += idempotencyKey to amountMinor
+        return ledger.refund(idempotencyKey, amountMinor)
+    }
+}
+
+/**
+ * [PaymentBackend] fake for split-payment tests: prices EVERY order at [totalAmount] (both legs'
+ * `createOrder` calls resolve the same total; the orchestrator caps the wallet leg's amount itself).
+ *
+ * Verify/status status is PER-GATEWAY ([statusByGateway], default [defaultStatus]) — a split test
+ * needs the wallet leg to verify SUCCESS while the gateway leg fails, so a single shared status
+ * can't model it. The orchestrator tracks which order belongs to which gateway via [createOrder].
+ */
+class FakeSplitBackend(
+    private val totalAmount: Money,
+    private val defaultStatus: PaymentStatus = PaymentStatus.SUCCESS,
+    private val statusByGateway: Map<GatewayId, PaymentStatus> = emptyMap(),
+) : PaymentBackend {
+    // idempotencyKey -> orderId, mirrors the real backend's dedup-by-key so replaying the same
+    // split call yields the SAME order id per leg (the property per-leg idempotency depends on).
+    private val orderIdsByKey = mutableMapOf<String, String>()
+    private val gatewayByOrderId = mutableMapOf<String, GatewayId>()
+    val idempotencyKeysSeen = mutableListOf<String>()
+
+    override suspend fun createOrder(
+        catalogItemId: String,
+        gatewayId: GatewayId,
+        idempotencyKey: String,
+    ): CreatedOrder {
+        idempotencyKeysSeen += idempotencyKey
+        val orderId = orderIdsByKey.getOrPut(idempotencyKey) { "order_$idempotencyKey" }
+        gatewayByOrderId[orderId] = gatewayId
+        return CreatedOrder(OrderRef(orderId, catalogItemId, totalAmount), gatewayId, emptyMap())
+    }
+
+    private fun statusFor(orderId: String): PaymentStatus = statusByGateway[gatewayByOrderId[orderId]] ?: defaultStatus
+
+    override suspend fun verify(request: VerificationRequest): PaymentSnapshot =
+        PaymentSnapshot(request.orderId, request.paymentId, statusFor(request.orderId))
+
+    override suspend fun status(orderId: String): PaymentSnapshot = PaymentSnapshot(orderId, null, statusFor(orderId))
+}

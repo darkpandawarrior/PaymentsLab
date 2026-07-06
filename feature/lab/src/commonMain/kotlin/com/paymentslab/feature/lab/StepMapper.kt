@@ -15,7 +15,9 @@ internal fun PaymentStep.toFlowHop(): FlowHop =
         is PaymentStep.Verifying -> FlowHop.BACKEND
         is PaymentStep.Settled -> FlowHop.BACKEND
         is PaymentStep.Errored -> FlowHop.APP
+        is PaymentStep.LegSettled -> FlowHop.BACKEND
+        is PaymentStep.Compensated -> FlowHop.BACKEND
     }
 
 /** Only [PaymentStep.Settled] means the backend has actually spoken — everything before is a hint. */
-internal fun PaymentStep.isVerified(): Boolean = this is PaymentStep.Settled
+internal fun PaymentStep.isVerified(): Boolean = this is PaymentStep.Settled || this is PaymentStep.LegSettled

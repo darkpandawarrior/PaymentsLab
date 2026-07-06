@@ -49,4 +49,28 @@ sealed interface PaymentStep {
         val message: UiText,
         override val payload: RedactedPayload = RedactedPayload.EMPTY,
     ) : PaymentStep
+
+    /**
+     * One leg of a split payment ([PaymentOrchestrator.paySplit]) reached a terminal state. Wraps
+     * the leg's own [Settled] step so the Lab timeline can render "wallet leg settled" / "gateway leg
+     * settled" distinctly, while still carrying the same server-authoritative outcome.
+     */
+    data class LegSettled(
+        val leg: SplitLeg,
+        val settled: Settled,
+        override val payload: RedactedPayload = settled.payload,
+    ) : PaymentStep
+
+    /**
+     * The wallet leg was reversed because the gateway leg failed (or the split couldn't complete) —
+     * the compensating credit from the split-payment design. Net wallet movement is zero.
+     */
+    data class Compensated(
+        val walletAmount: Money,
+        val refundTxnId: String,
+        override val payload: RedactedPayload,
+    ) : PaymentStep
 }
+
+/** Which leg of a split payment a [PaymentStep.LegSettled] belongs to. */
+enum class SplitLeg { WALLET, GATEWAY }
