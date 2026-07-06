@@ -295,3 +295,51 @@ data class InstrumentChargeResponse(
     val status: PaymentStatusDto,
     val updatedAtEpochMs: Long,
 )
+
+// ── Connect (roadmap #11 — Stripe Connect payout onboarding, MOCK_MODE/KYC_GATED) ──────────────
+
+/**
+ * A connected account's onboarding lifecycle. Real Connect onboarding is a KYC/OAuth-gated flow a
+ * solo developer can't complete against a live provider sandbox, so this never fakes an instant
+ * CONNECTED — it's honest PENDING until the mock hosted-OAuth callback fires, same rule
+ * [PayoutStatusDto] already applies to payout settlement.
+ */
+@Serializable
+enum class ConnectAccountStatusDto {
+    @SerialName("onboarding_pending")
+    ONBOARDING_PENDING,
+
+    @SerialName("connected")
+    CONNECTED,
+}
+
+/**
+ * `POST /connect/onboard` response — a mock hosted OAuth URL plus the onboarding id it resolves, and
+ * the (not-yet-CONNECTED) account id the client will poll once the hosted OAuth redirect completes.
+ */
+@Serializable
+data class ConnectOnboardResponse(
+    val onboardingId: String,
+    val hostedOAuthUrl: String,
+    val accountId: String,
+)
+
+/** `GET /connect/{accountId}` / the onboarding-complete response — the connected account's state. */
+@Serializable
+data class ConnectAccountResponse(
+    val accountId: String,
+    val status: ConnectAccountStatusDto,
+    val updatedAtEpochMs: Long,
+)
+
+/**
+ * `POST /connect/{accountId}/payouts` request — pays out to a connected account instead of the
+ * generic [InitiatePayoutRequest.recipientRef]. Reuses [PayoutResponse]'s shape/status on success.
+ * Rejected (400) if [accountId] is unknown or not yet CONNECTED.
+ */
+@Serializable
+data class ConnectPayoutRequest(
+    val amountMinor: Long,
+    val currency: String,
+    val idempotencyKey: String,
+)

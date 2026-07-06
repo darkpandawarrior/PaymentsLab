@@ -37,6 +37,7 @@ import com.paymentslab.feature.lab.ProviderLabRoot
 import com.paymentslab.provider.hostedwebview.HostedCheckoutHost
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
+import com.paymentslab.provider.stripeconnect.StripeConnectCheckoutHost
 import org.koin.compose.koinInject
 
 private val bottomBarDestinations =
@@ -165,5 +166,9 @@ fun AppNavHost(paymentHost: PaymentHost) {
             configs = hostedGatewayConfigs,
             modifier = Modifier.fillMaxSize(),
         )
+
+        // Same overlay idiom for Stripe Connect's mock hosted-OAuth onboarding (roadmap #11) — shares
+        // the one relay instance, keyed by its own gateway id so it never collides with a checkout.
+        StripeConnectCheckoutHost(relay = hostedCheckoutRelay, modifier = Modifier.fillMaxSize())
     }
 }

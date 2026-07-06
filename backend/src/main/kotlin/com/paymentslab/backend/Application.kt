@@ -63,6 +63,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
     val payoutStore = PayoutStore()
     val mandateStore = MandateStore()
     val vaultStore = VaultStore()
+    val connectStore = ConnectStore()
     val outboundHttpClient = HttpClient(OkHttp) { install(ClientContentNegotiation) { json(BackendJson) } }
     val gateways =
         GatewayRegistry(
@@ -320,6 +321,8 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
         mandateRoutes(mandateStore, catalog, gateways)
 
         vaultRoutes(vaultStore, catalog)
+
+        connectRoutes(connectStore, payoutStore)
 
         // ── Poll payment status ─────────────────────────────────────────────
         get("/payments/{orderId}") {

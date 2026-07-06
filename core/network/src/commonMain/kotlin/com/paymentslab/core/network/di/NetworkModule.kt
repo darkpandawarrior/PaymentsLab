@@ -1,11 +1,13 @@
 package com.paymentslab.core.network.di
 
 import com.paymentslab.core.network.HttpClientFactory
+import com.paymentslab.core.network.KtorConnectBackend
 import com.paymentslab.core.network.KtorPaymentBackend
 import com.paymentslab.core.network.KtorPayoutBackend
 import com.paymentslab.core.network.KtorVaultBackend
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.create
+import com.paymentslab.core.paymentsapi.ConnectBackend
 import com.paymentslab.core.paymentsapi.PaymentBackend
 import com.paymentslab.core.paymentsapi.PayoutBackend
 import com.paymentslab.core.paymentsapi.VaultBackend
@@ -31,4 +33,5 @@ fun networkModule(config: PaymentApiConfig = PaymentApiConfig()): Module =
         single<PaymentBackend> { KtorPaymentBackend(get(), get()) }
         single<PayoutBackend> { KtorPayoutBackend(get(), get()) }
         single<VaultBackend> { KtorVaultBackend(get(), get()) }
+        single<ConnectBackend> { KtorConnectBackend(get(), get()) }
     }

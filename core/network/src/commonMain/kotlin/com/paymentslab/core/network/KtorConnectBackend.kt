@@ -1,0 +1,121 @@
+package com.paymentslab.core.network
+
+import com.paymentslab.core.common.AppLog
+import com.paymentslab.core.paymentsapi.ConnectAccount
+import com.paymentslab.core.paymentsapi.ConnectAccountStatus
+import com.paymentslab.core.paymentsapi.ConnectBackend
+import com.paymentslab.core.paymentsapi.ConnectOnboarding
+import com.paymentslab.core.paymentsapi.GatewayId
+import com.paymentslab.core.paymentsapi.Money
+import com.paymentslab.core.paymentsapi.PayoutSnapshot
+import com.paymentslab.core.paymentsapi.PayoutStatus
+import com.paymentslab.core.protocol.ConnectAccountResponse
+import com.paymentslab.core.protocol.ConnectAccountStatusDto
+import com.paymentslab.core.protocol.ConnectOnboardResponse
+import com.paymentslab.core.protocol.ConnectPayoutRequest
+import com.paymentslab.core.protocol.PayoutResponse
+import com.paymentslab.core.protocol.PayoutStatusDto
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.coroutines.CancellationException
+
+/**
+ * The Ktor implementation of [ConnectBackend] — mirrors [KtorPayoutBackend]'s shape (same
+ * request-wrapping/error-mapping pattern) for the Stripe Connect payout onboarding rail.
+ */
+class KtorConnectBackend(
+    private val client: HttpClient,
+    private val config: PaymentApiConfig,
+) : ConnectBackend {
+    private val base: String = config.baseUrl.trimEnd('/')
+
+    override suspend fun onboard(): ConnectOnboarding =
+        request("onboard()") {
+            val response: ConnectOnboardResponse = client.post("$base/connect/onboard").body()
+            ConnectOnboarding(
+                onboardingId = response.onboardingId,
+                hostedOAuthUrl = response.hostedOAuthUrl,
+                accountId = response.accountId,
+            )
+        }
+
+    override suspend fun completeOnboarding(onboardingId: String): ConnectAccount =
+        request("completeOnboarding(onboardingId=$onboardingId)") {
+            val response: ConnectAccountResponse =
+                client.post("$base/mock/connect/$onboardingId/complete").body()
+            response.toAccount()
+        }
+
+    override suspend fun status(accountId: String): ConnectAccount =
+        request("status(accountId=$accountId)") {
+            val response: ConnectAccountResponse = client.get("$base/connect/$accountId").body()
+            response.toAccount()
+        }
+
+    override suspend fun payout(
+        accountId: String,
+        amount: Money,
+        idempotencyKey: String,
+    ): PayoutSnapshot =
+        request("payout(accountId=$accountId)") {
+            val response: PayoutResponse =
+                client
+                    .post("$base/connect/$accountId/payouts") {
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            ConnectPayoutRequest(
+                                amountMinor = amount.amountMinor,
+                                currency = amount.currency,
+                                idempotencyKey = idempotencyKey,
+                            ),
+                        )
+                    }.body()
+            PayoutSnapshot(
+                payoutId = response.payoutId,
+                gatewayId = GatewayId(response.gatewayId),
+                recipientRef = response.recipientRef,
+                amount = Money(response.amountMinor, response.currency),
+                status = response.status.toDomain(),
+            )
+        }
+
+    private fun ConnectAccountResponse.toAccount() =
+        ConnectAccount(
+            accountId = accountId,
+            status =
+                when (status) {
+                    ConnectAccountStatusDto.ONBOARDING_PENDING -> ConnectAccountStatus.ONBOARDING_PENDING
+                    ConnectAccountStatusDto.CONNECTED -> ConnectAccountStatus.CONNECTED
+                },
+        )
+
+    private fun PayoutStatusDto.toDomain() =
+        when (this) {
+            PayoutStatusDto.PENDING -> PayoutStatus.PENDING
+            PayoutStatusDto.SETTLED -> PayoutStatus.SETTLED
+            PayoutStatusDto.FAILED -> PayoutStatus.FAILED
+        }
+
+    private inline fun <T> request(
+        label: String,
+        block: () -> T,
+    ): T =
+        try {
+            AppLog.d(TAG, "-> $label")
+            block().also { AppLog.d(TAG, "<- $label ok") }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (t: Throwable) {
+            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            throw PaymentNetworkException("Connect backend call failed: $label (${t.message})", t)
+        }
+
+    companion object {
+        private const val TAG = "KtorConnectBackend"
+    }
+}

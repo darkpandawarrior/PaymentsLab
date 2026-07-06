@@ -33,6 +33,7 @@ import com.paymentslab.provider.paytm.di.paytmModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
+import com.paymentslab.provider.stripeconnect.di.stripeConnectModule
 import com.paymentslab.provider.upiintent.di.upiIntentModule
 import com.paymentslab.provider.wallet.di.walletModule
 import com.paymentslab.provider.xendit.di.xenditModule
@@ -164,6 +165,7 @@ class PaymentsLabApplication :
                         midtransHostedGatewayConfig,
                     ),
                 ),
+                stripeConnectModule,
                 stubGatewayModule(
                     listOf(
                         cybersourceStubConfig,

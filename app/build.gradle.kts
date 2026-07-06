@@ -150,6 +150,7 @@ dependencies {
     implementation(project(":provider:cashfree"))
     implementation(project(":provider:stripe"))
     implementation(project(":provider:hosted-webview"))
+    implementation(project(":provider:stripe-connect"))
     implementation(project(":provider:googlepay"))
     implementation(project(":provider:mobile-money"))
     implementation(project(":provider:square"))
