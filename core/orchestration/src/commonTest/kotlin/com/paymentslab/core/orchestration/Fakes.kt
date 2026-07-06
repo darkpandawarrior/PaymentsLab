@@ -76,11 +76,16 @@ class FakeBackend(
         private set
     private var statusIdx = 0
 
+    /** Every [idempotencyKey] seen by [createOrder], in call order — lets tests assert stability. */
+    val idempotencyKeysSeen = mutableListOf<String>()
+
     override suspend fun createOrder(
         catalogItemId: String,
         gatewayId: GatewayId,
+        idempotencyKey: String,
     ): CreatedOrder {
         log?.record("createOrder")
+        idempotencyKeysSeen += idempotencyKey
         return CreatedOrder(OrderRef(orderId, catalogItemId, amount), gatewayId, providerParams)
     }
 

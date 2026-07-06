@@ -1,5 +1,6 @@
 package com.paymentslab.feature.checkoutdemo
 
+import com.paymentslab.core.common.UiText
 import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.Money
@@ -50,6 +51,70 @@ class CheckoutViewModelTest {
                 payload = RedactedPayload.of("settled", "status" to "SUCCESS"),
             ),
         )
+
+    private fun failScript(): List<PaymentStep> = listOf(PaymentStep.Errored(UiText.of("boom")))
+
+    // ── (a) re-press after a failure reuses the SAME key (server dedups the retried order) ─────────
+    @Test
+    fun rePressingPayAfterFailure_reusesTheSameIdempotencyKey() =
+        runTest {
+            val runner = FakePaymentFlowRunner { _ -> failScript() }
+            val vm = CheckoutViewModel(runner, sandboxAndGatedRegistry())
+            vm.selectProduct(
+                vm.uiState.value.products
+                    .first { it.catalogItemId == "book_499" },
+            )
+            vm.selectGateway(GatewayId("razorpay"))
+
+            vm.pay(TestHost) // fails
+            vm.pay(TestHost) // re-press, same selection
+
+            assertEquals(2, runner.keysReceived.size)
+            assertEquals(runner.keysReceived[0], runner.keysReceived[1])
+        }
+
+    // ── (b) success then pay again → a DIFFERENT key (genuinely new order) ────────────────────────
+    @Test
+    fun payingAgainAfterSuccess_usesAFreshIdempotencyKey() =
+        runTest {
+            // Run 0 succeeds, run 1 also succeeds; keys must differ.
+            val runner = FakePaymentFlowRunner { _ -> successScript() }
+            val vm = CheckoutViewModel(runner, sandboxAndGatedRegistry())
+            vm.selectProduct(
+                vm.uiState.value.products
+                    .first { it.catalogItemId == "book_499" },
+            )
+            vm.selectGateway(GatewayId("razorpay"))
+
+            vm.pay(TestHost) // succeeds → key cleared
+            vm.pay(TestHost) // new order
+
+            assertEquals(2, runner.keysReceived.size)
+            assertTrue(runner.keysReceived[0] != runner.keysReceived[1])
+        }
+
+    // ── (c) changing selection between presses → a DIFFERENT key ──────────────────────────────────
+    @Test
+    fun changingSelectionBetweenPresses_usesAFreshIdempotencyKey() =
+        runTest {
+            val runner = FakePaymentFlowRunner { _ -> failScript() }
+            val vm = CheckoutViewModel(runner, sandboxAndGatedRegistry())
+            vm.selectProduct(
+                vm.uiState.value.products
+                    .first { it.catalogItemId == "book_499" },
+            )
+            vm.selectGateway(GatewayId("razorpay"))
+
+            vm.pay(TestHost) // fails
+            vm.selectProduct(
+                vm.uiState.value.products
+                    .first { it.catalogItemId == "coffee_149" },
+            )
+            vm.pay(TestHost) // different product
+
+            assertEquals(2, runner.keysReceived.size)
+            assertTrue(runner.keysReceived[0] != runner.keysReceived[1])
+        }
 
     @Test
     fun only_sandbox_ready_gateways_are_offered() {

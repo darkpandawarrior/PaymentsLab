@@ -49,10 +49,17 @@ class PaymentOrchestrator(
     private val pollConfig: PollConfig = PollConfig(),
     private val now: () -> Long = ::systemNowMs,
 ) {
+    /**
+     * @param idempotencyKey caller-owned, stable across retries of the SAME logical order attempt
+     *   (e.g. the user re-pressing Pay after an ambiguous result) so the server dedups instead of
+     *   minting a second live order. The caller (ViewModel) mints a fresh key only for a genuinely
+     *   new attempt — after success or a changed selection.
+     */
     fun pay(
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
+        idempotencyKey: String,
     ): Flow<PaymentStep> =
         flow {
             val gateway = registry.byId(gatewayId)
@@ -72,7 +79,7 @@ class PaymentOrchestrator(
                     val event =
                         when (effect) {
                             PaymentEffect.CreateOrder -> {
-                                val c = backend.createOrder(catalogItemId, gatewayId)
+                                val c = backend.createOrder(catalogItemId, gatewayId, idempotencyKey)
                                 created = c
                                 emit(
                                     PaymentStep.OrderCreated(

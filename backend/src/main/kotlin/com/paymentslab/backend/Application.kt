@@ -203,23 +203,37 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 gateways.find(req.gatewayId)
                     ?: throw BadRequestException("unknown_gateway", "No gateway: ${req.gatewayId}")
 
-            val orderId = "order_${UUID.randomUUID()}"
-            store.createOrder(
-                orderId = orderId,
-                catalogItemId = item.id,
-                gatewayId = adapter.gatewayId,
-                amountMinor = item.amountMinor,
-                currency = item.currency,
-            )
-            val providerParams = adapter.createProviderOrder(orderId, item)
+            val candidateOrderId = "order_${UUID.randomUUID()}"
+            val creation =
+                store.createOrder(
+                    orderId = candidateOrderId,
+                    catalogItemId = item.id,
+                    gatewayId = adapter.gatewayId,
+                    amountMinor = item.amountMinor,
+                    currency = item.currency,
+                    idempotencyKey = req.idempotencyKey,
+                )
+            val record = creation.record
+
+            // Only the FIRST request for this idempotencyKey talks to the provider — a retry replay
+            // must not mint a second live provider-side order (that's the double-charge this closes).
+            val providerParams =
+                if (creation.isNew) {
+                    adapter.createProviderOrder(record.orderId, item).also {
+                        store.recordProviderParams(record.orderId, it)
+                    }
+                } else {
+                    record.providerParams
+                }
             call.application.log.info(
-                "[orders] created $orderId item=${item.id} " +
-                    "amount=${item.amountMinor}${item.currency} gw=${adapter.gatewayId}",
+                "[orders] created ${record.orderId} item=${item.id} " +
+                    "amount=${item.amountMinor}${item.currency} gw=${adapter.gatewayId}" +
+                    if (!creation.isNew) " (idempotent replay)" else "",
             )
 
             call.respond(
                 OrderResponse(
-                    orderId = orderId,
+                    orderId = record.orderId,
                     catalogItemId = item.id,
                     amountMinor = item.amountMinor,
                     currency = item.currency,

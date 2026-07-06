@@ -38,9 +38,10 @@ class DtoMappersTest {
 
     @Test
     fun createOrderRequest_carriesGatewayValue_andNoAmount() {
-        val req = createOrderRequest("catalog-42", GatewayId("razorpay"))
+        val req = createOrderRequest("catalog-42", GatewayId("razorpay"), "idem-1")
         assertEquals("catalog-42", req.catalogItemId)
         assertEquals("razorpay", req.gatewayId)
+        assertEquals("idem-1", req.idempotencyKey)
     }
 
     @Test

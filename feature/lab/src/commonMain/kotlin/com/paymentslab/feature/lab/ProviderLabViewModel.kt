@@ -25,6 +25,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /** The Lab's technical, dev-facing wording for the shared timeline mapping. */
 private val LabTimelineCopy =
@@ -78,6 +80,12 @@ data class ProviderLabUiState(
     val currentHop: FlowHop? = null,
     /** Whether [currentHop] has been backend-confirmed yet, vs. still just a client hint. */
     val verified: Boolean = false,
+    /**
+     * Idempotency key for the current order attempt. catalogItemId/gatewayId are nav params (fixed
+     * for this screen), so an attempt = "keep pressing Run until it succeeds": the key survives
+     * "Run again" and only resets after a terminal SUCCESS (next run is a genuinely new order).
+     */
+    val idempotencyKey: String? = null,
 )
 
 /**
@@ -92,18 +100,21 @@ class ProviderLabViewModel(
 ) : StateViewModel<ProviderLabUiState>(ProviderLabUiState()) {
     val uiState: StateFlow<ProviderLabUiState> get() = state
 
+    @OptIn(ExperimentalUuidApi::class)
     fun start(
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
     ) {
         if (currentState.isRunning) return
-        setState { ProviderLabUiState(isRunning = true, hasRun = true) }
+        // Carry the current attempt's key across a "Run again"; mint one on the first run of an attempt.
+        val idempotencyKey = currentState.idempotencyKey ?: Uuid.random().toString()
+        setState { ProviderLabUiState(isRunning = true, hasRun = true, idempotencyKey = idempotencyKey) }
 
         viewModelScope.launch {
             val accumulated = mutableListOf<PaymentStep>()
             try {
-                flowRunner.run(host, gatewayId, catalogItemId).collect { step ->
+                flowRunner.run(host, gatewayId, catalogItemId, idempotencyKey).collect { step ->
                     accumulated += step
                     setState {
                         copy(
@@ -113,11 +124,15 @@ class ProviderLabViewModel(
                         )
                     }
                 }
+                val terminal = accumulated.terminalStatus()
                 setState {
                     copy(
                         steps = accumulated.toTimeline(runInFlight = false),
                         isRunning = false,
-                        finalStatus = accumulated.terminalStatus(),
+                        finalStatus = terminal,
+                        // Clear on success (next run = new order); keep on failure so "Run again" retries
+                        // the SAME order attempt and the server dedups it.
+                        idempotencyKey = if (terminal == PaymentStatus.SUCCESS) null else idempotencyKey,
                     )
                 }
             } catch (ce: CancellationException) {

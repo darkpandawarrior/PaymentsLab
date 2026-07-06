@@ -40,11 +40,18 @@ data class CatalogItemDto(
     val imageUrl: String? = null,
 )
 
-/** `POST /orders` request — note: NO amount. The server resolves price from [catalogItemId]. */
+/**
+ * `POST /orders` request — note: NO amount. The server resolves price from [catalogItemId].
+ *
+ * [idempotencyKey] is client-generated once per logical order attempt and reused across retries of
+ * the SAME attempt, so a retried request dedups server-side instead of minting a second live order
+ * (see `PaymentStore.createOrder`).
+ */
 @Serializable
 data class CreateOrderRequest(
     val catalogItemId: String,
     val gatewayId: String,
+    val idempotencyKey: String,
 )
 
 /**

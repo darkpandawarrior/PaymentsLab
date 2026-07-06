@@ -17,23 +17,33 @@ import kotlinx.coroutines.flow.asFlow
 
 object TestHost : PaymentHost
 
-/** A [PaymentFlowRunner] that replays a fixed, scripted sequence of steps. */
+/**
+ * A [PaymentFlowRunner] that replays a scripted sequence of steps. [scriptFor] picks the script by
+ * zero-based call index, so a test can script e.g. a failure on the first press and a success on the
+ * next. Every idempotency key it's called with is captured in [keysReceived] for assertions.
+ */
 class FakePaymentFlowRunner(
-    private val script: List<PaymentStep>,
+    private val scriptFor: (callIndex: Int) -> List<PaymentStep>,
 ) : PaymentFlowRunner {
+    constructor(script: List<PaymentStep>) : this({ script })
+
     var lastCatalogItemId: String? = null
         private set
     var lastGatewayId: GatewayId? = null
         private set
+    val keysReceived = mutableListOf<String>()
 
     override fun run(
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
+        idempotencyKey: String,
     ): Flow<PaymentStep> {
         lastCatalogItemId = catalogItemId
         lastGatewayId = gatewayId
-        return script.asFlow()
+        val callIndex = keysReceived.size
+        keysReceived += idempotencyKey
+        return scriptFor(callIndex).asFlow()
     }
 }
 

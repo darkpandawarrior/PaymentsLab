@@ -26,6 +26,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /** The checkout demo's friendlier, consumer-facing wording for the shared timeline mapping. */
 private val CheckoutTimelineCopy =
@@ -82,6 +84,12 @@ data class CheckoutUiState(
     val steps: ImmutableList<TimelineStep> = persistentListOf(),
     val isRunning: Boolean = false,
     val finalStatus: PaymentStatus? = null,
+    /**
+     * Idempotency key for the current order attempt. Stable across re-presses of Pay (so a retry
+     * after an ambiguous failure dedups server-side); reset to null on success or a changed
+     * selection so the NEXT press mints a fresh key for a genuinely new order.
+     */
+    val idempotencyKey: String? = null,
 ) {
     /** Pay is enabled only with a product, a gateway, and no run in flight. */
     val canPay: Boolean get() = selectedProduct != null && selectedGatewayId != null && !isRunning
@@ -108,40 +116,50 @@ class CheckoutViewModel(
 
     fun selectProduct(product: DemoProduct) {
         if (currentState.isRunning) return
-        setState { copy(selectedProduct = product) }
+        // A different selection is a different order — drop the key so the next Pay mints a fresh one.
+        setState { copy(selectedProduct = product, idempotencyKey = null) }
     }
 
     fun selectGateway(gatewayId: GatewayId) {
         if (currentState.isRunning) return
-        setState { copy(selectedGatewayId = gatewayId) }
+        setState { copy(selectedGatewayId = gatewayId, idempotencyKey = null) }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun pay(host: PaymentHost) {
         val current = currentState
         if (!current.canPay) return
         val product = current.selectedProduct ?: return
         val gatewayId = current.selectedGatewayId ?: return
 
+        // Reuse the current attempt's key (re-press after a failure = same order); mint one if none.
+        val idempotencyKey = current.idempotencyKey ?: Uuid.random().toString()
+
         setState {
             copy(
                 isRunning = true,
                 steps = persistentListOf(),
                 finalStatus = null,
+                idempotencyKey = idempotencyKey,
             )
         }
 
         viewModelScope.launch {
             val accumulated = mutableListOf<PaymentStep>()
             try {
-                flowRunner.run(host, gatewayId, product.catalogItemId).collect { step ->
+                flowRunner.run(host, gatewayId, product.catalogItemId, idempotencyKey).collect { step ->
                     accumulated += step
                     setState { copy(steps = accumulated.toTimeline(runInFlight = true)) }
                 }
+                val terminal = accumulated.terminalStatus()
                 setState {
                     copy(
                         steps = accumulated.toTimeline(runInFlight = false),
                         isRunning = false,
-                        finalStatus = accumulated.terminalStatus(),
+                        finalStatus = terminal,
+                        // Success = a genuinely new order next time; clear the key. A failure keeps it
+                        // so re-pressing Pay retries the SAME order attempt (server dedups).
+                        idempotencyKey = if (terminal == PaymentStatus.SUCCESS) null else idempotencyKey,
                     )
                 }
             } catch (ce: CancellationException) {

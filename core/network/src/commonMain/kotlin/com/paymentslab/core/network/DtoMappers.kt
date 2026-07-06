@@ -45,10 +45,12 @@ fun PaymentStatus.toDto(): PaymentStatusDto =
 fun createOrderRequest(
     catalogItemId: String,
     gatewayId: GatewayId,
+    idempotencyKey: String,
 ): CreateOrderRequest =
     CreateOrderRequest(
         catalogItemId = catalogItemId,
         gatewayId = gatewayId.value,
+        idempotencyKey = idempotencyKey,
     )
 
 /** `POST /orders` response → domain [CreatedOrder] (order + provider session material for the SDK). */

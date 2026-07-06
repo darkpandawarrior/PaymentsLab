@@ -15,6 +15,7 @@ fun interface PaymentFlowRunner {
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
+        idempotencyKey: String,
     ): Flow<PaymentStep>
 }
 
@@ -26,5 +27,6 @@ class OrchestratorFlowRunner(
         host: PaymentHost,
         gatewayId: GatewayId,
         catalogItemId: String,
-    ): Flow<PaymentStep> = orchestrator.pay(host, gatewayId, catalogItemId)
+        idempotencyKey: String,
+    ): Flow<PaymentStep> = orchestrator.pay(host, gatewayId, catalogItemId, idempotencyKey)
 }

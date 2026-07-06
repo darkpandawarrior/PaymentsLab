@@ -16,6 +16,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -50,7 +53,11 @@ class BackendTest {
                     contentType(ContentType.Application.Json)
                     setBody(
                         json.encodeToString(
-                            CreateOrderRequest(catalogItemId = "coffee_149", gatewayId = "razorpay"),
+                            CreateOrderRequest(
+                                catalogItemId = "coffee_149",
+                                gatewayId = "razorpay",
+                                idempotencyKey = "idem_1",
+                            ),
                         ),
                     )
                 }
@@ -73,7 +80,7 @@ class BackendTest {
             val orderResp =
                 client.post("/orders") {
                     contentType(ContentType.Application.Json)
-                    setBody(json.encodeToString(CreateOrderRequest("book_499", "razorpay")))
+                    setBody(json.encodeToString(CreateOrderRequest("book_499", "razorpay", "idem_2")))
                 }
             val orderId = decode<OrderResponse>(orderResp.bodyAsText()).orderId
             val paymentId = "pay_test_123"
@@ -108,7 +115,7 @@ class BackendTest {
                     client
                         .post("/orders") {
                             contentType(ContentType.Application.Json)
-                            setBody(json.encodeToString(CreateOrderRequest("headphones_2499", "upi_intent")))
+                            setBody(json.encodeToString(CreateOrderRequest("headphones_2499", "upi_intent", "idem_3")))
                         }.bodyAsText(),
                 ).orderId
 
@@ -155,7 +162,7 @@ class BackendTest {
             val resp =
                 client.post("/orders") {
                     contentType(ContentType.Application.Json)
-                    setBody(json.encodeToString(CreateOrderRequest("does_not_exist", "razorpay")))
+                    setBody(json.encodeToString(CreateOrderRequest("does_not_exist", "razorpay", "idem_4")))
                 }
             assertEquals(HttpStatusCode.BadRequest, resp.status)
             assertTrue(resp.bodyAsText().contains("unknown_catalog_item"))
@@ -169,7 +176,7 @@ class BackendTest {
             val resp =
                 client.post("/orders") {
                     contentType(ContentType.Application.Json)
-                    setBody(json.encodeToString(CreateOrderRequest("coffee_149", "no_such_gateway")))
+                    setBody(json.encodeToString(CreateOrderRequest("coffee_149", "no_such_gateway", "idem_5")))
                 }
             assertEquals(HttpStatusCode.BadRequest, resp.status)
             assertTrue(resp.bodyAsText().contains("unknown_gateway"))
@@ -185,7 +192,7 @@ class BackendTest {
                     client
                         .post("/orders") {
                             contentType(ContentType.Application.Json)
-                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay", "idem_6")))
                         }.bodyAsText(),
                 ).orderId
             val body = """{"eventId":"evt_bad","orderId":"$orderId","status":"success"}"""
@@ -236,7 +243,7 @@ class BackendTest {
                     client
                         .post("/orders") {
                             contentType(ContentType.Application.Json)
-                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay")))
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay", "idem_7")))
                         }.bodyAsText(),
                 ).orderId
 
@@ -244,10 +251,80 @@ class BackendTest {
             assertEquals(HttpStatusCode.OK, scheduleResp.status)
 
             // The flip runs on the application's own coroutine scope; give it a moment to fire.
-            kotlinx.coroutines.delay(200)
+            delay(200)
 
             val status = decode<PaymentStatusResponse>(client.get("/payments/$orderId").bodyAsText())
             assertEquals(PaymentStatusDto.SUCCESS, status.status)
             assertEquals("momo_pay_$orderId", status.paymentId)
+        }
+
+    // ── Test 9: idempotencyKey dedup — same key twice → one order, same orderId ──────────────────
+    @Test
+    fun `createOrder with the same idempotencyKey twice returns the same order`() =
+        testApplication {
+            application { module() }
+
+            suspend fun createOrder() =
+                decode<OrderResponse>(
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay", "idem_dedup")))
+                        }.bodyAsText(),
+                )
+
+            val first = createOrder()
+            val second = createOrder()
+
+            assertEquals(first.orderId, second.orderId)
+            assertEquals(first.amountMinor, second.amountMinor)
+            assertEquals(first.providerParams, second.providerParams)
+        }
+
+    // ── Test 10: concurrent createOrder with the same idempotencyKey → single order ────────────────
+    @Test
+    fun `concurrent createOrder calls with the same idempotencyKey yield a single order`() =
+        testApplication {
+            application { module() }
+
+            suspend fun createOrder() =
+                decode<OrderResponse>(
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay", "idem_race")))
+                        }.bodyAsText(),
+                )
+
+            val results =
+                coroutineScope {
+                    (1..8)
+                        .map { async { createOrder() } }
+                        .map { it.await() }
+                }
+
+            val distinctOrderIds = results.map { it.orderId }.distinct()
+            assertEquals("expected exactly one orderId, saw $distinctOrderIds", 1, distinctOrderIds.size)
+        }
+
+    // ── Test 11: different idempotencyKeys → different orders ──────────────────────────────────────
+    @Test
+    fun `createOrder with different idempotencyKeys creates different orders`() =
+        testApplication {
+            application { module() }
+
+            suspend fun createOrder(idempotencyKey: String) =
+                decode<OrderResponse>(
+                    client
+                        .post("/orders") {
+                            contentType(ContentType.Application.Json)
+                            setBody(json.encodeToString(CreateOrderRequest("coffee_149", "razorpay", idempotencyKey)))
+                        }.bodyAsText(),
+                )
+
+            val first = createOrder("idem_a")
+            val second = createOrder("idem_b")
+
+            assertTrue(first.orderId != second.orderId)
         }
 }

@@ -41,7 +41,7 @@ class PaymentOrchestratorTest {
     fun happyPath_emitsFullTimeline_andSettlesSuccess() =
         runTest {
             val (orchestrator, journal) = orchestrator()
-            val steps = orchestrator.pay(NoopHost, gid, "item_1").toList()
+            val steps = orchestrator.pay(NoopHost, gid, "item_1", "idem_test").toList()
 
             assertTrue(steps[0] is PaymentStep.OrderCreated)
             assertTrue(steps[1] is PaymentStep.Launching)
@@ -57,7 +57,7 @@ class PaymentOrchestratorTest {
         runTest {
             val log = InteractionLog()
             val (orchestrator, _) = orchestrator(log = log)
-            orchestrator.pay(NoopHost, gid, "item_1").toList()
+            orchestrator.pay(NoopHost, gid, "item_1", "idem_test").toList()
 
             val recordIdx = log.events.indexOf("journal.record")
             val payIdx = log.events.indexOf("pay")
@@ -70,7 +70,7 @@ class PaymentOrchestratorTest {
             // Client says success, but the server verify says FAILED — server wins.
             val backend = FakeBackend(verifyStatus = PaymentStatus.FAILED)
             val (orchestrator, journal) = orchestrator(result = success(), backend = backend)
-            val steps = orchestrator.pay(NoopHost, gid, "item_1").toList()
+            val steps = orchestrator.pay(NoopHost, gid, "item_1", "idem_test").toList()
 
             val settled = steps.last() as PaymentStep.Settled
             assertEquals(PaymentStatus.FAILED, settled.status)
@@ -87,7 +87,7 @@ class PaymentOrchestratorTest {
                 )
             val pending = PaymentResult.Pending(reason = PendingReason.UPI_SUBMITTED, raw = RedactedPayload.EMPTY)
             val (orchestrator, _) = orchestrator(result = pending, backend = backend)
-            val settled = orchestrator.pay(NoopHost, gid, "item_1").toList().last() as PaymentStep.Settled
+            val settled = orchestrator.pay(NoopHost, gid, "item_1", "idem_test").toList().last() as PaymentStep.Settled
             assertEquals(PaymentStatus.SUCCESS, settled.status)
         }
 
@@ -96,7 +96,7 @@ class PaymentOrchestratorTest {
         runTest {
             val backend = FakeBackend()
             val (orchestrator, journal) = orchestrator(result = PaymentResult.Cancelled(), backend = backend)
-            val settled = orchestrator.pay(NoopHost, gid, "item_1").toList().last() as PaymentStep.Settled
+            val settled = orchestrator.pay(NoopHost, gid, "item_1", "idem_test").toList().last() as PaymentStep.Settled
 
             assertEquals(PaymentStatus.CANCELLED, settled.status)
             assertEquals(0, backend.verifyCalls, "cancelled payment must not hit verify")
@@ -104,10 +104,22 @@ class PaymentOrchestratorTest {
         }
 
     @Test
+    fun createOrder_forwardsTheCallersIdempotencyKeyVerbatim() =
+        runTest {
+            // The caller owns the key; the orchestrator must pass it through unchanged so a retried
+            // attempt (same key from the caller) dedups server-side.
+            val backend = FakeBackend()
+            val (orchestrator, _) = orchestrator(backend = backend)
+            orchestrator.pay(NoopHost, gid, "item_1", "idem_abc").toList()
+
+            assertEquals(listOf("idem_abc"), backend.idempotencyKeysSeen)
+        }
+
+    @Test
     fun unknownGateway_emitsErrored() =
         runTest {
             val (orchestrator, _) = orchestrator()
-            val steps = orchestrator.pay(NoopHost, GatewayId("nope"), "item_1").toList()
+            val steps = orchestrator.pay(NoopHost, GatewayId("nope"), "item_1", "idem_test").toList()
             assertTrue(steps.single() is PaymentStep.Errored)
         }
 

@@ -60,6 +60,36 @@ class ProviderLabViewModelTest {
             ),
         )
 
+    private fun failScript(): List<PaymentStep> = listOf(PaymentStep.Errored(UiText.of("boom")))
+
+    // ── "Run again" after a failure reuses the SAME key (server dedups the retried order) ──────────
+    @Test
+    fun runAgainAfterFailure_reusesTheSameIdempotencyKey() =
+        runTest {
+            val runner = FakePaymentFlowRunner { _ -> failScript() }
+            val vm = ProviderLabViewModel(runner)
+
+            vm.start(TestHost, gatewayId, "book") // fails
+            vm.start(TestHost, gatewayId, "book") // Run again, same attempt
+
+            assertEquals(2, runner.keysReceived.size)
+            assertEquals(runner.keysReceived[0], runner.keysReceived[1])
+        }
+
+    // ── after a terminal SUCCESS, the next run is a genuinely new order → fresh key ────────────────
+    @Test
+    fun runningAgainAfterSuccess_usesAFreshIdempotencyKey() =
+        runTest {
+            val runner = FakePaymentFlowRunner { _ -> successScript() }
+            val vm = ProviderLabViewModel(runner)
+
+            vm.start(TestHost, gatewayId, "book") // succeeds → key cleared
+            vm.start(TestHost, gatewayId, "book") // new order
+
+            assertEquals(2, runner.keysReceived.size)
+            assertTrue(runner.keysReceived[0] != runner.keysReceived[1])
+        }
+
     @Test
     fun maps_scripted_success_flow_to_ordered_timeline() =
         runTest {

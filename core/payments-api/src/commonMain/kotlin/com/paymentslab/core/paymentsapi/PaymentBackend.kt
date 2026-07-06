@@ -6,10 +6,17 @@ package com.paymentslab.core.paymentsapi
  * an HTTP concern. This is the seam that lets the tested core run against a fake backend.
  */
 interface PaymentBackend {
-    /** `POST /orders` — price is resolved server-side from [catalogItemId]; the client never sets it. */
+    /**
+     * `POST /orders` — price is resolved server-side from [catalogItemId]; the client never sets it.
+     *
+     * [idempotencyKey] must be stable across retries of the SAME logical order attempt (generated
+     * once by the caller per order attempt) so a retried call dedups server-side instead of creating
+     * a second live order.
+     */
     suspend fun createOrder(
         catalogItemId: String,
         gatewayId: GatewayId,
+        idempotencyKey: String,
     ): CreatedOrder
 
     /** `POST /payments/{id}/verify` — hand the client's proof to the server for authoritative checking. */

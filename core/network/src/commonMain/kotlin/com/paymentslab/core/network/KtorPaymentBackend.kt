@@ -38,13 +38,14 @@ class KtorPaymentBackend(
     override suspend fun createOrder(
         catalogItemId: String,
         gatewayId: GatewayId,
+        idempotencyKey: String,
     ): CreatedOrder =
         request("createOrder(catalogItemId=$catalogItemId, gateway=${gatewayId.value})") {
             val response: OrderResponse =
                 client
                     .post("$base/orders") {
                         contentType(ContentType.Application.Json)
-                        setBody(createOrderRequest(catalogItemId, gatewayId))
+                        setBody(createOrderRequest(catalogItemId, gatewayId, idempotencyKey))
                     }.body()
             response.toDomain()
         }
