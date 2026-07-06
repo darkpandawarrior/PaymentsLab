@@ -160,6 +160,8 @@ dependencies {
     implementation(project(":provider:cash"))
     implementation(project(":provider:xendit"))
     implementation(project(":provider:mpesa"))
+    implementation(project(":provider:peach"))
+    implementation(project(":provider:nmi"))
 
     // Features
     implementation(project(":feature:lab"))

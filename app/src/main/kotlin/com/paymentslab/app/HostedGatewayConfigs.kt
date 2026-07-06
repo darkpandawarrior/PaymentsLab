@@ -412,15 +412,10 @@ val twintHostedGatewayConfig =
         blurb = "No direct SDK — PSP-wrapped (Datatrans/Adyen/myPOS), API itself certification-gated.",
     )
 
-val peachHostedGatewayConfig =
-    mockHostedGatewayConfig(
-        id = "peach",
-        displayName = "Peach Payments",
-        region = "Africa/Global",
-        blurb =
-            "No public Android SDK on Maven Central (verified: 0 results) — hosted Checkout page, " +
-                "demoed via the generic mock path.",
-    )
+// Peach Payments was demoed here on the generic hosted config; it has since been promoted to a
+// native vault-pattern module (`provider:peach`, see `PeachGateway` + `peachModule`) — roadmap #12,
+// proving the stored-instrument vault generalizes across processors. Superseded here rather than
+// kept in parallel: two `PaymentGateway`s bound to `GatewayId("peach")` would collide in the registry.
 
 val areebaHostedGatewayConfig =
     mockHostedGatewayConfig(

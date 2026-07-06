@@ -87,6 +87,8 @@ include(":provider:paytm")
 include(":provider:cash")
 include(":provider:xendit")
 include(":provider:mpesa")
+include(":provider:peach")
+include(":provider:nmi")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

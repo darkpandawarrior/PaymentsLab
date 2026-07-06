@@ -27,9 +27,11 @@ import com.paymentslab.provider.googlepay.di.googlePayModule
 import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
 import com.paymentslab.provider.mpesa.di.mpesaModule
+import com.paymentslab.provider.nmi.di.nmiModule
 import com.paymentslab.provider.omise.di.omiseModule
 import com.paymentslab.provider.paystack.di.paystackModule
 import com.paymentslab.provider.paytm.di.paytmModule
+import com.paymentslab.provider.peach.di.peachModule
 import com.paymentslab.provider.razorpay.di.razorpayModule
 import com.paymentslab.provider.square.di.squareModule
 import com.paymentslab.provider.stripe.di.stripeModule
@@ -102,6 +104,8 @@ class PaymentsLabApplication :
                 omiseModule,
                 paytmModule,
                 cashModule,
+                peachModule,
+                nmiModule,
                 walletModule(listOf(walletConfig)),
                 xenditModule(),
                 mpesaModule(),
@@ -159,7 +163,6 @@ class PaymentsLabApplication :
                         ipay88HostedGatewayConfig,
                         twintHostedGatewayConfig,
                         paypalHostedGatewayConfig,
-                        peachHostedGatewayConfig,
                         areebaHostedGatewayConfig,
                         conektaHostedGatewayConfig,
                         midtransHostedGatewayConfig,
@@ -169,7 +172,6 @@ class PaymentsLabApplication :
                 stubGatewayModule(
                     listOf(
                         cybersourceStubConfig,
-                        nmiStubConfig,
                         selcomStubConfig,
                         supaGhanaPayStubConfig,
                     ),

@@ -32,13 +32,10 @@ val cybersourceStubConfig =
         blurb = "Visa-owned enterprise payment platform — REST/SOAP APIs, no consumer-facing Android SDK.",
     )
 
-val nmiStubConfig =
-    stubConfig(
-        id = "nmi",
-        displayName = "NMI",
-        region = "Global",
-        blurb = "Payment gateway aggregator (Fortis) — server-side/reseller-integration model, no public Android SDK.",
-    )
+// NMI was catalog-only here (docs stub); it has since been promoted to a native vault-pattern
+// module (`provider:nmi`, see `NmiGateway` + `nmiModule`) — roadmap #12, proving the stored-instrument
+// vault generalizes across processors. Superseded here rather than kept in parallel: two
+// `PaymentGateway`s bound to `GatewayId("nmi")` would collide in the registry.
 
 val selcomStubConfig =
     stubConfig(
