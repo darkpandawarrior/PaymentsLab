@@ -8,7 +8,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
-![Modules](https://img.shields.io/badge/modules-25-success)
+![Modules](https://img.shields.io/badge/modules-35-success)
 
 </div>
 
@@ -46,11 +46,20 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
 
 ## Highlights
 
-- 🧩 **25-module KMP architecture, 66 gateways behind it.** One Gradle module per native-SDK
+- 🧩 **35-module KMP architecture, 66 gateways behind it.** One Gradle module per native-SDK
   provider, contributed into a registry via Koin `getAll<PaymentGateway>()` — adding gateway *N+1*
   touches no existing code. Feature modules never depend on each other; they meet only at the
   `:app` composition root. The catalog spans 7 native-SDK integrations, 47 hosted-webview gateways,
   8 mobile-money flows, and 4 catalog-only/KYC-gated entries — all behind the one contract below.
+- 💸 **More than pay-in — five money-movement rails, plus split payments.** Beyond one-shot checkout
+  the server now models **payouts** (`/payouts` — money *out* to a beneficiary), **mandates &
+  subscriptions** (`/mandates` + scheduled debits and cancel), a **card vault** (`/vault` — tokenize
+  once, charge later by id), **marketplace Connect onboarding** (`/connect` — sub-merchant KYC + split
+  payouts), and an **internal double-entry wallet ledger** (`/wallet` — seed / debit / refund against a
+  real running balance) — plus **split payments**, a two-leg orchestration that compensates if one leg
+  fails. Ten new provider modules ride these rails — Paystack, Flutterwave, Paytm, Xendit, M-Pesa,
+  Peach and NMI, plus a `wallet` balance rail and a `cash` record-only gateway — every one honest
+  `MOCK_MODE` until real sandbox keys are set. Each rail is idempotency-keyed like the pay-in path.
 - 🔌 **One contract, seven real SDKs — plus two generic archetypes.** Razorpay, Cashfree, Stripe
   (+ Google Pay), Square, Omise, and a raw UPI intent flow all implement the same tiny
   `PaymentGateway` interface. The Activity-callback SDKs are bridged into suspending coroutines by
@@ -87,7 +96,7 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   (zero coroutines/DI/IO); the orchestrator just executes its effects. A payment's path is a
   recorded event log that replays byte-for-byte identically — the auditing property money movement
   wants.
-- 🧪 **A real quality gate.** ktlint + detekt across all 25 modules (including KMP `commonMain`),
+- 🧪 **A real quality gate.** ktlint + detekt across all 35 modules (including KMP `commonMain`),
   fake-based unit tests for the orchestrator/ViewModels/backend, **20 deterministic Roborazzi
   screenshot tests** covering every redesigned screen, run on every push via GitHub Actions.
 
@@ -240,7 +249,8 @@ interface PaymentGateway {
 
 ```
 app/                       Android composition root — Koin wiring, navigation, AndroidPaymentHost
-backend/                   Ktor JVM server — orders, verify, webhooks, status (server = truth)
+backend/                   Ktor JVM server — orders, verify, webhooks, status (server = truth),
+                           plus payout / mandate / vault / connect / wallet-ledger rails
 core/
   payments-api/            The frozen contract: PaymentGateway, PaymentResult, PaymentHost,
                            PaymentBackend, PendingPaymentJournal, PaymentStep, Redactor   (KMP + jvm)
@@ -259,6 +269,10 @@ provider/
   razorpay/ cashfree/ upi-intent/ stripe/ googlepay/ square/ omise/  one module per native SDK
   hosted-webview/          generic archetype for SDK-less, redirect-and-return-URL gateways (47)
   mobile-money/            generic archetype for confirm-on-payer's-phone flows (8)
+  paystack/ flutterwave/ paytm/ xendit/ mpesa/ peach/ nmi/          dedicated modules (MOCK_MODE)
+  wallet/                  internal double-entry ledger rail — pay from a stored balance
+  cash/                    record-only "mark paid in cash" gateway (no SDK, no network)
+  stripe-connect/          marketplace sub-merchant onboarding + split payouts
 feature/
   home/                    dashboard — animated stats, recent activity (the app's front door)
   lab/                     provider catalog (Explore) + live per-provider lab timeline
@@ -278,6 +292,21 @@ build-logic/               convention plugins (kmp.library / kmp.compose / cmp.f
 5. Orchestrator → backend `verify` (signature check) and/or polls `GET /payments/{id}` with backoff.
    Server state — updated by webhooks — is the single source of truth.
 6. Terminal state → journal row resolved → history; the Lab timeline renders every step + payload.
+
+### Payment rails (beyond one-shot pay-in)
+
+A real platform moves money in more than one direction. Each rail below is a thin, idempotent Ktor
+route set over an in-memory store, mirroring the pay-in path's journal-first, server-as-truth
+discipline — and every one is `MOCK_MODE`-honest until real keys are configured.
+
+| Rail | Routes | What it models |
+|---|---|---|
+| **Payouts** | `POST /payouts`, `GET /payouts/{id}`, mock `settle` | Money *out* to a beneficiary — Paystack Transfers rides it |
+| **Mandates / subscriptions** | `POST /mandates`, `…/debits`, `…/cancel` | Recurring authorization + scheduled debits (Razorpay-shaped) |
+| **Card vault** | `POST /vault/{customer}/instruments`, `…/charge` | Tokenize an instrument once, charge later by id (Stripe / Peach / NMI) |
+| **Connect** | `POST /connect/onboard`, `…/{account}/payouts` | Marketplace sub-merchant KYC onboarding + split payouts (Stripe Connect) |
+| **Wallet ledger** | `POST /wallet/{acct}/{seed,debit,refund}`, `GET …/balance` | Internal double-entry balance — the `wallet` provider pays from it |
+| **Split payments** | order with split legs | Two-leg orchestration that compensates if one leg fails |
 
 ## Tech stack
 
@@ -398,8 +427,10 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
 
 - Braintree (headless v5) · PayU with real shared test creds (the gateway is already wired in
   `MOCK_MODE` — this is about upgrading it, not building it)
-- Refunds (full/partial) and saved-cards backed by RBI network tokens
-- UPI Autopay / e-mandates + Stripe Billing subscriptions
+- Refunds (full/partial) and real RBI network tokens — the saved-card **vault rail** ships in
+  `MOCK_MODE` today (Stripe / Peach / NMI); this is the real-token upgrade
+- Real e-mandate & Stripe Billing execution — the **mandate/subscription rail** ships in `MOCK_MODE`
+  today (create / debit / cancel); this is wiring the real recurring debits
 - Google Play Billing v8 (needs a Play Console listing)
 - Extract & publish `core:payments-api` as a standalone KMP library
 - Expand `GatewayBranding`'s curated real-logo tier beyond the current 8 (the other 58 gateways
