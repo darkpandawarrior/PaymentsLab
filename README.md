@@ -8,11 +8,44 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
+<!-- AUTOGEN:badge -->
 ![Modules](https://img.shields.io/badge/modules-35-success)
+<!-- /AUTOGEN:badge -->
+
+[**Portfolio**](https://cv-siddharth.vercel.app/) · [**Mileway** (sibling KMP project)](https://github.com/darkpandawarrior/Mileway) · built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
 
 </div>
 
 ---
+
+<details>
+<summary><b>Contents</b></summary>
+
+- [Why PaymentsLab](#why-paymentslab)
+- [The one idea worth stealing](#the-one-idea-worth-stealing)
+- [Highlights](#highlights)
+- [Engineering decisions (the *why*)](#engineering-decisions-the-why)
+- [Provider status matrix](#provider-status-matrix)
+- [Screens & flows](#screens--flows)
+  - [Also runs on iOS](#also-runs-on-ios)
+- [Architecture](#architecture)
+  - [System diagram](#system-diagram)
+  - [Module map](#module-map)
+  - [Data flow (one payment)](#data-flow-one-payment)
+  - [Payment rails (beyond one-shot pay-in)](#payment-rails-beyond-one-shot-pay-in)
+- [Shared infrastructure](#shared-infrastructure)
+- [Tech stack](#tech-stack)
+- [Getting started](#getting-started)
+- [Testing & quality](#testing--quality)
+- [Security posture](#security-posture)
+- [Roadmap](#roadmap)
+- [iOS readiness](#ios-readiness)
+
+</details>
+
+<!-- AUTOGEN:stats -->
+> **At a glance** — **35-module** KMP architecture (19 provider · 4 feature · 9 core), **23** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+<!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
 
@@ -46,7 +79,7 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
 
 ## Highlights
 
-- 🧩 **35-module KMP architecture, 66 gateways behind it.** One Gradle module per native-SDK
+- 🧩 **Modular KMP architecture, 66 gateways behind it.** One Gradle module per native-SDK
   provider, contributed into a registry via Koin `getAll<PaymentGateway>()` — adding gateway *N+1*
   touches no existing code. Feature modules never depend on each other; they meet only at the
   `:app` composition root. The catalog spans 7 native-SDK integrations, 47 hosted-webview gateways,
@@ -96,9 +129,26 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   (zero coroutines/DI/IO); the orchestrator just executes its effects. A payment's path is a
   recorded event log that replays byte-for-byte identically — the auditing property money movement
   wants.
-- 🧪 **A real quality gate.** ktlint + detekt across all 35 modules (including KMP `commonMain`),
-  fake-based unit tests for the orchestrator/ViewModels/backend, **20 deterministic Roborazzi
+- 🧪 **A real quality gate.** ktlint + detekt across every module (including KMP `commonMain`),
+  fake-based unit tests for the orchestrator/ViewModels/backend, **deterministic Roborazzi
   screenshot tests** covering every redesigned screen, run on every push via GitHub Actions.
+
+## Engineering decisions (the *why*)
+
+Most of what makes payments hard isn't the SDK call — it's everything around it: the process can die
+mid-charge, the client can report a success the server never saw, and a retry that double-charges is
+a support ticket with money attached. Each decision below is a deliberate answer to one of those
+failure modes, not an accident of the framework.
+
+| Decision | Why it's this way | What it rules out |
+|---|---|---|
+| **Journal-first, before the SDK launches** | The pending row is written to Room *before* `gateway.pay()` opens the SDK UI. If the OS kills the process while the payment sheet is up, cold start finds an unresolved row and reconciles it against the server. | A payment that happened but the app has no memory of — the classic "money left, app forgot" black hole. |
+| **Server is truth; client success is a hint** | Price is resolved server-side, signatures are verified server-side (real HMAC-SHA256), and webhooks reconcile the final state. The client callback only ever *nudges* the orchestrator toward a `Verifying` step — it never sets the terminal state. | Trusting a tampered/replayed/spoofed client result. A rooted device saying `Success` changes nothing until the server agrees. |
+| **Pure `(State, Event) -> Effects` reducer** | The lifecycle FSM has zero coroutines, DI or IO — given the same event log it produces byte-identical effects. The effectful shell (`PaymentOrchestrator`) just executes what the reducer decides. | Untestable, unreplayable payment logic. The audit trail money movement needs is a natural consequence, not bolted on. |
+| **One Gradle module per gateway** | Each native-SDK provider is an isolated module contributed into a Koin registry via `getAll<PaymentGateway>()`. Adding gateway *N+1* touches no existing code and can't pull another provider's SDK onto the classpath. | A monolithic `PaymentManager` with a `when(provider)` that every integration has to edit — merge conflicts, blast radius, and R8 keep-rule bleed across providers. |
+| **Rails as separate idempotent route sets** | Payouts / mandates / vault / connect / wallet are distinct concerns — money *out*, *recurring* auth, *stored* instruments, *marketplace* split, *internal* ledger — each with its own lifecycle and its own idempotency-keyed routes, mirroring the pay-in discipline. | Overloading "a payment" to mean five different money movements. A payout retry and a charge retry have different safety semantics; conflating them is how you double-pay a beneficiary. |
+| **Redaction at a single choke point** | One `Redactor` allowlist masks any secret/PII-shaped field before it can render in the Lab timeline or hit a log — enforced at the boundary, not per-call-site. | A stray `Log.d(payload)` leaking a card number or secret key. The safe path is the only path. |
+| **`MOCK_MODE` auto-degrade, never a fake success** | A gateway with no resolved sandbox credentials degrades from `SANDBOX_READY` to an honest `MOCK_MODE` badge — real integration code, clearly labelled as not-live — instead of pretending to work. | A demo that silently lies about what's actually wired. Reviewers see exactly what would need a key to go live. |
 
 ## Provider status matrix
 
@@ -173,7 +223,7 @@ Explore → provider lab → settled, stitched from the same committed Roborazzi
 was used to record this — see [`docs/demo/`](docs/demo/) for how it's built):
 
 <div align="center">
-<img src="docs/demo/android_flow.gif" alt="Explore to settled payment flow" width="320" />
+<img src="docs/demo/payment_flow.gif" alt="Home dashboard to catalog to running to settled payment flow" width="320" />
 </div>
 
 ### Also runs on iOS
@@ -245,6 +295,39 @@ interface PaymentGateway {
   Android, no network, no real SDK.
 - **The backend** mirrors the same plugin shape: thin Ktor routes over per-provider `GatewayAdapter`s.
 
+### System diagram
+
+The registry contributes gateways; the orchestrator coordinates one payment across four collaborators;
+the Ktor backend owns truth via order/verify/webhook plus the five money-movement rails.
+
+```mermaid
+flowchart TD
+    UI["Compose UI<br/>(Home · Explore · Checkout · Activity)"] --> ORCH["PaymentOrchestrator<br/>core:orchestration<br/>(effectful shell)"]
+    ORCH --> FSM["Pure reducer<br/>(State,Event)-&gt;Effects"]
+
+    subgraph REG["Gateway registry — Koin getAll&lt;PaymentGateway&gt;()"]
+        NATIVE["7 native-SDK modules<br/>razorpay · stripe · cashfree<br/>square · omise · googlepay · upi-intent"]
+        GENERIC["2 generic archetypes<br/>hosted-webview (47) · mobile-money (8)"]
+        RAILMOD["rail-backed modules<br/>paystack · flutterwave · paytm · xendit<br/>mpesa · peach · nmi · wallet · cash · connect"]
+    end
+
+    ORCH -->|"client hint"| REG
+    REG --> HOST["PaymentHost<br/>(Android: Activity + ActivityResult<br/>bridged to suspend fun)"]
+    ORCH -->|"journal-first"| JOURNAL[("Room journal<br/>core:data<br/>process-death recovery")]
+
+    ORCH -->|"server = truth"| BE["Ktor backend"]
+
+    subgraph BACKEND["backend — Ktor JVM (source of truth)"]
+        PAYIN["Pay-in<br/>/orders · /verify (HMAC-SHA256)<br/>/webhooks (idempotent)"]
+        RAILS["Rails<br/>/payouts · /mandates · /vault<br/>/connect · /wallet"]
+    end
+
+    BE --> BACKEND
+
+    WORKER["PaymentReconciliationWorker<br/>WorkManager"] -.->|"cold-start reconcile"| JOURNAL
+    WORKER -.-> BE
+```
+
 ### Module map
 
 ```
@@ -307,6 +390,21 @@ discipline — and every one is `MOCK_MODE`-honest until real keys are configure
 | **Connect** | `POST /connect/onboard`, `…/{account}/payouts` | Marketplace sub-merchant KYC onboarding + split payouts (Stripe Connect) |
 | **Wallet ledger** | `POST /wallet/{acct}/{seed,debit,refund}`, `GET …/balance` | Internal double-entry balance — the `wallet` provider pays from it |
 | **Split payments** | order with split legs | Two-leg orchestration that compensates if one leg fails |
+
+## Shared infrastructure
+
+PaymentsLab doesn't vendor its build and MVI plumbing — it consumes two standalone repositories as
+Gradle [included builds](https://docs.gradle.org/current/userguide/composite_builds.html), the same
+way [Mileway](https://github.com/darkpandawarrior/Mileway) does. Composite builds mean these aren't
+copy-pasted boilerplate; a fix in either repo flows into every consumer.
+
+| Repo | Role here | Wired in |
+|---|---|---|
+| **`kmp-build-logic`** | The convention plugins (`kmp.library`, `kmp.compose`, `cmp.feature`, …) that keep every module configured identically. Included in `pluginManagement` so every module applies them by id. | `settings.gradle.kts` → `includeBuild("external/kmp-build-logic")` |
+| **`kmp-mvi-core`** (published as `com.siddharth.kmp:mvi-core`) | The `State`/`Event`/`Effect` MVI runtime the four `feature:*` modules build their ViewModels on. Substituted from the `:lib` subproject at build time. | `settings.gradle.kts` → `includeBuild("external/kmp-mvi-core")`; consumed by `feature:home`, `feature:lab`, `feature:checkout-demo`, `feature:history` |
+
+This is the point of the split: the payments domain lives here, the reusable KMP scaffolding lives
+once, upstream, and both this repo and its sibling stay on the same foundation without drift.
 
 ## Tech stack
 
@@ -449,4 +547,12 @@ See [Also runs on iOS](#also-runs-on-ios) above for the details and a real Simul
 
 <div align="center">
 <sub>Built as a portfolio flagship — a systems-level look at Android payments, not just a checkout screen.</sub>
+
+<br /><br />
+
+<sub>
+<a href="https://cv-siddharth.vercel.app/">Portfolio</a> ·
+<a href="https://github.com/darkpandawarrior/Mileway">Mileway — sibling KMP app (offline-first mileage/expense)</a> ·
+Shared infra: <code>kmp-build-logic</code> · <code>kmp-mvi-core</code>
+</sub>
 </div>
