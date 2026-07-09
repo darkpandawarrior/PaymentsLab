@@ -8,9 +8,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * [Monogram] (a colored lettermark) when no real asset is registered for that gateway.
  */
 sealed interface GatewayBrandAsset {
-    data class Logo(val imageVector: ImageVector) : GatewayBrandAsset
+    data class Logo(
+        val imageVector: ImageVector,
+    ) : GatewayBrandAsset
 
-    data class Monogram(val letter: Char, val color: Color) : GatewayBrandAsset
+    data class Monogram(
+        val letter: Char,
+        val color: Color,
+    ) : GatewayBrandAsset
 }
 
 /**

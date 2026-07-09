@@ -36,7 +36,10 @@ internal fun registerCuratedGatewayLogos() {
 }
 
 /** One `<path>`: its fill color (as Long ARGB, matching the source file's hex) and its path data. */
-private data class LogoPath(val colorArgb: Long, val pathData: String)
+private data class LogoPath(
+    val colorArgb: Long,
+    val pathData: String,
+)
 
 private fun registerCuratedLogo(
     id: String,

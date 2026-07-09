@@ -63,9 +63,10 @@ fun AppNavHost(paymentHost: PaymentHost) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     val selectedRoute =
-        bottomBarDestinations.firstOrNull { dest ->
-            currentDestination?.hierarchy?.any { it.route == dest.route } == true
-        }?.route ?: "home"
+        bottomBarDestinations
+            .firstOrNull { dest ->
+                currentDestination?.hierarchy?.any { it.route == dest.route } == true
+            }?.route ?: "home"
 
     Box(modifier = Modifier.fillMaxSize()) {
         AppShell(

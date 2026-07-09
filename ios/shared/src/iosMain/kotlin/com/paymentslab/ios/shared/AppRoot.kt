@@ -44,7 +44,9 @@ private sealed interface IosScreen {
 
     data object Explore : IosScreen
 
-    data class Provider(val gatewayId: GatewayId) : IosScreen
+    data class Provider(
+        val gatewayId: GatewayId,
+    ) : IosScreen
 
     data object Checkout : IosScreen
 

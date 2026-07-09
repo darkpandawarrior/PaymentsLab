@@ -18,7 +18,11 @@ import androidx.compose.ui.unit.dp
 
 // ─────────────────────────── Easing helpers (ported from Kursi's Primitives.kt) ────────────────
 
-internal fun lerp(a: Float, b: Float, t: Float): Float = a + (b - a) * t.coerceIn(0f, 1f)
+internal fun lerp(
+    a: Float,
+    b: Float,
+    t: Float,
+): Float = a + (b - a) * t.coerceIn(0f, 1f)
 
 /** EaseInQuart — sharp initial acceleration. */
 internal fun easeInQuart(t: Float): Float = t * t * t * t
