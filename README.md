@@ -44,7 +44,7 @@
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **35-module** KMP architecture (19 provider · 4 feature · 9 core), **23** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **35-module** KMP architecture (19 provider · 4 feature · 9 core), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
