@@ -202,29 +202,68 @@ client-success-is-not-server-truth trust boundary as a moving packet. Every anim
 reads `LocalReducedMotion`, so system-level reduce-motion is honored everywhere, not bolted onto
 one screen.
 
-Home — the redesign's centerpiece — rendered as a deterministic Roborazzi screenshot:
+Rather than a wall of stills, the app is shown below as **animated journeys** — each GIF walks a
+real multi-screen flow. Every frame is a deterministic JVM Roborazzi render (Robolectric, **no
+emulator**), stitched with ffmpeg; nothing is mocked or hand-drawn. Refresh the frames with
+`./gradlew :app:recordRoborazziDebug`, rebuild the GIFs with `scripts/make-flow-gif.sh`.
+
+#### Flow 1 · Explore → verify — the teaching path
+
+Home dashboard → the provider catalog → a provider's lab running the full lifecycle → **settled only
+after server verification**. The whole idea is in the last two beats: a client `Success` is just a
+hint, and the flow makes you watch it pass through *Verifying* before anything is trusted.
 
 <div align="center">
-<img src="docs/screenshots/home_screen_dashboard.png" alt="Home dashboard — animated gateway count and success rate, recent activity" width="320" />
+<img src="docs/gifs/explore_verify_flow.gif" alt="Home dashboard to provider catalog to a running provider lab to a server-verified settled state" width="320" />
 </div>
 
-Real gateway logos where a rights-cleared source exists, a generated monogram everywhere else —
-the same `GatewayBranding` registry Explore's provider cards use:
+#### Flow 2 · Product checkout — the everyday happy path
+
+The bottom bar's center **Pay** FAB: pick a product and a gateway, review the order, then watch the
+inline mini-timeline pay and settle. Same provider registry and orchestrator as the lab — just
+wrapped in a cart, so the "normal" purchase is explained as it runs.
+
+<div align="center">
+<img src="docs/gifs/checkout_flow.gif" alt="Checkout order summary to a paying mini-timeline to a settled success state" width="320" />
+</div>
+
+#### Flow 3 · Activity — the transaction journal
+
+The full log streamed from the Room journal every other screen writes to, then narrowed with the
+status filter chips.
+
+<div align="center">
+<img src="docs/gifs/activity_flow.gif" alt="Activity journal showing all transactions, then filtered to successful ones" width="320" />
+</div>
+
+Real gateway logos where a rights-cleared source exists, a generated monogram everywhere else — the
+same `GatewayBranding` registry Explore's provider cards use:
 
 <div align="center">
 <img src="docs/screenshots/gateway_brand_badges.png" alt="Real logos (Stripe, PayPal) next to generated monogram fallbacks" width="320" />
 </div>
 
-> Screenshots are generated on the JVM (Robolectric, no emulator) and committed to
-> [`docs/screenshots/`](docs/screenshots/) — see `ScreenshotCatalogTest`. Refresh with
-> `./gradlew :app:recordRoborazziDebug`.
+<details>
+<summary><b>Every screen, still</b> — the individual Roborazzi frames the flows are built from</summary>
 
-Explore → provider lab → settled, stitched from the same committed Roborazzi frames (no emulator
-was used to record this — see [`docs/demo/`](docs/demo/) for how it's built):
+<br/>
 
-<div align="center">
-<img src="docs/demo/payment_flow.gif" alt="Home dashboard to catalog to running to settled payment flow" width="320" />
-</div>
+| Home | Explore (catalog) | Provider lab (running) |
+|:---:|:---:|:---:|
+| ![Home dashboard with animated gateway count and success rate](docs/screenshots/home_screen_dashboard.png) | ![Provider catalog with status badges and region filter](docs/screenshots/lab_home_screen_catalog.png) | ![Provider lab mid-run with a live payment timeline](docs/screenshots/provider_lab_screen_running.png) |
+
+| Provider lab (settled) | Checkout (order summary) | Checkout (settled) |
+|:---:|:---:|:---:|
+| ![Provider lab settled after server verification](docs/screenshots/provider_lab_screen_settled_success.png) | ![Checkout order summary with product and gateway selected](docs/screenshots/checkout_screen_order_summary.png) | ![Checkout settled with a success outcome summary](docs/screenshots/checkout_screen_settled_success.png) |
+
+| Activity (all) | Activity (filtered) | Live timeline component |
+|:---:|:---:|:---:|
+| ![Activity journal listing all transactions](docs/screenshots/history_screen_all.png) | ![Activity journal filtered to successful transactions](docs/screenshots/history_screen_with_filters.png) | ![Step timeline component showing the verify boundary](docs/screenshots/step_timeline_light.png) |
+
+Screenshots are generated on the JVM (Robolectric, no emulator) and committed to
+[`docs/screenshots/`](docs/screenshots/) — see `ScreenshotCatalogTest`.
+
+</details>
 
 ### Also runs on iOS
 

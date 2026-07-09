@@ -429,7 +429,14 @@ class ScreenshotCatalogTest {
                         rows =
                             persistentListOf(
                                 HistoryRow("order_a1", "book_499", "razorpay", "₹499.00", PaymentStatus.SUCCESS, 100L),
-                                HistoryRow("order_b2", "coffee_149", "upi_intent", "₹149.00", PaymentStatus.FAILED, 200L),
+                                HistoryRow(
+                                    "order_b2",
+                                    "coffee_149",
+                                    "upi_intent",
+                                    "₹149.00",
+                                    PaymentStatus.FAILED,
+                                    200L,
+                                ),
                             ),
                         isLoading = false,
                         selectedStatuses = persistentSetOf(PaymentStatus.SUCCESS),
@@ -456,6 +463,92 @@ class ScreenshotCatalogTest {
                 onSelectProduct = {},
                 onSelectGateway = {},
                 onPay = {},
+            )
+        }
+
+    // ── Checkout flow frames (paying → settled) — same screen, later states, for the flow GIF ────
+    private fun checkoutStateBase() =
+        CheckoutUiState(
+            gateways =
+                persistentListOf(
+                    CheckoutGateway(GatewayId("razorpay"), "Razorpay"),
+                    CheckoutGateway(GatewayId("upi_intent"), "UPI Intent"),
+                ),
+            selectedProduct = DEMO_PRODUCTS.first { it.catalogItemId == "book_499" },
+            selectedGatewayId = GatewayId("razorpay"),
+        )
+
+    private fun doneTimeline() =
+        sampleTimeline()
+            .map { it.copy(state = StepState.DONE) }
+            .toImmutableList()
+
+    @Test
+    fun checkoutScreen_paying() =
+        snapshotScreen("checkout_screen_paying", reducedMotion = true) {
+            CheckoutScreen(
+                state = checkoutStateBase().copy(steps = sampleTimeline(), isRunning = true),
+                onSelectProduct = {},
+                onSelectGateway = {},
+                onPay = {},
+            )
+        }
+
+    @Test
+    fun checkoutScreen_settledSuccess() =
+        snapshotScreen("checkout_screen_settled_success", reducedMotion = true) {
+            CheckoutScreen(
+                state =
+                    checkoutStateBase().copy(
+                        steps = doneTimeline(),
+                        isRunning = false,
+                        finalStatus = PaymentStatus.SUCCESS,
+                    ),
+                onSelectProduct = {},
+                onSelectGateway = {},
+                onPay = {},
+            )
+        }
+
+    // ── HistoryScreen unfiltered — the full journal before any filter chip is tapped (flow frame) ─
+    @Test
+    fun historyScreen_all() =
+        snapshotScreen("history_screen_all") {
+            HistoryScreen(
+                state =
+                    HistoryUiState(
+                        rows =
+                            persistentListOf(
+                                HistoryRow("order_a1", "book_499", "razorpay", "₹499.00", PaymentStatus.SUCCESS, 100L),
+                                HistoryRow(
+                                    "order_b2",
+                                    "coffee_149",
+                                    "upi_intent",
+                                    "₹149.00",
+                                    PaymentStatus.FAILED,
+                                    200L,
+                                ),
+                                HistoryRow(
+                                    "order_c3",
+                                    "headphones_2499",
+                                    "stripe",
+                                    "₹2,499.00",
+                                    PaymentStatus.SUCCESS,
+                                    300L,
+                                ),
+                                HistoryRow(
+                                    "order_d4",
+                                    "course_9999",
+                                    "paystack",
+                                    "₹9,999.00",
+                                    PaymentStatus.PENDING,
+                                    400L,
+                                ),
+                            ),
+                        isLoading = false,
+                        selectedStatuses = persistentSetOf(),
+                    ),
+                onToggleStatusFilter = {},
             )
         }
 }
