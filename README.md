@@ -5,8 +5,8 @@
 ### An Integration Lab for the Android payments ecosystem — every gateway behind one abstraction, with a live look at what actually happens on each transaction.
 
 [![CI](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
-![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
+![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
 <!-- AUTOGEN:badge -->
 ![Modules](https://img.shields.io/badge/modules-35-success)
@@ -44,7 +44,7 @@
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **35-module** KMP architecture (19 provider · 4 feature · 9 core), **23** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **35-module** KMP architecture (19 provider · 4 feature · 9 core), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
@@ -449,9 +449,9 @@ once, upstream, and both this repo and its sibling stay on the same foundation w
 
 | Layer | Technology |
 |---|---|
-| Language | Kotlin **2.4.0** (K2) |
-| UI | Compose Multiplatform **1.11.1**, Material 3 |
-| Build | AGP **9.2.1**, Gradle Kotlin DSL, convention plugins, version catalog |
+| Language | Kotlin **2.4.20-Beta1** (K2) |
+| UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
+| Build | AGP **9.4.0-alpha03**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Client networking | Ktor **3.5.1** client (OkHttp + Darwin engines) + kotlinx-serialization |
 | Backend | Ktor **3.5.1** server (Netty), in-memory store (swappable for Exposed/SQLite) |
@@ -461,19 +461,20 @@ once, upstream, and both this repo and its sibling stay on the same foundation w
 | Security | Android Keystore (AES-256-GCM), FLAG_SECURE, device-integrity, OkHttp CertificatePinner |
 | Background | WorkManager (payment reconciliation), Koin-backed WorkerFactory |
 | Testing | JUnit, MockK, Turbine, kotlinx-coroutines-test, Koin-Test, **Roborazzi** screenshots; fake-first |
-| Quality | detekt **1.23.8**, ktlint, **dependency-guard**, **Kover** coverage floor, Compose stability config |
+| Quality | detekt **2.0.0-alpha.5**, ktlint, **dependency-guard**, **Kover** coverage floor, Compose stability config |
 | Shrinking | **R8** full-mode (release minify + resource shrink; APK 42M→13M), payment-SDK keep rules, mapping.txt |
 | Observability | `CrashReporter` abstraction (Napier default; Crashlytics/Sentry = one-line DI swap) |
 | Variants | `debug` / `release` / **`vapt`** (flips security bypass flags); per-env `BACKEND_URL` |
 | Release | Fastlane (versioning + build lanes), `release.yml` (tag → GitHub Release + R8 mapping) |
-| Targets | Android (compileSdk **37**, minSdk **24**) + iOS-ready KMP core; **JDK 21** |
+| Targets | Android (compileSdk **37**, minSdk **24**) + iOS-ready KMP core; **JDK 25** |
 
 ## Getting started
 
-> **JDK 21 is required.** detekt 1.23.x can't run on JDK 23+, so the whole build is pinned to 21.
-> If your default `java` is newer, install one (`brew install openjdk@21`) and either point
-> `org.gradle.java.home` in `gradle.properties` at it (as committed) or run with
-> `JAVA_HOME=$(…/jdk-21) ./gradlew`.
+CI runs on **JDK 25** (`.github/workflows/ci.yml`) with no special pin in `gradle.properties` — the
+earlier JDK 21 requirement was a `detekt` 1.23.x limitation (it couldn't run on JDK 23+); the
+upgrade to detekt **2.0.0-alpha.5** lifted that constraint. Use whatever JDK Gradle picks up
+locally, or match CI with `sdk use java 25-tem` / your platform's equivalent if you hit a
+version-specific issue.
 
 ```bash
 git clone https://github.com/darkpandawarrior/PaymentsLab.git
@@ -535,7 +536,7 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
 - **Static analysis.** ktlint and detekt run across every module — detekt is pointed at the KMP
   `commonMain`/`androidMain` source sets, not just `src/main`, so the core and features are actually
   analyzed.
-- **CI.** `.github/workflows/ci.yml` provisions JDK 21 and runs `fastGate` + `:app:assembleDebug` on
+- **CI.** `.github/workflows/ci.yml` provisions JDK 25 and runs `fastGate` + `:app:assembleDebug` on
   every push and PR.
 - **Distribution.** `release.yml` tags a build and publishes an unsigned APK to GitHub Releases
   (which also makes the app trackable via [Obtainium](https://github.com/ImranR98/Obtainium) — no
