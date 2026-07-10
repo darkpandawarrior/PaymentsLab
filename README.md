@@ -1,6 +1,6 @@
 <div align="center">
 
-# PaymentsLab
+<img src="docs/assets/banner.svg" alt="PaymentsLab — an integration lab for the Android payments ecosystem" width="700"/>
 
 ### An Integration Lab for the Android payments ecosystem — every gateway behind one abstraction, with a live look at what actually happens on each transaction.
 
