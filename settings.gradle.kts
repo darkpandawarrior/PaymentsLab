@@ -58,6 +58,22 @@ includeBuild("external/kmp-mvi-core") {
     }
 }
 
+// kmp-common — needed transitively by kmp-security (its AppLog). Substitution routes the
+// published coordinate to the composite project; unique path ":common-lib" avoids the ":lib"
+// collision with kmp-mvi-core (Gradle substitutes by path only across included builds).
+includeBuild("external/kmp-common") {
+    dependencySubstitution {
+        substitute(module("com.siddharth.kmp:common")).using(project(":common-lib"))
+    }
+}
+
+// kmp-security — extracted from the former :core:security module. Android-only app-hardening.
+includeBuild("external/kmp-security") {
+    dependencySubstitution {
+        substitute(module("com.siddharth.kmp:security")).using(project(":security-lib"))
+    }
+}
+
 // ── Core (KMP-ready) ────────────────────────────────────────────────────────
 include(":core:payments-api")
 include(":core:config")
@@ -67,7 +83,8 @@ include(":core:orchestration")
 include(":core:network")
 include(":core:data")
 include(":core:designsystem")
-include(":core:security")
+// :core:security extracted to standalone kmp-security (external/kmp-security) — consumed as
+// com.siddharth.kmp:security via the includeBuild substitution above.
 
 // ── Providers (Android libraries; one per gateway) ──────────────────────────
 include(":provider:upi-intent")

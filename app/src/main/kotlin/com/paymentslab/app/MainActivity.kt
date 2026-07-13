@@ -12,7 +12,7 @@ import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback
 import com.cashfree.pg.core.api.utils.CFErrorResponse
 import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.designsystem.PaymentsLabTheme
-import com.paymentslab.core.security.AppSecurityManager
+import com.siddharth.kmp.security.AppSecurityManager
 import com.paymentslab.provider.cashfree.CashfreeCheckoutRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackResult

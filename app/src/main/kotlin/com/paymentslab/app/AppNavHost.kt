@@ -28,7 +28,7 @@ import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.paymentsapi.GatewayId
 import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
 import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.security.SecureScreen
+import com.siddharth.kmp.security.SecureScreen
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.home.HomeRoot

@@ -193,7 +193,7 @@ dependencies {
     implementation(libs.workmanager.runtime)
 
     // Security suite (Keystore store, FLAG_SECURE, device-integrity, pinning config)
-    implementation(project(":core:security"))
+    implementation("com.siddharth.kmp:security:1.0.0")
 
     // Provider SDKs referenced directly by MainActivity's Activity-level callback wiring
     // (providers depend on these via `implementation`, so the types aren't transitive here).
