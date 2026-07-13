@@ -4,3 +4,9 @@
 [submodule "external/kmp-mvi-core"]
 	path = external/kmp-mvi-core
 	url = https://github.com/darkpandawarrior/kmp-mvi-core
+[submodule "external/kmp-common"]
+	path = external/kmp-common
+	url = https://github.com/darkpandawarrior/kmp-common
+[submodule "external/kmp-security"]
+	path = external/kmp-security
+	url = https://github.com/darkpandawarrior/kmp-security
