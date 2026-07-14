@@ -47,30 +47,14 @@ dependencyResolutionManagement {
 
 rootProject.name = "PaymentsLab"
 
-// mvi-core's KMP root publication is renamed "mvi-core" only at *publish* time (see its
-// lib/build.gradle.kts: artifactId = "mvi-core" for the kotlinMultiplatform publication) — the
-// actual subproject is ":lib". Gradle's default project-name substitution looks for
-// com.siddharth.kmp:lib and fails to resolve com.siddharth.kmp:mvi-core, so the substitution
-// below is required (proven on the Kursi adoption of this same library).
-includeBuild("external/kmp-mvi-core") {
+// kmp-toolkit monorepo — one submodule replaces the former per-leaf submodules (kmp-common,
+// kmp-mvi-core, kmp-security). Natural module paths (:common, :mvi-core, :security) mean the old
+// ":lib" substitution-collision workaround is no longer needed.
+includeBuild("external/kmp-toolkit") {
     dependencySubstitution {
-        substitute(module("com.siddharth.kmp:mvi-core")).using(project(":lib"))
-    }
-}
-
-// kmp-common — needed transitively by kmp-security (its AppLog). Substitution routes the
-// published coordinate to the composite project; unique path ":common-lib" avoids the ":lib"
-// collision with kmp-mvi-core (Gradle substitutes by path only across included builds).
-includeBuild("external/kmp-common") {
-    dependencySubstitution {
-        substitute(module("com.siddharth.kmp:common")).using(project(":common-lib"))
-    }
-}
-
-// kmp-security — extracted from the former :core:security module. Android-only app-hardening.
-includeBuild("external/kmp-security") {
-    dependencySubstitution {
-        substitute(module("com.siddharth.kmp:security")).using(project(":security-lib"))
+        substitute(module("com.siddharth.kmp:common")).using(project(":common"))
+        substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
+        substitute(module("com.siddharth.kmp:security")).using(project(":security"))
     }
 }
 
@@ -83,7 +67,7 @@ include(":core:orchestration")
 include(":core:network")
 include(":core:data")
 include(":core:designsystem")
-// :core:security extracted to standalone kmp-security (external/kmp-security) — consumed as
+// :core:security extracted to kmp-toolkit's :security module (external/kmp-toolkit) — consumed as
 // com.siddharth.kmp:security via the includeBuild substitution above.
 
 // ── Providers (Android libraries; one per gateway) ──────────────────────────

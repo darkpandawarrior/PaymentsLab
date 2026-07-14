@@ -1,12 +1,6 @@
 [submodule "external/kmp-build-logic"]
 	path = external/kmp-build-logic
 	url = https://github.com/darkpandawarrior/kmp-build-logic
-[submodule "external/kmp-mvi-core"]
-	path = external/kmp-mvi-core
-	url = https://github.com/darkpandawarrior/kmp-mvi-core
-[submodule "external/kmp-common"]
-	path = external/kmp-common
-	url = https://github.com/darkpandawarrior/kmp-common
-[submodule "external/kmp-security"]
-	path = external/kmp-security
-	url = https://github.com/darkpandawarrior/kmp-security
+[submodule "external/kmp-toolkit"]
+	path = external/kmp-toolkit
+	url = https://github.com/darkpandawarrior/kmp-toolkit
