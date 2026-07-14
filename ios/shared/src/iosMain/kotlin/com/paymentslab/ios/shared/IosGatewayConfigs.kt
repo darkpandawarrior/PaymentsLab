@@ -1,11 +1,11 @@
 package com.paymentslab.ios.shared
 
+import com.paymentslab.provider.mobilemoney.MobileMoneyConfig
 import com.siddharth.kmp.paymentsapi.Capability
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.GatewayStatus
-import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
-import com.paymentslab.provider.hostedwebview.ReturnUrlMatchers
-import com.paymentslab.provider.mobilemoney.MobileMoneyConfig
+import com.siddharth.kmp.provider.hostedwebview.HostedGatewayConfig
+import com.siddharth.kmp.provider.hostedwebview.ReturnUrlMatchers
 
 /**
  * The iOS app's gateway list — a deliberately small slice of the Android app's ~65-row catalog,

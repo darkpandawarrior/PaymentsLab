@@ -36,7 +36,7 @@ kotlin {
             implementation(project(":core:data"))
             implementation(project(":core:orchestration"))
             implementation(project(":core:designsystem"))
-            implementation(project(":provider:hosted-webview"))
+            implementation("com.siddharth.kmp:hosted-webview:1.0.0")
             implementation(project(":provider:mobile-money"))
             implementation(project(":feature:lab"))
             implementation(project(":feature:checkout-demo"))

@@ -63,6 +63,11 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:omise")).using(project(":provider:omise"))
         substitute(module("com.siddharth.kmp:razorpay")).using(project(":provider:razorpay"))
         substitute(module("com.siddharth.kmp:square")).using(project(":provider:square"))
+        substitute(module("com.siddharth.kmp:hosted-webview")).using(project(":provider:hosted-webview"))
+        substitute(module("com.siddharth.kmp:flutterwave")).using(project(":provider:flutterwave"))
+        substitute(module("com.siddharth.kmp:paystack")).using(project(":provider:paystack"))
+        substitute(module("com.siddharth.kmp:paytm")).using(project(":provider:paytm"))
+        substitute(module("com.siddharth.kmp:stripe-connect")).using(project(":provider:stripe-connect"))
     }
 }
 
@@ -86,13 +91,11 @@ include(":core:designsystem")
 // consumed as com.siddharth.kmp:stripe via the includeBuild substitution above.
 // :provider:cashfree / :googlepay / :omise / :razorpay / :square extracted to kmp-toolkit (5c) —
 // consumed as com.siddharth.kmp:<name> via the includeBuild substitution above.
-include(":provider:paystack")
-include(":provider:flutterwave")
-include(":provider:hosted-webview")
-include(":provider:stripe-connect")
+// :provider:hosted-webview / :flutterwave / :paystack / :paytm / :stripe-connect extracted to
+// kmp-toolkit (5c batch 2, incl. the hosted-webview iOS-RED fix) — consumed as
+// com.siddharth.kmp:<name> via the includeBuild substitution above.
 include(":provider:mobile-money")
 include(":provider:wallet")
-include(":provider:paytm")
 include(":provider:cash")
 include(":provider:xendit")
 include(":provider:mpesa")

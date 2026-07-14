@@ -3,8 +3,8 @@ package com.paymentslab.app
 import com.siddharth.kmp.paymentsapi.Capability
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.GatewayStatus
-import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
-import com.paymentslab.provider.hostedwebview.ReturnUrlMatchers
+import com.siddharth.kmp.provider.hostedwebview.HostedGatewayConfig
+import com.siddharth.kmp.provider.hostedwebview.ReturnUrlMatchers
 
 // Paystack was the B1 vertical slice on this generic hosted config; it has since been promoted to
 // its own native module (`provider:paystack`, see `PaystackGateway` + `paystackModule`) — roadmap

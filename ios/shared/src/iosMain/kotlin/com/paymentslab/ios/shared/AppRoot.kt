@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import com.paymentslab.core.designsystem.AppShell
 import com.paymentslab.core.designsystem.AppShellDestination
 import com.paymentslab.core.designsystem.PaymentsLabTheme
-import com.siddharth.kmp.paymentsapi.GatewayId
-import com.siddharth.kmp.paymentsapi.PaymentHost
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.home.HomeRoot
 import com.paymentslab.feature.lab.LabHomeRoot
 import com.paymentslab.feature.lab.ProviderLabRoot
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentHost
 
 /**
  * A dummy [PaymentHost] — every gateway wired into [iosHostedGatewayConfigs]/

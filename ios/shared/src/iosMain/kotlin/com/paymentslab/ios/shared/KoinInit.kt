@@ -4,13 +4,13 @@ import com.paymentslab.core.data.di.dataModule
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
-import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.home.di.homeModule
 import com.paymentslab.feature.lab.di.labModule
-import com.paymentslab.provider.hostedwebview.di.hostedWebViewModule
 import com.paymentslab.provider.mobilemoney.di.mobileMoneyModule
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.provider.hostedwebview.di.hostedWebViewModule
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

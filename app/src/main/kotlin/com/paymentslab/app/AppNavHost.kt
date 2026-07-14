@@ -25,19 +25,19 @@ import androidx.navigation.compose.rememberNavController
 import com.paymentslab.core.designsystem.AppShell
 import com.paymentslab.core.designsystem.AppShellDestination
 import com.paymentslab.core.designsystem.DesignTokens
-import com.siddharth.kmp.paymentsapi.GatewayId
-import com.siddharth.kmp.paymentsapi.PaymentGatewayRegistry
-import com.siddharth.kmp.paymentsapi.PaymentHost
-import com.siddharth.kmp.security.SecureScreen
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.home.HomeRoot
 import com.paymentslab.feature.lab.LabHomeRoot
 import com.paymentslab.feature.lab.ProviderLabRoot
-import com.paymentslab.provider.hostedwebview.HostedCheckoutHost
-import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
-import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
-import com.paymentslab.provider.stripeconnect.StripeConnectCheckoutHost
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.provider.hostedwebview.HostedCheckoutHost
+import com.siddharth.kmp.provider.hostedwebview.HostedCheckoutRelay
+import com.siddharth.kmp.provider.hostedwebview.HostedGatewayConfig
+import com.siddharth.kmp.provider.stripeconnect.StripeConnectCheckoutHost
+import com.siddharth.kmp.security.SecureScreen
 import org.koin.compose.koinInject
 
 private val bottomBarDestinations =
