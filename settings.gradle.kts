@@ -56,6 +56,8 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
         substitute(module("com.siddharth.kmp:payments-api")).using(project(":payments-api"))
+        substitute(module("com.siddharth.kmp:stripe")).using(project(":provider:stripe"))
+        substitute(module("com.siddharth.kmp:upi-intent")).using(project(":provider:upi-intent"))
     }
 }
 
@@ -73,12 +75,14 @@ include(":core:designsystem")
 // com.siddharth.kmp:security via the includeBuild substitution above.
 
 // ── Providers (Android libraries; one per gateway) ──────────────────────────
-include(":provider:upi-intent")
+// :provider:upi-intent extracted to kmp-toolkit's :provider:upi-intent module (external/kmp-toolkit)
+// — consumed as com.siddharth.kmp:upi-intent via the includeBuild substitution above.
+// :provider:stripe extracted to kmp-toolkit's :provider:stripe module (external/kmp-toolkit) —
+// consumed as com.siddharth.kmp:stripe via the includeBuild substitution above.
 include(":provider:razorpay")
 include(":provider:paystack")
 include(":provider:flutterwave")
 include(":provider:cashfree")
-include(":provider:stripe")
 include(":provider:hosted-webview")
 include(":provider:stripe-connect")
 include(":provider:googlepay")

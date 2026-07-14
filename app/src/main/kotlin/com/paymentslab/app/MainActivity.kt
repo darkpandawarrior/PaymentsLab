@@ -18,7 +18,7 @@ import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
 import com.paymentslab.provider.razorpay.RazorpayCallbackResult
 import com.paymentslab.provider.square.SquareCallbackRelay
 import com.paymentslab.provider.square.SquareCallbackResult
-import com.paymentslab.provider.stripe.StripePaymentLauncherHost
+import com.siddharth.kmp.provider.stripe.StripePaymentLauncherHost
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
 import com.stripe.android.paymentsheet.rememberPaymentSheet

@@ -143,12 +143,12 @@ dependencies {
     implementation(project(":core:designsystem"))
 
     // Providers
-    implementation(project(":provider:upi-intent"))
+    implementation("com.siddharth.kmp:upi-intent:1.0.0")
     implementation(project(":provider:razorpay"))
     implementation(project(":provider:paystack"))
     implementation(project(":provider:flutterwave"))
     implementation(project(":provider:cashfree"))
-    implementation(project(":provider:stripe"))
+    implementation("com.siddharth.kmp:stripe:1.0.0")
     implementation(project(":provider:hosted-webview"))
     implementation(project(":provider:stripe-connect"))
     implementation(project(":provider:googlepay"))

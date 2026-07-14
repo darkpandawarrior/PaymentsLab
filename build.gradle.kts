@@ -103,7 +103,7 @@ tasks.register("fastGate") {
         ":feature:checkout-demo",
         ":feature:home",
     ).forEach { path -> findProject(path)?.let { dependsOn("$path:testAndroidHostTest") } }
-    listOf(":provider:upi-intent", ":provider:razorpay", ":provider:cashfree").forEach { path ->
+    listOf(":provider:razorpay", ":provider:cashfree").forEach { path ->
         findProject(path)?.let { dependsOn("$path:testDebugUnitTest") }
     }
 }

@@ -19,7 +19,7 @@ import io.ktor.client.request.post
  * the payer's phone outside this app (an STK push / SMS / USSD prompt), so all this gateway does is
  * kick off the mock delayed-flip (`POST /mock/momo/{id}`, built in B0) and return `Pending`
  * immediately. The orchestrator's existing poll-with-backoff (`FsmPollConfig`, already exercised by
- * [com.paymentslab.provider.upiintent]'s `SUBMITTED` limbo) picks up the result once the backend
+ * [com.siddharth.kmp.provider.upiintent]'s `SUBMITTED` limbo) picks up the result once the backend
  * flips it — no new orchestration logic needed, this rides infrastructure that already exists.
  */
 class MobileMoneyGateway(
