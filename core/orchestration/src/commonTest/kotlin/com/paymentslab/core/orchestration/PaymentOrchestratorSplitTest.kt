@@ -83,7 +83,7 @@ class PaymentOrchestratorSplitTest {
             val failure =
                 com.paymentslab.core.paymentsapi.PaymentResult.Failure(
                     com.paymentslab.core.paymentsapi.FailureCode.GATEWAY_DECLINED,
-                    com.paymentslab.core.common.UiText.Empty,
+                    com.siddharth.kmp.common.UiText.Empty,
                     com.paymentslab.core.paymentsapi.RedactedPayload.EMPTY,
                 )
             val (orchestrator, ledger, ledgerPort) =

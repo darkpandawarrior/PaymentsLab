@@ -1,6 +1,6 @@
 package com.paymentslab.core.paymentsapi
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 
 /**
  * The terminal (or near-terminal) outcome of a payment attempt, as reported by the client SDK.

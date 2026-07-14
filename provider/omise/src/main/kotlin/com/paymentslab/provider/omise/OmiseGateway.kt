@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContracts
 import co.omise.android.ui.CreditCardActivity
 import co.omise.android.ui.OmiseActivity
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.AndroidPaymentHost
 import com.paymentslab.core.paymentsapi.Capability
 import com.paymentslab.core.paymentsapi.CreatedOrder

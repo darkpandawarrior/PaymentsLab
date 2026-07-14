@@ -1,6 +1,6 @@
 package com.paymentslab.provider.square
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.AndroidPaymentHost
 import com.paymentslab.core.paymentsapi.Capability
 import com.paymentslab.core.paymentsapi.CreatedOrder

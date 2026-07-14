@@ -1,6 +1,6 @@
 package com.paymentslab.core.designsystem
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.PaymentResult
 import com.paymentslab.core.paymentsapi.PaymentStatus
 import com.paymentslab.core.paymentsapi.PaymentStep
@@ -12,6 +12,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun UiText.resolve(): String =
     when (this) {
         is UiText.Dynamic -> value
+        is UiText.Res -> key
         UiText.Empty -> ""
     }
 

@@ -20,6 +20,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             api(libs.napier)
             api(libs.koin.core)
+            api("com.siddharth.kmp:common:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

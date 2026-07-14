@@ -1,6 +1,6 @@
 package com.paymentslab.provider.hostedwebview
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.CreatedOrder
 import com.paymentslab.core.paymentsapi.FailureCode
 import com.paymentslab.core.paymentsapi.GatewayId

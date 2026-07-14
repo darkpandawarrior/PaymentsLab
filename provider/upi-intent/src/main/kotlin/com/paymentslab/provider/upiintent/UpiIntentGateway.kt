@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.AndroidPaymentHost
 import com.paymentslab.core.paymentsapi.Capability
 import com.paymentslab.core.paymentsapi.CreatedOrder

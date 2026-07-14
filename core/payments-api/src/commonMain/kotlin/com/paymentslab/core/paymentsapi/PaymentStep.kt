@@ -1,6 +1,6 @@
 package com.paymentslab.core.paymentsapi
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 
 /**
  * One observable step in a payment's lifecycle, emitted by the orchestrator as a stream. The Lab

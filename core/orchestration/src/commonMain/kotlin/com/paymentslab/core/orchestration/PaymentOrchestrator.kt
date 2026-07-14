@@ -1,7 +1,7 @@
 package com.paymentslab.core.orchestration
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.orchestration.fsm.FsmPollConfig
 import com.paymentslab.core.orchestration.fsm.PaymentEffect
 import com.paymentslab.core.orchestration.fsm.PaymentEvent

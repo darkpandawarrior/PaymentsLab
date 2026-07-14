@@ -5,7 +5,7 @@ import com.cashfree.pg.core.api.CFSession
 import com.cashfree.pg.core.api.exception.CFException
 import com.cashfree.pg.ui.api.CFDropCheckoutPayment
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.paymentsapi.AndroidPaymentHost
 import com.paymentslab.core.paymentsapi.Capability
 import com.paymentslab.core.paymentsapi.CreatedOrder

@@ -1,6 +1,6 @@
 package com.paymentslab.provider.wallet
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.paymentsapi.CreatedOrder
 import com.paymentslab.core.paymentsapi.FailureCode

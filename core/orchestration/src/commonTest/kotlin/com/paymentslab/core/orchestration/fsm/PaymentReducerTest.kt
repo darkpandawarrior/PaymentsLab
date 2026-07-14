@@ -60,7 +60,7 @@ class PaymentReducerTest {
         val failure =
             PaymentResult.Failure(
                 com.paymentslab.core.paymentsapi.FailureCode.GATEWAY_DECLINED,
-                com.paymentslab.core.common.UiText.Empty,
+                com.siddharth.kmp.common.UiText.Empty,
                 RedactedPayload.EMPTY,
             )
         val t = PaymentReducer.reduce(start(), PaymentEvent.ClientReturned(failure))

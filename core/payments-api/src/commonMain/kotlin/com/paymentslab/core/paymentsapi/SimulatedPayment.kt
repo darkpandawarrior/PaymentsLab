@@ -1,6 +1,6 @@
 package com.paymentslab.core.paymentsapi
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import kotlinx.coroutines.delay
 
 /** The scripted outcome a [SimulatedPayment] run should settle to. */

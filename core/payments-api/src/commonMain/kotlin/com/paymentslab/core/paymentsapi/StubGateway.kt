@@ -1,6 +1,6 @@
 package com.paymentslab.core.paymentsapi
 
-import com.paymentslab.core.common.UiText
+import com.siddharth.kmp.common.UiText
 
 /** Everything a Tier-4 catalog-only entry needs: identity + the research-backed blurb/docs link. */
 data class StubGatewayConfig(
