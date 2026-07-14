@@ -157,11 +157,11 @@ dependencies {
     implementation("com.siddharth.kmp:omise:1.0.0")
     implementation(project(":provider:wallet"))
     implementation("com.siddharth.kmp:paytm:1.0.0")
-    implementation(project(":provider:cash"))
+    implementation("com.siddharth.kmp:cash:1.0.0")
     implementation(project(":provider:xendit"))
     implementation(project(":provider:mpesa"))
-    implementation(project(":provider:peach"))
-    implementation(project(":provider:nmi"))
+    implementation("com.siddharth.kmp:peach:1.0.0")
+    implementation("com.siddharth.kmp:nmi:1.0.0")
 
     // Features
     implementation(project(":feature:lab"))

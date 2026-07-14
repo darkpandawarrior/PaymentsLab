@@ -68,6 +68,9 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:paystack")).using(project(":provider:paystack"))
         substitute(module("com.siddharth.kmp:paytm")).using(project(":provider:paytm"))
         substitute(module("com.siddharth.kmp:stripe-connect")).using(project(":provider:stripe-connect"))
+        substitute(module("com.siddharth.kmp:cash")).using(project(":provider:cash"))
+        substitute(module("com.siddharth.kmp:nmi")).using(project(":provider:nmi"))
+        substitute(module("com.siddharth.kmp:peach")).using(project(":provider:peach"))
     }
 }
 
@@ -94,13 +97,12 @@ include(":core:designsystem")
 // :provider:hosted-webview / :flutterwave / :paystack / :paytm / :stripe-connect extracted to
 // kmp-toolkit (5c batch 2, incl. the hosted-webview iOS-RED fix) — consumed as
 // com.siddharth.kmp:<name> via the includeBuild substitution above.
+// :provider:cash / :nmi / :peach (pure-contract trio) extracted to kmp-toolkit (5c batch 3) —
+// consumed as com.siddharth.kmp:<name> via the includeBuild substitution above.
 include(":provider:mobile-money")
 include(":provider:wallet")
-include(":provider:cash")
 include(":provider:xendit")
 include(":provider:mpesa")
-include(":provider:peach")
-include(":provider:nmi")
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")
