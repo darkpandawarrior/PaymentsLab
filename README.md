@@ -9,7 +9,7 @@
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
 <!-- AUTOGEN:badge -->
-![Modules](https://img.shields.io/badge/modules-21-success)
+![Modules](https://img.shields.io/badge/modules-18-success)
 <!-- /AUTOGEN:badge -->
 
 [**Portfolio**](https://cv-siddharth.vercel.app/) · [**Mileway** (sibling KMP project)](https://github.com/darkpandawarrior/Mileway) · built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
@@ -44,7 +44,7 @@
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **21-module** KMP architecture (7 provider · 4 feature · 7 core), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **18-module** KMP architecture (4 provider · 4 feature · 7 core), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
