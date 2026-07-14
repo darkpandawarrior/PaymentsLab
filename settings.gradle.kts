@@ -58,6 +58,11 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:payments-api")).using(project(":payments-api"))
         substitute(module("com.siddharth.kmp:stripe")).using(project(":provider:stripe"))
         substitute(module("com.siddharth.kmp:upi-intent")).using(project(":provider:upi-intent"))
+        substitute(module("com.siddharth.kmp:cashfree")).using(project(":provider:cashfree"))
+        substitute(module("com.siddharth.kmp:googlepay")).using(project(":provider:googlepay"))
+        substitute(module("com.siddharth.kmp:omise")).using(project(":provider:omise"))
+        substitute(module("com.siddharth.kmp:razorpay")).using(project(":provider:razorpay"))
+        substitute(module("com.siddharth.kmp:square")).using(project(":provider:square"))
     }
 }
 
@@ -79,16 +84,13 @@ include(":core:designsystem")
 // — consumed as com.siddharth.kmp:upi-intent via the includeBuild substitution above.
 // :provider:stripe extracted to kmp-toolkit's :provider:stripe module (external/kmp-toolkit) —
 // consumed as com.siddharth.kmp:stripe via the includeBuild substitution above.
-include(":provider:razorpay")
+// :provider:cashfree / :googlepay / :omise / :razorpay / :square extracted to kmp-toolkit (5c) —
+// consumed as com.siddharth.kmp:<name> via the includeBuild substitution above.
 include(":provider:paystack")
 include(":provider:flutterwave")
-include(":provider:cashfree")
 include(":provider:hosted-webview")
 include(":provider:stripe-connect")
-include(":provider:googlepay")
 include(":provider:mobile-money")
-include(":provider:square")
-include(":provider:omise")
 include(":provider:wallet")
 include(":provider:paytm")
 include(":provider:cash")

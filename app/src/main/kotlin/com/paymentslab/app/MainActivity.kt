@@ -13,11 +13,11 @@ import com.cashfree.pg.core.api.utils.CFErrorResponse
 import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.designsystem.PaymentsLabTheme
 import com.siddharth.kmp.security.AppSecurityManager
-import com.paymentslab.provider.cashfree.CashfreeCheckoutRelay
-import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
-import com.paymentslab.provider.razorpay.RazorpayCallbackResult
-import com.paymentslab.provider.square.SquareCallbackRelay
-import com.paymentslab.provider.square.SquareCallbackResult
+import com.siddharth.kmp.provider.cashfree.CashfreeCheckoutRelay
+import com.siddharth.kmp.provider.razorpay.RazorpayCallbackRelay
+import com.siddharth.kmp.provider.razorpay.RazorpayCallbackResult
+import com.siddharth.kmp.provider.square.SquareCallbackRelay
+import com.siddharth.kmp.provider.square.SquareCallbackResult
 import com.siddharth.kmp.provider.stripe.StripePaymentLauncherHost
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
