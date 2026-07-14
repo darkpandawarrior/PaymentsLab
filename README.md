@@ -440,7 +440,7 @@ copy-pasted boilerplate; a fix in either repo flows into every consumer.
 | Repo | Role here | Wired in |
 |---|---|---|
 | **`kmp-build-logic`** | The convention plugins (`kmp.library`, `kmp.compose`, `cmp.feature`, …) that keep every module configured identically. Included in `pluginManagement` so every module applies them by id. | `settings.gradle.kts` → `includeBuild("external/kmp-build-logic")` |
-| **`kmp-mvi-core`** (published as `com.siddharth.kmp:mvi-core`) | The `State`/`Event`/`Effect` MVI runtime the four `feature:*` modules build their ViewModels on. Substituted from the `:lib` subproject at build time. | `settings.gradle.kts` → `includeBuild("external/kmp-mvi-core")`; consumed by `feature:home`, `feature:lab`, `feature:checkout-demo`, `feature:history` |
+| **`kmp-mvi-core`** (published as `com.siddharth.kmp:mvi-core`) | The `State`/`Event`/`Effect` MVI runtime the four `feature:*` modules build their ViewModels on. Substituted from the `:mvi-core` module of the kmp-toolkit monorepo at build time. | `settings.gradle.kts` → `includeBuild("external/kmp-toolkit")`; consumed by `feature:home`, `feature:lab`, `feature:checkout-demo`, `feature:history` |
 
 This is the point of the split: the payments domain lives here, the reusable KMP scaffolding lives
 once, upstream, and both this repo and its sibling stay on the same foundation without drift.
