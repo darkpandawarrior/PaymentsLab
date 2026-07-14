@@ -109,35 +109,10 @@ data class ApiError(
     val message: String,
 )
 
-// ── Wallet ledger (provider:wallet, the internal-rail archetype) ───────────────────────────────
-
-/** `GET /wallet/{accountId}/balance` response. */
-@Serializable
-data class WalletBalanceResponse(
-    val accountId: String,
-    val balanceMinor: Long,
-)
-
-/** `POST /wallet/{accountId}/debit` request — the ledger "pay" movement, carries an idempotency key. */
-@Serializable
-data class WalletDebitRequest(
-    val idempotencyKey: String,
-    val amountMinor: Long,
-)
-
-/** `POST /wallet/{accountId}/refund` request — the ledger "refund" movement (a credit back). */
-@Serializable
-data class WalletRefundRequest(
-    val idempotencyKey: String,
-    val amountMinor: Long,
-)
-
-@Serializable
-data class WalletTransactionResponse(
-    val txnId: String,
-    val accountId: String,
-    val balanceMinor: Long,
-)
+// Wallet ledger wire models (WalletBalanceResponse/WalletDebitRequest/WalletRefundRequest/
+// WalletTransactionResponse) moved to kmp-toolkit's :payments-api (com.siddharth.kmp.paymentsapi) —
+// they now live next to WalletLedgerPort, which provider:wallet (also extracted) implements against
+// them. See backend/WalletLedgerRoutes.kt and provider:wallet for the consumers.
 
 // ── Payouts / Transfers (the first real payout rail, MOCK_MODE/KYC_GATED — see PayoutStatusDto) ───
 

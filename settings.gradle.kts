@@ -55,6 +55,7 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:common")).using(project(":common"))
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
+        substitute(module("com.siddharth.kmp:network")).using(project(":network"))
         substitute(module("com.siddharth.kmp:payments-api")).using(project(":payments-api"))
         substitute(module("com.siddharth.kmp:stripe")).using(project(":provider:stripe"))
         substitute(module("com.siddharth.kmp:upi-intent")).using(project(":provider:upi-intent"))
@@ -71,6 +72,10 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:cash")).using(project(":provider:cash"))
         substitute(module("com.siddharth.kmp:nmi")).using(project(":provider:nmi"))
         substitute(module("com.siddharth.kmp:peach")).using(project(":provider:peach"))
+        substitute(module("com.siddharth.kmp:mobile-money")).using(project(":provider:mobile-money"))
+        substitute(module("com.siddharth.kmp:mpesa")).using(project(":provider:mpesa"))
+        substitute(module("com.siddharth.kmp:wallet")).using(project(":provider:wallet"))
+        substitute(module("com.siddharth.kmp:xendit")).using(project(":provider:xendit"))
     }
 }
 
@@ -99,10 +104,8 @@ include(":core:designsystem")
 // com.siddharth.kmp:<name> via the includeBuild substitution above.
 // :provider:cash / :nmi / :peach (pure-contract trio) extracted to kmp-toolkit (5c batch 3) —
 // consumed as com.siddharth.kmp:<name> via the includeBuild substitution above.
-include(":provider:mobile-money")
-include(":provider:wallet")
-include(":provider:xendit")
-include(":provider:mpesa")
+// :provider:mobile-money / :mpesa / :wallet / :xendit (network cluster, 5c batch 4) extracted to
+// kmp-toolkit — consumed as com.siddharth.kmp:<name> via the includeBuild substitution above.
 
 // ── Features ────────────────────────────────────────────────────────────────
 include(":feature:lab")

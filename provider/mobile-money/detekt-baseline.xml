@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<SmellBaseline>
-  <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MaxLineLength:MobileMoneyGateway.kt:MobileMoneyGateway$"$baseUrl/mock/momo/${id.value}?orderId=${prepared.orderId}&amp;outcome=success&amp;delayMs=$MOCK_FLIP_DELAY_MS"</ID>
-  </CurrentIssues>
-</SmellBaseline>

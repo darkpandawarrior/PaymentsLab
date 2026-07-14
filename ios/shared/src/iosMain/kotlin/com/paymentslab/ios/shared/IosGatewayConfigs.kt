@@ -1,9 +1,9 @@
 package com.paymentslab.ios.shared
 
-import com.paymentslab.provider.mobilemoney.MobileMoneyConfig
 import com.siddharth.kmp.paymentsapi.Capability
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.GatewayStatus
+import com.siddharth.kmp.provider.mobilemoney.MobileMoneyConfig
 import com.siddharth.kmp.provider.hostedwebview.HostedGatewayConfig
 import com.siddharth.kmp.provider.hostedwebview.ReturnUrlMatchers
 

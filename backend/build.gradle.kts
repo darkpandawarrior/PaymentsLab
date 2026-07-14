@@ -12,6 +12,9 @@ application {
 dependencies {
     // Depend on the shared wire contract (JVM target) so the server serves the EXACT DTOs the client sends.
     implementation(project(":core:protocol"))
+    // Wallet ledger wire models (moved to kmp-toolkit alongside WalletLedgerPort) — jvm target lets
+    // this pure-JVM Ktor server consume them directly.
+    implementation("com.siddharth.kmp:payments-api:1.0.0")
     // Env-backed credential resolution (PLAB_<GATEWAY>_<MODE>_<KEY>) — shared with the Android app.
     implementation(project(":core:config"))
 

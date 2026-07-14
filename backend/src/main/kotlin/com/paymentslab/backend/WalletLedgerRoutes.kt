@@ -1,9 +1,9 @@
 package com.paymentslab.backend
 
-import com.paymentslab.core.protocol.WalletBalanceResponse
-import com.paymentslab.core.protocol.WalletDebitRequest
-import com.paymentslab.core.protocol.WalletRefundRequest
-import com.paymentslab.core.protocol.WalletTransactionResponse
+import com.siddharth.kmp.paymentsapi.WalletBalanceResponse
+import com.siddharth.kmp.paymentsapi.WalletDebitRequest
+import com.siddharth.kmp.paymentsapi.WalletRefundRequest
+import com.siddharth.kmp.paymentsapi.WalletTransactionResponse
 import io.ktor.server.application.log
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond

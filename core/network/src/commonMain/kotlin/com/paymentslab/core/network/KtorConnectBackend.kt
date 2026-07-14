@@ -7,6 +7,7 @@ import com.siddharth.kmp.paymentsapi.ConnectBackend
 import com.siddharth.kmp.paymentsapi.ConnectOnboarding
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentApiConfig
 import com.siddharth.kmp.paymentsapi.PayoutSnapshot
 import com.siddharth.kmp.paymentsapi.PayoutStatus
 import com.paymentslab.core.protocol.ConnectAccountResponse

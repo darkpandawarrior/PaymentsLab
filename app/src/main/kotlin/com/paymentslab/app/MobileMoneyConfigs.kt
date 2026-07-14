@@ -1,7 +1,7 @@
 package com.paymentslab.app
 
-import com.paymentslab.provider.mobilemoney.MobileMoneyConfig
 import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.provider.mobilemoney.MobileMoneyConfig
 
 /**
  * Archetype-D fan-out: `pay()` never launches anything (confirmation happens on the payer's phone

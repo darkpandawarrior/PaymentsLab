@@ -6,10 +6,10 @@ import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.PaymentStatusResponse
 import com.paymentslab.core.protocol.VerifyRequest
 import com.paymentslab.core.protocol.VerifyResponse
-import com.paymentslab.core.protocol.WalletBalanceResponse
-import com.paymentslab.core.protocol.WalletDebitRequest
-import com.paymentslab.core.protocol.WalletTransactionResponse
 import com.paymentslab.core.protocol.WebhookAck
+import com.siddharth.kmp.paymentsapi.WalletBalanceResponse
+import com.siddharth.kmp.paymentsapi.WalletDebitRequest
+import com.siddharth.kmp.paymentsapi.WalletTransactionResponse
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post

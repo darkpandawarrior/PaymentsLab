@@ -1,7 +1,7 @@
 package com.paymentslab.app
 
-import com.paymentslab.provider.wallet.WalletConfig
 import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.provider.wallet.WalletConfig
 
 /**
  * Archetype-E: an internal-rail wallet backed by the backend's double-entry ledger, no external
