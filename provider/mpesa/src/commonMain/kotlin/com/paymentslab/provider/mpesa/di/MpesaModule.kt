@@ -1,6 +1,6 @@
 package com.paymentslab.provider.mpesa.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.mpesa.MpesaConfig
 import com.paymentslab.provider.mpesa.MpesaGateway
 import org.koin.core.qualifier.named

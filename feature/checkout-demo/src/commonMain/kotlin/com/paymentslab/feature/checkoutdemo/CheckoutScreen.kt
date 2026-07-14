@@ -30,9 +30,9 @@ import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.designsystem.ShieldPulse
 import com.paymentslab.core.designsystem.StepTimeline
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentStatus
 import kotlinx.collections.immutable.ImmutableList
 
 /**

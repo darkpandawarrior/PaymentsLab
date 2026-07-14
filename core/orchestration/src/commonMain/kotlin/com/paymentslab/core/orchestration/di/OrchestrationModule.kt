@@ -1,11 +1,11 @@
 package com.paymentslab.core.orchestration.di
 
 import com.paymentslab.core.orchestration.PaymentOrchestrator
-import com.paymentslab.core.paymentsapi.DefaultPaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.PaymentBackend
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.paymentsapi.DefaultPaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.PaymentBackend
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.PendingPaymentJournal
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

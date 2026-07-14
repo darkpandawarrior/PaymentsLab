@@ -1,7 +1,7 @@
 package com.paymentslab.feature.lab
 
 import com.paymentslab.core.designsystem.FlowHop
-import com.paymentslab.core.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.PaymentStep
 
 /**
  * Where this step sits on the [PaymentFlowDiagram]'s spine. [PaymentStep.Errored] stays at APP — the

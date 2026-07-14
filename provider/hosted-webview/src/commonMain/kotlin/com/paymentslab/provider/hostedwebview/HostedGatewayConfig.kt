@@ -1,8 +1,8 @@
 package com.paymentslab.provider.hostedwebview
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /**
  * One hosted-checkout gateway's shape. `provider:hosted-webview` is a single archetype-C module that

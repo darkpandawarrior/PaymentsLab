@@ -1,9 +1,9 @@
 package com.paymentslab.core.data
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PendingPayment
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PendingPayment
 
 // Pure entity <-> domain mappers for the journal. Kept as top-level functions with no Room or
 // platform dependency so they are trivially unit-testable on the JVM (see PendingPaymentMapperTest).

@@ -1,8 +1,8 @@
 package com.paymentslab.core.orchestration
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentStep
 import kotlinx.coroutines.flow.Flow
 
 /**

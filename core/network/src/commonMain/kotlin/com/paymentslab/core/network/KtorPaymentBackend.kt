@@ -1,11 +1,11 @@
 package com.paymentslab.core.network
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentBackend
-import com.paymentslab.core.paymentsapi.PaymentSnapshot
-import com.paymentslab.core.paymentsapi.VerificationRequest
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentBackend
+import com.siddharth.kmp.paymentsapi.PaymentSnapshot
+import com.siddharth.kmp.paymentsapi.VerificationRequest
 import com.paymentslab.core.protocol.OrderResponse
 import com.paymentslab.core.protocol.PaymentStatusResponse
 import com.paymentslab.core.protocol.VerifyResponse

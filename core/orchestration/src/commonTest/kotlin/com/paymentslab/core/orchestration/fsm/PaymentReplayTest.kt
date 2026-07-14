@@ -1,10 +1,10 @@
 package com.paymentslab.core.orchestration.fsm
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentSnapshot
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.RedactedPayload
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentSnapshot
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.RedactedPayload
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -53,7 +53,7 @@ class PaymentReplayTest {
             listOf(
                 PaymentEvent.OrderCreated("order_upi"),
                 PaymentEvent.ClientReturned(
-                    PaymentResult.Pending(com.paymentslab.core.paymentsapi.PendingReason.UPI_SUBMITTED),
+                    PaymentResult.Pending(com.siddharth.kmp.paymentsapi.PendingReason.UPI_SUBMITTED),
                 ),
                 PaymentEvent.ServerAnswered(PaymentSnapshot("order_upi", null, PaymentStatus.PENDING)),
                 PaymentEvent.ServerAnswered(PaymentSnapshot("order_upi", null, PaymentStatus.PENDING)),
@@ -79,7 +79,7 @@ class PaymentReplayTest {
             listOf(
                 PaymentEvent.OrderCreated("order_1"),
                 PaymentEvent.ClientReturned(
-                    PaymentResult.Pending(com.paymentslab.core.paymentsapi.PendingReason.UPI_SUBMITTED),
+                    PaymentResult.Pending(com.siddharth.kmp.paymentsapi.PendingReason.UPI_SUBMITTED),
                 ),
                 PaymentEvent.ServerAnswered(PaymentSnapshot("order_1", null, PaymentStatus.PENDING)),
                 PaymentEvent.ServerAnswered(PaymentSnapshot("order_1", "p", PaymentStatus.SUCCESS)),

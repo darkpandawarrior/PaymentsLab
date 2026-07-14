@@ -1,10 +1,10 @@
 package com.paymentslab.feature.home
 
 import app.cash.turbine.test
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PendingPayment
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PendingPayment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain

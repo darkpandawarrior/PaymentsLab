@@ -1,6 +1,6 @@
 package com.paymentslab.provider.razorpay.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.razorpay.PaymentActivityCallbacks
 import com.paymentslab.provider.razorpay.RazorpayCallbackRelay
 import com.paymentslab.provider.razorpay.RazorpayGateway

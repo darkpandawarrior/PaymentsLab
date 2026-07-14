@@ -1,17 +1,17 @@
 package com.paymentslab.feature.checkoutdemo
 
 import com.paymentslab.core.orchestration.PaymentFlowRunner
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayMeta
-import com.paymentslab.core.paymentsapi.GatewayStatus
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentStep
-import com.paymentslab.core.paymentsapi.PreparedPayment
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayMeta
+import com.siddharth.kmp.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.PreparedPayment
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 

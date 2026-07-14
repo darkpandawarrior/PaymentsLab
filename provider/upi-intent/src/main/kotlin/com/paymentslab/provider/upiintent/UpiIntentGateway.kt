@@ -6,20 +6,20 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.paymentslab.core.common.AppLog
 import com.siddharth.kmp.common.UiText
-import com.paymentslab.core.paymentsapi.AndroidPaymentHost
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.FailureCode
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayMeta
-import com.paymentslab.core.paymentsapi.GatewayStatus
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentPreparationException
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PendingReason
-import com.paymentslab.core.paymentsapi.PreparedPayment
-import com.paymentslab.core.paymentsapi.Redactor
+import com.siddharth.kmp.paymentsapi.AndroidPaymentHost
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.FailureCode
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayMeta
+import com.siddharth.kmp.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentPreparationException
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PendingReason
+import com.siddharth.kmp.paymentsapi.PreparedPayment
+import com.siddharth.kmp.paymentsapi.Redactor
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
@@ -251,9 +251,9 @@ class UpiIntentGateway : PaymentGateway {
 
 /**
  * Render minor units to UPI's canonical two-decimal string, e.g. 1050 paise → "10.50".
- * Presentation concern — kept at the provider edge, never in the [com.paymentslab.core.paymentsapi.Money] type.
+ * Presentation concern — kept at the provider edge, never in the [com.siddharth.kmp.paymentsapi.Money] type.
  */
-private fun com.paymentslab.core.paymentsapi.Money.toUpiAmountString(): String {
+private fun com.siddharth.kmp.paymentsapi.Money.toUpiAmountString(): String {
     val rupees = amountMinor / 100
     val paise = amountMinor % 100
     return "%d.%02d".format(rupees, paise)

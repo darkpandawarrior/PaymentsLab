@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap
  * is only known at `createProviderOrder` time, so it's cached per-orderId here for `verify` to use.
  *
  * **Mock** (default): `createProviderOrder` returns an empty provider-params map (no `application_id`)
- * — the client's `SquareGateway` sees that absence and runs [com.paymentslab.core.paymentsapi.SimulatedPayment]
+ * — the client's `SquareGateway` sees that absence and runs [com.siddharth.kmp.paymentsapi.SimulatedPayment]
  * instead of launching the real SDK.
  *
  * Not exercised against the live sandbox this session (no test credentials available) — covered by

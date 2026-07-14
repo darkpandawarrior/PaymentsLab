@@ -1,6 +1,6 @@
 package com.paymentslab.provider.stripe.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.stripe.StripeGateway
 import com.paymentslab.provider.stripe.StripePaymentLauncherHost
 import org.koin.core.module.Module

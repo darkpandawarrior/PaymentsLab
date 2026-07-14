@@ -1,6 +1,6 @@
 package com.paymentslab.provider.flutterwave.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.flutterwave.FlutterwaveGateway
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import org.koin.core.module.Module

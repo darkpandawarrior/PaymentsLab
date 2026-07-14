@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
  * DAO for the [PendingPaymentEntity] journal.
  *
  * [unresolved] is the cold-start recovery work list: every row whose [PendingPaymentEntity.status]
- * is not one of the terminal states ([com.paymentslab.core.paymentsapi.PaymentStatus.isTerminal] —
+ * is not one of the terminal states ([com.siddharth.kmp.paymentsapi.PaymentStatus.isTerminal] —
  * SUCCESS, FAILED, CANCELLED, REFUNDED). The terminal set is inlined as a `NOT IN` literal because
  * Room cannot bind an enum collection into a compiled `IN` clause.
  */

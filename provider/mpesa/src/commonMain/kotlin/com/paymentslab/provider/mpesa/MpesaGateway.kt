@@ -2,15 +2,15 @@ package com.paymentslab.provider.mpesa
 
 import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.network.PaymentApiConfig
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayMeta
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PendingReason
-import com.paymentslab.core.paymentsapi.PreparedPayment
-import com.paymentslab.core.paymentsapi.Redactor
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayMeta
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PendingReason
+import com.siddharth.kmp.paymentsapi.PreparedPayment
+import com.siddharth.kmp.paymentsapi.Redactor
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 

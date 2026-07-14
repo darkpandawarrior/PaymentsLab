@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import com.paymentslab.core.designsystem.AppShell
 import com.paymentslab.core.designsystem.AppShellDestination
 import com.paymentslab.core.designsystem.PaymentsLabTheme
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentHost
 import com.paymentslab.feature.checkoutdemo.CheckoutRoot
 import com.paymentslab.feature.history.HistoryRoot
 import com.paymentslab.feature.home.HomeRoot

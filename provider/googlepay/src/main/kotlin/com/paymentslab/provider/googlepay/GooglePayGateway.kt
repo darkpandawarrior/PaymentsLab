@@ -11,18 +11,18 @@ import com.google.android.gms.wallet.PaymentsClient
 import com.google.android.gms.wallet.Wallet
 import com.paymentslab.core.common.AppLog
 import com.siddharth.kmp.common.UiText
-import com.paymentslab.core.paymentsapi.AndroidPaymentHost
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.FailureCode
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayMeta
-import com.paymentslab.core.paymentsapi.GatewayStatus
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PreparedPayment
-import com.paymentslab.core.paymentsapi.Redactor
+import com.siddharth.kmp.paymentsapi.AndroidPaymentHost
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.FailureCode
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayMeta
+import com.siddharth.kmp.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PreparedPayment
+import com.siddharth.kmp.paymentsapi.Redactor
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Request-JSON shape adapted from `khalid64927/google-apple-pay` (Apache-2.0) — see
  * [GooglePayRequestBuilder] doc for why that repo can't be depended on directly. The
  * Activity-callback → coroutine bridge below is this app's own pattern (mirrors
- * [com.paymentslab.core.paymentsapi.AndroidPaymentHost] usage in the Razorpay/Stripe providers),
+ * [com.siddharth.kmp.paymentsapi.AndroidPaymentHost] usage in the Razorpay/Stripe providers),
  * not ported from that repo's Fragment-based resolver.
  */
 class GooglePayGateway(

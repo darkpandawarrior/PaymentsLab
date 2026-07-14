@@ -1,11 +1,11 @@
 package com.paymentslab.core.orchestration.fsm
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentSnapshot
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PendingReason
-import com.paymentslab.core.paymentsapi.RedactedPayload
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentSnapshot
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PendingReason
+import com.siddharth.kmp.paymentsapi.RedactedPayload
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -59,7 +59,7 @@ class PaymentReducerTest {
     fun clientFailure_stillChecksServer() {
         val failure =
             PaymentResult.Failure(
-                com.paymentslab.core.paymentsapi.FailureCode.GATEWAY_DECLINED,
+                com.siddharth.kmp.paymentsapi.FailureCode.GATEWAY_DECLINED,
                 com.siddharth.kmp.common.UiText.Empty,
                 RedactedPayload.EMPTY,
             )

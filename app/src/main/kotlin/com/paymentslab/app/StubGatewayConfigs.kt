@@ -1,9 +1,9 @@
 package com.paymentslab.app
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.StubGateway
-import com.paymentslab.core.paymentsapi.StubGatewayConfig
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.StubGateway
+import com.siddharth.kmp.paymentsapi.StubGatewayConfig
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

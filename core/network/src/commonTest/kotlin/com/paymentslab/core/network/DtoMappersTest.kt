@@ -1,9 +1,9 @@
 package com.paymentslab.core.network
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PayoutStatus
-import com.paymentslab.core.paymentsapi.VerificationRequest
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PayoutStatus
+import com.siddharth.kmp.paymentsapi.VerificationRequest
 import com.paymentslab.core.protocol.OrderResponse
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.PaymentStatusResponse

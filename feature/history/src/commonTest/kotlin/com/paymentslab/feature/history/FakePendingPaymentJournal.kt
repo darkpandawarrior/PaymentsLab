@@ -1,8 +1,8 @@
 package com.paymentslab.feature.history
 
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PendingPayment
-import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PendingPayment
+import com.siddharth.kmp.paymentsapi.PendingPaymentJournal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

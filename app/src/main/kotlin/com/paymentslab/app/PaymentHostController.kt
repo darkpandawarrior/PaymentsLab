@@ -3,7 +3,7 @@ package com.paymentslab.app
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import com.paymentslab.core.paymentsapi.AndroidPaymentHost
+import com.siddharth.kmp.paymentsapi.AndroidPaymentHost
 import java.util.concurrent.atomic.AtomicInteger
 
 /**

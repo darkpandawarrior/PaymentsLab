@@ -14,10 +14,10 @@ import com.paymentslab.core.designsystem.TimelineStep
 import com.paymentslab.core.designsystem.VerifyingCopy
 import com.paymentslab.core.designsystem.toTimelineStep
 import com.paymentslab.core.orchestration.PaymentFlowRunner
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStep
 import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

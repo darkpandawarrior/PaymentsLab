@@ -1,7 +1,7 @@
 package com.paymentslab.feature.lab
 
 import com.paymentslab.core.designsystem.GatewayStatusUi
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /** 1:1 mapping of the domain [GatewayStatus] onto the design-system [GatewayStatusUi]. */
 internal fun GatewayStatus.toUi(): GatewayStatusUi =

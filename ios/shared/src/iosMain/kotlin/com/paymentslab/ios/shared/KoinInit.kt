@@ -4,7 +4,7 @@ import com.paymentslab.core.data.di.dataModule
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.di.networkModule
 import com.paymentslab.core.orchestration.di.orchestrationModule
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.home.di.homeModule

@@ -2,7 +2,7 @@ package com.paymentslab.backend
 
 import com.paymentslab.core.config.CredentialMode
 import com.paymentslab.core.config.GatewayCredentials
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 import com.paymentslab.core.protocol.CatalogItemDto
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.VerifyRequest

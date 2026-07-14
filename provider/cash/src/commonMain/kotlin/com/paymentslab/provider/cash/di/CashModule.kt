@@ -1,6 +1,6 @@
 package com.paymentslab.provider.cash.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.cash.CashGateway
 import org.koin.dsl.bind
 import org.koin.dsl.module

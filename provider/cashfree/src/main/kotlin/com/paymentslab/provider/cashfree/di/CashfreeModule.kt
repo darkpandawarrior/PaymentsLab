@@ -1,6 +1,6 @@
 package com.paymentslab.provider.cashfree.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.cashfree.CashfreeCheckoutRelay
 import com.paymentslab.provider.cashfree.CashfreeGateway
 import org.koin.core.module.Module

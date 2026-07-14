@@ -19,7 +19,7 @@ sealed interface GatewayBrandAsset {
 }
 
 /**
- * Maps a gateway ID (matching [com.paymentslab.core.paymentsapi.GatewayId.value] — this module
+ * Maps a gateway ID (matching [com.siddharth.kmp.paymentsapi.GatewayId.value] — this module
  * intentionally does not depend on `core:payments-api`, so it takes a plain [String]) to a
  * [GatewayBrandAsset].
  *

@@ -3,7 +3,7 @@ package com.paymentslab.core.data.di
 import com.paymentslab.core.data.PaymentsLabDatabase
 import com.paymentslab.core.data.RoomPendingPaymentJournal
 import com.paymentslab.core.data.database.getDatabaseBuilder
-import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.paymentsapi.PendingPaymentJournal
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module

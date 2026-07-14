@@ -1,6 +1,6 @@
 package com.paymentslab.core.designsystem
 
-import com.paymentslab.core.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.Money
 
 /**
  * Presentation-only formatting of [Money] into a human string. Formatting lives at the UI edge —

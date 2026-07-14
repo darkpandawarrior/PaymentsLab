@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * **Mock** (default): `createProviderOrder` returns an empty provider-params map (no `public_key`) —
  * the client's `OmiseGateway` sees that absence and runs
- * [com.paymentslab.core.paymentsapi.SimulatedPayment] instead of launching the real SDK.
+ * [com.siddharth.kmp.paymentsapi.SimulatedPayment] instead of launching the real SDK.
  *
  * Not exercised against the live sandbox this session (no test credentials available) — covered by
  * `OmiseAdapterTest` via Ktor `MockEngine`.

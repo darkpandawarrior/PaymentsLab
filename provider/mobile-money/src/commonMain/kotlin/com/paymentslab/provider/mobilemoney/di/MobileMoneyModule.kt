@@ -1,6 +1,6 @@
 package com.paymentslab.provider.mobilemoney.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.mobilemoney.MobileMoneyConfig
 import com.paymentslab.provider.mobilemoney.MobileMoneyGateway
 import org.koin.core.qualifier.named

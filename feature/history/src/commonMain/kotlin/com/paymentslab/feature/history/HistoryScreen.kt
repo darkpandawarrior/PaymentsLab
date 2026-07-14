@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.designsystem.LabScaffold
-import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Stateful entry point: resolves the ViewModel and renders the stateless [HistoryScreen]. */

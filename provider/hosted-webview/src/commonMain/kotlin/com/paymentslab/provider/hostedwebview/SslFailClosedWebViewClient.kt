@@ -9,7 +9,7 @@ import com.multiplatform.webview.web.AccompanistWebViewClient
  * `AccompanistWebViewClient` does not override `onReceivedSslError` at all, so without this subclass the
  * platform default (`handler.cancel()`) silently cancels the load with no signal to the payment flow — the
  * WebView would just sit blank. This override makes the failure explicit and reports it through [onSslError]
- * so the orchestrator can settle the payment as [com.paymentslab.core.paymentsapi.PaymentResult.Failure].
+ * so the orchestrator can settle the payment as [com.siddharth.kmp.paymentsapi.PaymentResult.Failure].
  *
  * NEVER call `handler.proceed()` here — that is the exact "flaky regional cert" hack Play policy rejects.
  */

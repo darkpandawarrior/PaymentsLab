@@ -1,16 +1,16 @@
 package com.paymentslab.provider.wallet
 
 import com.paymentslab.core.network.PaymentApiConfig
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.CreatedOrder
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.OrderRef
-import com.paymentslab.core.paymentsapi.PaymentHost
-import com.paymentslab.core.paymentsapi.PaymentPreparationException
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PreparedPayment
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.CreatedOrder
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.OrderRef
+import com.siddharth.kmp.paymentsapi.PaymentHost
+import com.siddharth.kmp.paymentsapi.PaymentPreparationException
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PreparedPayment
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

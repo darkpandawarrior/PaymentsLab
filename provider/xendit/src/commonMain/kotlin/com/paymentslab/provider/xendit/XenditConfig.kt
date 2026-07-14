@@ -1,8 +1,8 @@
 package com.paymentslab.provider.xendit
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /**
  * Xendit e-wallet (DANA/OVO/LinkAja) — genuinely archetype-D, not archetype-C: confirmation happens

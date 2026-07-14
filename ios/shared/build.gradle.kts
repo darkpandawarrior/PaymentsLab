@@ -29,7 +29,7 @@ kotlin {
 
     sourceSets {
         iosMain.dependencies {
-            implementation(project(":core:payments-api"))
+            implementation("com.siddharth.kmp:payments-api:1.0.0")
             implementation(project(":core:protocol"))
             implementation(project(":core:common"))
             implementation(project(":core:network"))

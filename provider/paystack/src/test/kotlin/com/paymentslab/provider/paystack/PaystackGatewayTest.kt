@@ -1,7 +1,7 @@
 package com.paymentslab.provider.paystack
 
-import com.paymentslab.core.paymentsapi.FailureCode
-import com.paymentslab.core.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.FailureCode
+import com.siddharth.kmp.paymentsapi.PaymentResult
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.hostedwebview.HostedReturnOutcome
 import org.junit.Assert.assertEquals

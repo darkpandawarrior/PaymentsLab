@@ -2,10 +2,10 @@ package com.paymentslab.feature.home
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
-import com.paymentslab.core.paymentsapi.PaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PendingPayment
-import com.paymentslab.core.paymentsapi.PendingPaymentJournal
+import com.siddharth.kmp.paymentsapi.PaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PendingPayment
+import com.siddharth.kmp.paymentsapi.PendingPaymentJournal
 import com.siddharth.kmp.mvi.StateViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf

@@ -1,14 +1,14 @@
 package com.paymentslab.core.network
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.paymentsapi.ConnectAccount
-import com.paymentslab.core.paymentsapi.ConnectAccountStatus
-import com.paymentslab.core.paymentsapi.ConnectBackend
-import com.paymentslab.core.paymentsapi.ConnectOnboarding
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PayoutSnapshot
-import com.paymentslab.core.paymentsapi.PayoutStatus
+import com.siddharth.kmp.paymentsapi.ConnectAccount
+import com.siddharth.kmp.paymentsapi.ConnectAccountStatus
+import com.siddharth.kmp.paymentsapi.ConnectBackend
+import com.siddharth.kmp.paymentsapi.ConnectOnboarding
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PayoutSnapshot
+import com.siddharth.kmp.paymentsapi.PayoutStatus
 import com.paymentslab.core.protocol.ConnectAccountResponse
 import com.paymentslab.core.protocol.ConnectAccountStatusDto
 import com.paymentslab.core.protocol.ConnectOnboardResponse

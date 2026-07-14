@@ -45,8 +45,8 @@ import com.paymentslab.core.designsystem.StepState
 import com.paymentslab.core.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
 import com.paymentslab.core.designsystem.TimelineStep
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentStatus
 import com.paymentslab.feature.checkoutdemo.CheckoutGateway
 import com.paymentslab.feature.checkoutdemo.CheckoutScreen
 import com.paymentslab.feature.checkoutdemo.CheckoutUiState

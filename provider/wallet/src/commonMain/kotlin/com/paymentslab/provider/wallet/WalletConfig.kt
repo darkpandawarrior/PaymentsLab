@@ -1,8 +1,8 @@
 package com.paymentslab.provider.wallet
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /**
  * Archetype-E (internal rail): a backend double-entry ledger, no external SDK at all. Unlike every

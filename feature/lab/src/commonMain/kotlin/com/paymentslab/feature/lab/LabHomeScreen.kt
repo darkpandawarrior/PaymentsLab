@@ -40,7 +40,7 @@ import com.paymentslab.core.designsystem.GatewayStatusUi
 import com.paymentslab.core.designsystem.LabScaffold
 import com.paymentslab.core.designsystem.RegionCoverageMap
 import com.paymentslab.core.designsystem.SectionHeader
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 

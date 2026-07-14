@@ -1,18 +1,18 @@
 package com.paymentslab.provider.stripeconnect
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.paymentsapi.ConnectAccount
-import com.paymentslab.core.paymentsapi.ConnectAccountStatus
-import com.paymentslab.core.paymentsapi.ConnectBackend
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PayoutSnapshot
+import com.siddharth.kmp.paymentsapi.ConnectAccount
+import com.siddharth.kmp.paymentsapi.ConnectAccountStatus
+import com.siddharth.kmp.paymentsapi.ConnectBackend
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PayoutSnapshot
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.hostedwebview.HostedReturnOutcome
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * Not a [com.paymentslab.core.paymentsapi.PaymentGateway] — Connect onboards a payout destination,
+ * Not a [com.siddharth.kmp.paymentsapi.PaymentGateway] — Connect onboards a payout destination,
  * it doesn't pay an order. Shared with [com.paymentslab.provider.stripeconnect.StripeConnectCheckoutHost]
  * so both sides of the relay key on the same id.
  */

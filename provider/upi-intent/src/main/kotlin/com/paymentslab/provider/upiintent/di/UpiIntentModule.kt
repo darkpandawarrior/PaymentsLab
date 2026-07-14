@@ -1,6 +1,6 @@
 package com.paymentslab.provider.upiintent.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.upiintent.UpiIntentGateway
 import org.koin.core.module.Module
 import org.koin.dsl.bind

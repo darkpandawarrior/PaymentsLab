@@ -2,8 +2,8 @@ package com.paymentslab.provider.upiintent
 
 import android.content.Intent
 import androidx.activity.result.ActivityResult
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PendingReason
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PendingReason
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals

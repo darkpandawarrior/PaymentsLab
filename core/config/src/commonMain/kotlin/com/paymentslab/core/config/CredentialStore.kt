@@ -1,7 +1,7 @@
 package com.paymentslab.core.config
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /** Resolves a gateway's env-backed credentials on demand. Backed by `System.getenv`/`BuildConfig`. */
 interface CredentialStore {

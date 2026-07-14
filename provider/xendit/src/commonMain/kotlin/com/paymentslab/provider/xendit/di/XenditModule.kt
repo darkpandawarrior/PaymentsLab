@@ -1,6 +1,6 @@
 package com.paymentslab.provider.xendit.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.xendit.XenditConfig
 import com.paymentslab.provider.xendit.XenditGateway
 import org.koin.core.qualifier.named

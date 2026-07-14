@@ -1,10 +1,10 @@
 package com.paymentslab.core.designsystem
 
 import com.siddharth.kmp.common.UiText
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PaymentStep
-import com.paymentslab.core.paymentsapi.RedactedPayload
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.RedactedPayload
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 

@@ -1,8 +1,8 @@
 package com.paymentslab.provider.paytm
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.FailureCode
-import com.paymentslab.core.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.FailureCode
+import com.siddharth.kmp.paymentsapi.PaymentResult
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.hostedwebview.HostedReturnOutcome
 import org.junit.Assert.assertEquals

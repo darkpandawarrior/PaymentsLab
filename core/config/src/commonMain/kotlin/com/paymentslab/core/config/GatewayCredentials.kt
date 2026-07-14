@@ -1,6 +1,6 @@
 package com.paymentslab.core.config
 
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 
 /** Whether a resolved credential set is for the provider's sandbox or its live environment. */
 enum class CredentialMode {

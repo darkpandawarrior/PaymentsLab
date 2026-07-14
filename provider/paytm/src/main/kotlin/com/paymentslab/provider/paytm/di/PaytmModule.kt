@@ -1,6 +1,6 @@
 package com.paymentslab.provider.paytm.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.PaymentGateway
 import com.paymentslab.provider.hostedwebview.HostedCheckoutRelay
 import com.paymentslab.provider.paytm.PaytmGateway
 import org.koin.core.module.Module

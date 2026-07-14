@@ -8,7 +8,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:payments-api"))
+    implementation("com.siddharth.kmp:payments-api:1.0.0")
     implementation(project(":core:common"))
     // Reuses the shared checkout WebView + return-URL relay already mounted at :app's nav host —
     // promoting this gateway to its own module doesn't mean reinventing the WebView bridge.

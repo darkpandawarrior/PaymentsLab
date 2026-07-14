@@ -42,7 +42,7 @@ import sqip.CardEntryActivityResult
  *    calls `startActivityForResult` directly, so results land in the legacy [onActivityResult]
  *    override below, which forwards to `CardEntry.handleActivityResult` and then [SquareCallbackRelay].
  *
- * Gateways reach this Activity only through the opaque [com.paymentslab.core.paymentsapi.PaymentHost]
+ * Gateways reach this Activity only through the opaque [com.siddharth.kmp.paymentsapi.PaymentHost]
  * ([PaymentHostController]); they never hold a reference to it.
  */
 class MainActivity :

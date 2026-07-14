@@ -1,8 +1,8 @@
 package com.paymentslab.provider.mpesa
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 
 /**
  * M-Pesa Daraja (STK push) — moved out of the generic [com.paymentslab.provider.mobilemoney]

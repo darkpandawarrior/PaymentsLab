@@ -1,11 +1,11 @@
 package com.paymentslab.core.orchestration
 
-import com.paymentslab.core.paymentsapi.DefaultPaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PaymentStep
-import com.paymentslab.core.paymentsapi.SplitLeg
+import com.siddharth.kmp.paymentsapi.DefaultPaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.SplitLeg
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -27,7 +27,7 @@ class PaymentOrchestratorSplitTest {
 
     private fun setup(
         walletBalanceMinor: Long = total.amountMinor,
-        gatewayResult: com.paymentslab.core.paymentsapi.PaymentResult = success(),
+        gatewayResult: com.siddharth.kmp.paymentsapi.PaymentResult = success(),
         gatewayVerifyStatus: PaymentStatus = PaymentStatus.SUCCESS,
     ): Triple<PaymentOrchestrator, FakeLedger, FakeWalletLedgerPort> {
         val ledger = FakeLedger(walletBalanceMinor)
@@ -81,10 +81,10 @@ class PaymentOrchestratorSplitTest {
     fun leg2Failure_compensatesWalletLeg_netWalletMovementZero_overallFailure() =
         runTest {
             val failure =
-                com.paymentslab.core.paymentsapi.PaymentResult.Failure(
-                    com.paymentslab.core.paymentsapi.FailureCode.GATEWAY_DECLINED,
+                com.siddharth.kmp.paymentsapi.PaymentResult.Failure(
+                    com.siddharth.kmp.paymentsapi.FailureCode.GATEWAY_DECLINED,
                     com.siddharth.kmp.common.UiText.Empty,
-                    com.paymentslab.core.paymentsapi.RedactedPayload.EMPTY,
+                    com.siddharth.kmp.paymentsapi.RedactedPayload.EMPTY,
                 )
             val (orchestrator, ledger, ledgerPort) =
                 setup(gatewayResult = failure, gatewayVerifyStatus = PaymentStatus.FAILED)

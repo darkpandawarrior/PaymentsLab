@@ -2,13 +2,13 @@ package com.paymentslab.feature.checkoutdemo
 
 import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.designsystem.StepState
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentSnapshot
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PaymentStep
-import com.paymentslab.core.paymentsapi.RedactedPayload
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentSnapshot
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.RedactedPayload
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain

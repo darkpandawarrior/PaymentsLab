@@ -1,8 +1,8 @@
 package com.paymentslab.provider.wallet
 
 import com.paymentslab.core.network.PaymentApiConfig
-import com.paymentslab.core.paymentsapi.InsufficientWalletBalanceException
-import com.paymentslab.core.paymentsapi.WalletLedgerPort
+import com.siddharth.kmp.paymentsapi.InsufficientWalletBalanceException
+import com.siddharth.kmp.paymentsapi.WalletLedgerPort
 import com.paymentslab.core.protocol.WalletDebitRequest
 import com.paymentslab.core.protocol.WalletRefundRequest
 import com.paymentslab.core.protocol.WalletTransactionResponse

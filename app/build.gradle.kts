@@ -135,7 +135,7 @@ android {
 
 dependencies {
     // Core
-    implementation(project(":core:payments-api"))
+    implementation("com.siddharth.kmp:payments-api:1.0.0")
     implementation(project(":core:common"))
     implementation(project(":core:orchestration"))
     implementation(project(":core:network"))

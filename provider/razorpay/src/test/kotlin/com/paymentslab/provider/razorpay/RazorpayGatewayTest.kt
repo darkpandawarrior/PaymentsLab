@@ -1,6 +1,6 @@
 package com.paymentslab.provider.razorpay
 
-import com.paymentslab.core.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentResult
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

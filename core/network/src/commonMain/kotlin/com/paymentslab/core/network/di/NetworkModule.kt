@@ -7,10 +7,10 @@ import com.paymentslab.core.network.KtorPayoutBackend
 import com.paymentslab.core.network.KtorVaultBackend
 import com.paymentslab.core.network.PaymentApiConfig
 import com.paymentslab.core.network.create
-import com.paymentslab.core.paymentsapi.ConnectBackend
-import com.paymentslab.core.paymentsapi.PaymentBackend
-import com.paymentslab.core.paymentsapi.PayoutBackend
-import com.paymentslab.core.paymentsapi.VaultBackend
+import com.siddharth.kmp.paymentsapi.ConnectBackend
+import com.siddharth.kmp.paymentsapi.PaymentBackend
+import com.siddharth.kmp.paymentsapi.PayoutBackend
+import com.siddharth.kmp.paymentsapi.VaultBackend
 import io.ktor.client.HttpClient
 import org.koin.core.module.Module
 import org.koin.dsl.module

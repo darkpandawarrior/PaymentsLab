@@ -1,6 +1,6 @@
 package com.paymentslab.app
 
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 import com.paymentslab.provider.wallet.WalletConfig
 
 /**

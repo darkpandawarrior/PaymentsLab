@@ -1,6 +1,6 @@
 package com.paymentslab.provider.hostedwebview
 
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -18,7 +18,7 @@ data class HostedCheckoutRequest(
  *
  * Flow: [HostedWebViewGateway.pay] registers a listener and calls [launch]; whichever composable is
  * observing [requests] renders the checkout for that gateway and calls [reportResult] once
- * `matchReturn` fires; `pay` resumes with the mapped [com.paymentslab.core.paymentsapi.PaymentResult].
+ * `matchReturn` fires; `pay` resumes with the mapped [com.siddharth.kmp.paymentsapi.PaymentResult].
  */
 class HostedCheckoutRelay {
     private val listeners = mutableMapOf<GatewayId, (HostedReturnOutcome) -> Unit>()

@@ -1,10 +1,10 @@
 package com.paymentslab.core.network
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PayoutBackend
-import com.paymentslab.core.paymentsapi.PayoutSnapshot
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PayoutBackend
+import com.siddharth.kmp.paymentsapi.PayoutSnapshot
 import com.paymentslab.core.protocol.InitiatePayoutRequest
 import com.paymentslab.core.protocol.PayoutResponse
 import io.ktor.client.HttpClient

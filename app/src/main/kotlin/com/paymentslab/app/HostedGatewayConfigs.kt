@@ -1,8 +1,8 @@
 package com.paymentslab.app
 
-import com.paymentslab.core.paymentsapi.Capability
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.GatewayStatus
+import com.siddharth.kmp.paymentsapi.Capability
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayStatus
 import com.paymentslab.provider.hostedwebview.HostedGatewayConfig
 import com.paymentslab.provider.hostedwebview.ReturnUrlMatchers
 

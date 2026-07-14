@@ -1,9 +1,9 @@
 package com.paymentslab.core.orchestration.fsm
 
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentSnapshot
-import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentSnapshot
+import com.siddharth.kmp.paymentsapi.PaymentStatus
 
 /*
  * The payment lifecycle as a **pure state machine** — zero coroutines, zero DI, zero I/O, zero clock.

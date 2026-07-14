@@ -1,10 +1,10 @@
 package com.paymentslab.core.network
 
 import com.paymentslab.core.common.AppLog
-import com.paymentslab.core.paymentsapi.InstrumentCharge
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.SavedInstrument
-import com.paymentslab.core.paymentsapi.VaultBackend
+import com.siddharth.kmp.paymentsapi.InstrumentCharge
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.SavedInstrument
+import com.siddharth.kmp.paymentsapi.VaultBackend
 import com.paymentslab.core.protocol.ChargeInstrumentRequest
 import com.paymentslab.core.protocol.InstrumentChargeResponse
 import com.paymentslab.core.protocol.SaveInstrumentRequest

@@ -28,7 +28,7 @@ import com.paymentslab.core.designsystem.AnimatedCounter
 import com.paymentslab.core.designsystem.DesignTokens
 import com.paymentslab.core.designsystem.LabScaffold
 import com.paymentslab.core.designsystem.PaymentsLabHeroGradient
-import com.paymentslab.core.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStatus
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Stateful entry point: resolves the ViewModel and hands its state to the stateless [HomeScreen]. */

@@ -1,14 +1,14 @@
 package com.paymentslab.core.orchestration
 
-import com.paymentslab.core.paymentsapi.DefaultPaymentGatewayRegistry
-import com.paymentslab.core.paymentsapi.GatewayId
-import com.paymentslab.core.paymentsapi.Money
-import com.paymentslab.core.paymentsapi.PaymentResult
-import com.paymentslab.core.paymentsapi.PaymentStatus
-import com.paymentslab.core.paymentsapi.PaymentStep
-import com.paymentslab.core.paymentsapi.PendingPayment
-import com.paymentslab.core.paymentsapi.PendingReason
-import com.paymentslab.core.paymentsapi.RedactedPayload
+import com.siddharth.kmp.paymentsapi.DefaultPaymentGatewayRegistry
+import com.siddharth.kmp.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentResult
+import com.siddharth.kmp.paymentsapi.PaymentStatus
+import com.siddharth.kmp.paymentsapi.PaymentStep
+import com.siddharth.kmp.paymentsapi.PendingPayment
+import com.siddharth.kmp.paymentsapi.PendingReason
+import com.siddharth.kmp.paymentsapi.RedactedPayload
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle

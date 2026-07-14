@@ -1,7 +1,7 @@
 package com.paymentslab.provider.wallet.di
 
-import com.paymentslab.core.paymentsapi.PaymentGateway
-import com.paymentslab.core.paymentsapi.WalletLedgerPort
+import com.siddharth.kmp.paymentsapi.PaymentGateway
+import com.siddharth.kmp.paymentsapi.WalletLedgerPort
 import com.paymentslab.provider.wallet.HttpWalletLedgerPort
 import com.paymentslab.provider.wallet.WalletConfig
 import com.paymentslab.provider.wallet.WalletGateway

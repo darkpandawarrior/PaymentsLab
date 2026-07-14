@@ -3,7 +3,7 @@ package com.paymentslab.backend
 import com.paymentslab.core.config.CredentialMode
 import com.paymentslab.core.config.EnvCredentialStore
 import com.paymentslab.core.config.GatewayCredentials
-import com.paymentslab.core.paymentsapi.GatewayId
+import com.siddharth.kmp.paymentsapi.GatewayId
 
 /**
  * Server configuration + secrets, read from the environment with safe TEST defaults.

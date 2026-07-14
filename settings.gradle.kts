@@ -55,11 +55,13 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:common")).using(project(":common"))
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
+        substitute(module("com.siddharth.kmp:payments-api")).using(project(":payments-api"))
     }
 }
 
 // ── Core (KMP-ready) ────────────────────────────────────────────────────────
-include(":core:payments-api")
+// :core:payments-api extracted to kmp-toolkit's :payments-api module (external/kmp-toolkit) —
+// consumed as com.siddharth.kmp:payments-api via the includeBuild substitution above.
 include(":core:config")
 include(":core:protocol")
 include(":core:common")

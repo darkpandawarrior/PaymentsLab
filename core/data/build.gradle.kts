@@ -19,7 +19,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":core:payments-api"))
+            implementation("com.siddharth.kmp:payments-api:1.0.0")
             implementation(libs.room.runtime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
