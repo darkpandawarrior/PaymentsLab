@@ -9,7 +9,7 @@
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
 <!-- AUTOGEN:badge -->
-![Modules](https://img.shields.io/badge/modules-18-success)
+![Modules](https://img.shields.io/badge/modules-39-success)
 <!-- /AUTOGEN:badge -->
 
 [**Portfolio**](https://cv-siddharth.vercel.app/) · [**Mileway** (sibling KMP project)](https://github.com/darkpandawarrior/Mileway) · built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
@@ -44,7 +44,12 @@
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **18-module** KMP architecture (4 provider · 4 feature · 7 core), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **39-module** KMP architecture across two composite builds: **14 local** modules
+> (7 core · 4 feature · 1 iOS · app · backend) + **25 composed** via `includeBuild(external/kmp-toolkit)`
+> (6 shared core libraries · 19 payment-provider gateways), **26** deterministic Roborazzi screenshots.
+> *Numbers verified against `settings.gradle.kts` and `external/kmp-toolkit`; `scripts/gen-readme.sh`
+> currently errors on the provider recount (`grep -c` returns exit 1 on zero local `:provider:*`
+> includes under `set -e`) since the provider extraction — worth a follow-up fix.*
 <!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
@@ -122,7 +127,7 @@ mid-payment is always recoverable, and a **redaction layer** so no secret or PII
   SDK opens; on cold start the orchestrator finds unresolved payments and reconciles them.
 - 🔎 **Redaction by default.** A single choke point masks any secret/PII-shaped field before it can
   be rendered in the Lab timeline or written to a log.
-- 🔐 **VAPT-grade security suite.** `core:security` — real Android Keystore AES-256-GCM at-rest
+- 🔐 **VAPT-grade security suite.** `:security` (composed from `external/kmp-toolkit`) — real Android Keystore AES-256-GCM at-rest
   encryption, `FLAG_SECURE` on payment screens (blocks screenshots/recording), device-integrity
   checks (root/Magisk, emulator, debugger), and a certificate-pinning config.
 - ♻️ **Pure, replayable state machine.** The lifecycle is a pure `(State, Event) -> Effects` reducer
@@ -370,12 +375,12 @@ flowchart TD
 ### Module map
 
 ```
+Local (this repo, 14 include()s in settings.gradle.kts)
+────────────────────────────────────────────────────────
 app/                       Android composition root — Koin wiring, navigation, AndroidPaymentHost
 backend/                   Ktor JVM server — orders, verify, webhooks, status (server = truth),
                            plus payout / mandate / vault / connect / wallet-ledger rails
 core/
-  payments-api/            The frozen contract: PaymentGateway, PaymentResult, PaymentHost,
-                           PaymentBackend, PendingPaymentJournal, PaymentStep, Redactor   (KMP + jvm)
   config/                  Env-backed credential resolution (PLAB_* keys), MOCK_MODE auto-degrade  (KMP)
   protocol/                @Serializable wire DTOs shared with the backend's JVM target    (KMP + jvm)
   orchestration/           the effectful shell + fsm/ — a PURE (State,Event)->Effects reducer it
@@ -385,8 +390,24 @@ core/
   designsystem/            Compose Multiplatform theme, tokens, StepTimeline, Motion Kit
                            (shimmer, terminal feedback, flow diagram, ShieldPulse), PayloadCard,
                            GatewayBranding (real logo / monogram fallback), AppShell (nav chrome)
-  security/                Keystore AES-256-GCM store, FLAG_SECURE, device-integrity, pinning config
   common/                  UiText, KMP logging, initKoin()/platformModule() (iOS-ready DI entry point)
+feature/
+  home/                    dashboard — animated stats, recent activity (the app's front door)
+  lab/                     provider catalog (Explore) + live per-provider lab timeline
+  checkout-demo/           product checkout, reached via the bottom bar's center FAB
+  history/                 transaction log from the Room journal (Activity), with status filters
+ios/shared/                iOS-facing KMP surface (see iOS readiness)
+app/ .../work/             PaymentReconciliationWorker — WorkManager process-death reconciliation
+build-logic/               convention plugins (kmp.library / kmp.compose / cmp.feature / …)
+
+Composed via includeBuild("external/kmp-toolkit") + dependency substitution
+(25 modules — none of these have a local build.gradle.kts; the local core/security
+and provider/* directories are stale build/ cache left over from the extraction)
+────────────────────────────────────────────────────────
+payments-api/              The frozen contract: PaymentGateway, PaymentResult, PaymentHost,
+                           PaymentBackend, PendingPaymentJournal, PaymentStep, Redactor   (KMP + jvm)
+security/                  Keystore AES-256-GCM store, FLAG_SECURE, device-integrity, pinning config
+common/, mvi-core/, network/, designsystem/     shared KMP infra (see Shared infrastructure)
 provider/
   razorpay/ cashfree/ upi-intent/ stripe/ googlepay/ square/ omise/  one module per native SDK
   hosted-webview/          generic archetype for SDK-less, redirect-and-return-URL gateways (47)
@@ -395,13 +416,6 @@ provider/
   wallet/                  internal double-entry ledger rail — pay from a stored balance
   cash/                    record-only "mark paid in cash" gateway (no SDK, no network)
   stripe-connect/          marketplace sub-merchant onboarding + split payouts
-feature/
-  home/                    dashboard — animated stats, recent activity (the app's front door)
-  lab/                     provider catalog (Explore) + live per-provider lab timeline
-  checkout-demo/           product checkout, reached via the bottom bar's center FAB
-  history/                 transaction log from the Room journal (Activity), with status filters
-app/ .../work/             PaymentReconciliationWorker — WorkManager process-death reconciliation
-build-logic/               convention plugins (kmp.library / kmp.compose / cmp.feature / …)
 ```
 
 ### Data flow (one payment)
@@ -451,7 +465,7 @@ once, upstream, and both this repo and its sibling stay on the same foundation w
 |---|---|
 | Language | Kotlin **2.4.20-Beta1** (K2) |
 | UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
-| Build | AGP **9.4.0-alpha03**, Gradle Kotlin DSL, convention plugins, version catalog |
+| Build | AGP **9.4.0-alpha04**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Client networking | Ktor **3.5.1** client (OkHttp + Darwin engines) + kotlinx-serialization |
 | Backend | Ktor **3.5.1** server (Netty), in-memory store (swappable for Exposed/SQLite) |
@@ -556,7 +570,7 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
 - Webhook signatures are verified before processing, and handlers are idempotent (event-id dedup).
 - Idempotency keys on order creation; the app retries the *status check*, never the charge.
 - The `Redactor` allowlist masks any secret/PII-shaped field before it is rendered or logged.
-- **At-rest:** `core:security` stores saved tokens with Android Keystore AES-256-GCM (non-exportable
+- **At-rest:** `:security` (composed from `external/kmp-toolkit`) stores saved tokens with Android Keystore AES-256-GCM (non-exportable
   key, TEE/StrongBox-backed). **On-screen:** payment routes are `FLAG_SECURE`. **Device:** launch-time
   root/emulator/debugger inspection. **Transport:** a certificate-pinning config (placeholder pins
   here — the localhost backend is intentionally unpinned; the pattern is real).
@@ -570,7 +584,12 @@ gateway auto-degrades to `MOCK_MODE`; set → it upgrades to real, no code chang
 - Real e-mandate & Stripe Billing execution — the **mandate/subscription rail** ships in `MOCK_MODE`
   today (create / debit / cancel); this is wiring the real recurring debits
 - Google Play Billing v8 (needs a Play Console listing)
-- Extract & publish `core:payments-api` as a standalone KMP library
+- ~~Extract & publish `core:payments-api` as a standalone KMP library~~ — done: it now lives in
+  `external/kmp-toolkit`'s `:payments-api` module, pulled in via `includeBuild` + dependency
+  substitution alongside `:security`, `:common`, `:mvi-core`, `:network`, `:designsystem` and all
+  19 provider gateways (see [Module map](#module-map))
+- Fix `scripts/gen-readme.sh` — the AUTOGEN stats block silently went stale after the provider
+  extraction because `grep -c '^include(":provider:'` returns exit 1 on zero matches under `set -e`
 - Expand `GatewayBranding`'s curated real-logo tier beyond the current 8 (the other 58 gateways
   render a generated monogram today — accurate, not broken, but a growing real-logo set would be
   nice)
