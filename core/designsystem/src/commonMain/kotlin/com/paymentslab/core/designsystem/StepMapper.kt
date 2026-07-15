@@ -1,6 +1,8 @@
 package com.paymentslab.core.designsystem
 
 import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.designsystem.StepState
+import com.siddharth.kmp.designsystem.TimelineStep
 import com.siddharth.kmp.paymentsapi.PaymentResult
 import com.siddharth.kmp.paymentsapi.PaymentStatus
 import com.siddharth.kmp.paymentsapi.PaymentStep

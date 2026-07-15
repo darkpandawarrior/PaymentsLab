@@ -56,6 +56,7 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
         substitute(module("com.siddharth.kmp:network")).using(project(":network"))
+        substitute(module("com.siddharth.kmp:designsystem")).using(project(":designsystem"))
         substitute(module("com.siddharth.kmp:payments-api")).using(project(":payments-api"))
         substitute(module("com.siddharth.kmp:stripe")).using(project(":provider:stripe"))
         substitute(module("com.siddharth.kmp:upi-intent")).using(project(":provider:upi-intent"))

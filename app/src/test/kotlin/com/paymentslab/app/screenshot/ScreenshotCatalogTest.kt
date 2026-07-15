@@ -34,17 +34,17 @@ import com.paymentslab.core.designsystem.GatewayBranding
 import com.paymentslab.core.designsystem.GatewayStatusBadge
 import com.paymentslab.core.designsystem.GatewayStatusUi
 import com.paymentslab.core.designsystem.LocalReducedMotion
-import com.paymentslab.core.designsystem.PayloadCard
+import com.siddharth.kmp.designsystem.PayloadCard
 import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PaymentsLabTheme
 import com.paymentslab.core.designsystem.PrimaryButton
-import com.paymentslab.core.designsystem.RedactionReveal
+import com.siddharth.kmp.designsystem.RedactionReveal
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.designsystem.ShieldPulse
-import com.paymentslab.core.designsystem.StepState
-import com.paymentslab.core.designsystem.StepTimeline
+import com.siddharth.kmp.designsystem.StepState
+import com.siddharth.kmp.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
-import com.paymentslab.core.designsystem.TimelineStep
+import com.siddharth.kmp.designsystem.TimelineStep
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.PaymentStatus
 import com.paymentslab.feature.checkoutdemo.CheckoutGateway
@@ -231,9 +231,10 @@ class ScreenshotCatalogTest {
     @Test
     fun redactionReveal() =
         snapshot("redaction_reveal") {
-            CompositionLocalProvider(LocalReducedMotion provides true) {
-                RedactionReveal(value = "9f••••3a")
-            }
+            // RedactionReveal takes reducedMotion as an explicit parameter (not a CompositionLocal
+            // read) since the :designsystem extraction — pass it directly instead of the
+            // CompositionLocalProvider wrapper the other reducedMotion-dependent snapshots use.
+            RedactionReveal(value = "9f••••3a", reducedMotion = true)
         }
 
     @Test

@@ -1,7 +1,7 @@
 package com.paymentslab.feature.checkoutdemo
 
 import com.siddharth.kmp.common.UiText
-import com.paymentslab.core.designsystem.StepState
+import com.siddharth.kmp.designsystem.StepState
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
 import com.siddharth.kmp.paymentsapi.PaymentResult

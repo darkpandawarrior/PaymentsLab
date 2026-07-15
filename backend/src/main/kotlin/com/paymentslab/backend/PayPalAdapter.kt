@@ -4,6 +4,7 @@ import com.paymentslab.core.config.GatewayCredentials
 import com.paymentslab.core.protocol.CatalogItemDto
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.VerifyRequest
+import com.siddharth.kmp.common.minorToDecimalString
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.submitForm
@@ -66,7 +67,7 @@ class PayPalAdapter(
                                         amount =
                                             PayPalAmount(
                                                 currencyCode = item.currency,
-                                                value = "%.2f".format(item.amountMinor / 100.0),
+                                                value = item.amountMinor.minorToDecimalString(),
                                             ),
                                     ),
                                 ),

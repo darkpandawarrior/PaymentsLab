@@ -2,7 +2,7 @@ package com.paymentslab.feature.lab
 
 import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.designsystem.FlowHop
-import com.paymentslab.core.designsystem.StepState
+import com.siddharth.kmp.designsystem.StepState
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
 import com.siddharth.kmp.paymentsapi.PaymentResult

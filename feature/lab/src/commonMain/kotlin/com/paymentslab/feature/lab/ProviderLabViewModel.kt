@@ -8,9 +8,9 @@ import com.paymentslab.core.designsystem.FlowHop
 import com.paymentslab.core.designsystem.LaunchingCopy
 import com.paymentslab.core.designsystem.OrderCreatedCopy
 import com.paymentslab.core.designsystem.SettledCopy
-import com.paymentslab.core.designsystem.StepState
+import com.siddharth.kmp.designsystem.StepState
 import com.paymentslab.core.designsystem.TimelineCopy
-import com.paymentslab.core.designsystem.TimelineStep
+import com.siddharth.kmp.designsystem.TimelineStep
 import com.paymentslab.core.designsystem.VerifyingCopy
 import com.paymentslab.core.designsystem.toTimelineStep
 import com.paymentslab.core.orchestration.PaymentFlowRunner

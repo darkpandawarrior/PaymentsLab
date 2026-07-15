@@ -23,7 +23,7 @@ import com.paymentslab.core.designsystem.PaymentFlowDiagram
 import com.paymentslab.core.designsystem.PrimaryButton
 import com.paymentslab.core.designsystem.SectionHeader
 import com.paymentslab.core.designsystem.ShieldPulse
-import com.paymentslab.core.designsystem.StepTimeline
+import com.siddharth.kmp.designsystem.StepTimeline
 import com.paymentslab.core.designsystem.SuccessBurst
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.PaymentHost
