@@ -1,6 +1,12 @@
 package com.paymentslab.core.network
 
-import com.paymentslab.core.common.AppLog
+import com.paymentslab.core.protocol.ConnectAccountResponse
+import com.paymentslab.core.protocol.ConnectAccountStatusDto
+import com.paymentslab.core.protocol.ConnectOnboardResponse
+import com.paymentslab.core.protocol.ConnectPayoutRequest
+import com.paymentslab.core.protocol.PayoutResponse
+import com.paymentslab.core.protocol.PayoutStatusDto
+import com.siddharth.kmp.common.AppLog
 import com.siddharth.kmp.paymentsapi.ConnectAccount
 import com.siddharth.kmp.paymentsapi.ConnectAccountStatus
 import com.siddharth.kmp.paymentsapi.ConnectBackend
@@ -10,12 +16,6 @@ import com.siddharth.kmp.paymentsapi.Money
 import com.siddharth.kmp.paymentsapi.PaymentApiConfig
 import com.siddharth.kmp.paymentsapi.PayoutSnapshot
 import com.siddharth.kmp.paymentsapi.PayoutStatus
-import com.paymentslab.core.protocol.ConnectAccountResponse
-import com.paymentslab.core.protocol.ConnectAccountStatusDto
-import com.paymentslab.core.protocol.ConnectOnboardResponse
-import com.paymentslab.core.protocol.ConnectPayoutRequest
-import com.paymentslab.core.protocol.PayoutResponse
-import com.paymentslab.core.protocol.PayoutStatusDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -107,12 +107,12 @@ class KtorConnectBackend(
         block: () -> T,
     ): T =
         try {
-            AppLog.d(TAG, "-> $label")
-            block().also { AppLog.d(TAG, "<- $label ok") }
+            AppLog.d("-> $label", tag = TAG)
+            block().also { AppLog.d("<- $label ok", tag = TAG) }
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            AppLog.e("x $label failed: ${t.message}", t, tag = TAG)
             throw PaymentNetworkException("Connect backend call failed: $label (${t.message})", t)
         }
 

@@ -1,6 +1,6 @@
 package com.paymentslab.app
 
-import com.paymentslab.core.common.CrashReporter
+import com.siddharth.kmp.common.CrashReporter
 
 /**
  * Installs process-wide crash reporting: seeds searchable custom keys (build variant, version) and

@@ -1,13 +1,13 @@
 package com.paymentslab.core.orchestration
 
-import com.paymentslab.core.common.AppLog
-import com.siddharth.kmp.common.UiText
 import com.paymentslab.core.orchestration.fsm.FsmPollConfig
 import com.paymentslab.core.orchestration.fsm.PaymentEffect
 import com.paymentslab.core.orchestration.fsm.PaymentEvent
 import com.paymentslab.core.orchestration.fsm.PaymentPhase
 import com.paymentslab.core.orchestration.fsm.PaymentReducer
 import com.paymentslab.core.orchestration.fsm.PaymentState
+import com.siddharth.kmp.common.AppLog
+import com.siddharth.kmp.common.UiText
 import com.siddharth.kmp.paymentsapi.CreatedOrder
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
@@ -153,7 +153,7 @@ class PaymentOrchestrator(
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "Compensating wallet refund failed for key=$walletKey", t)
+            AppLog.e("Compensating wallet refund failed for key=$walletKey", t, tag = TAG)
             emit(PaymentStep.Errored(UiText.of("Wallet compensation failed: ${t.message}")))
         }
     }
@@ -253,7 +253,7 @@ class PaymentOrchestrator(
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "Payment flow failed for order=${transition.state.orderId}", t)
+            AppLog.e("Payment flow failed for order=${transition.state.orderId}", t, tag = TAG)
             transition.state.orderId?.let { journal.markResolved(it, PaymentStatus.FAILED, null) }
             emit(PaymentStep.Errored(UiText.of(t.message ?: "Payment failed")))
             return PaymentSnapshot(transition.state.orderId ?: "", transition.state.paymentId, PaymentStatus.FAILED)
@@ -325,7 +325,7 @@ class PaymentOrchestrator(
             } catch (ce: CancellationException) {
                 throw ce
             } catch (t: Throwable) {
-                AppLog.w(TAG, "Recovery failed for order=${pending.orderId}", t)
+                AppLog.w("Recovery failed for order=${pending.orderId}", t, tag = TAG)
             }
         }
         return recovered

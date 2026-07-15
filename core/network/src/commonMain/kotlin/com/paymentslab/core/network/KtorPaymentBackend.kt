@@ -1,15 +1,15 @@
 package com.paymentslab.core.network
 
-import com.paymentslab.core.common.AppLog
+import com.paymentslab.core.protocol.OrderResponse
+import com.paymentslab.core.protocol.PaymentStatusResponse
+import com.paymentslab.core.protocol.VerifyResponse
+import com.siddharth.kmp.common.AppLog
 import com.siddharth.kmp.paymentsapi.CreatedOrder
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.PaymentApiConfig
 import com.siddharth.kmp.paymentsapi.PaymentBackend
 import com.siddharth.kmp.paymentsapi.PaymentSnapshot
 import com.siddharth.kmp.paymentsapi.VerificationRequest
-import com.paymentslab.core.protocol.OrderResponse
-import com.paymentslab.core.protocol.PaymentStatusResponse
-import com.paymentslab.core.protocol.VerifyResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -27,7 +27,7 @@ import kotlinx.coroutines.CancellationException
  * transport/serialization failure is wrapped in [PaymentNetworkException] with a clear message; the
  * orchestrator maps that to an `Errored` payment.
  *
- * @param client the shared Ktor client (see [HttpClientFactory.create]).
+ * @param client the shared Ktor client (see `:network`'s `createHttpClient`).
  * @param config where the backend lives (see [PaymentApiConfig]).
  */
 class KtorPaymentBackend(
@@ -78,12 +78,12 @@ class KtorPaymentBackend(
         block: () -> T,
     ): T =
         try {
-            AppLog.d(TAG, "-> $label")
-            block().also { AppLog.d(TAG, "<- $label ok") }
+            AppLog.d("-> $label", tag = TAG)
+            block().also { AppLog.d("<- $label ok", tag = TAG) }
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            AppLog.e("x $label failed: ${t.message}", t, tag = TAG)
             throw PaymentNetworkException("Payment backend call failed: $label (${t.message})", t)
         }
 

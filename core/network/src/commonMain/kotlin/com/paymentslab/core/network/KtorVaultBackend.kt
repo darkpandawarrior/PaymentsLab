@@ -1,16 +1,16 @@
 package com.paymentslab.core.network
 
-import com.paymentslab.core.common.AppLog
-import com.siddharth.kmp.paymentsapi.InstrumentCharge
-import com.siddharth.kmp.paymentsapi.Money
-import com.siddharth.kmp.paymentsapi.PaymentApiConfig
-import com.siddharth.kmp.paymentsapi.SavedInstrument
-import com.siddharth.kmp.paymentsapi.VaultBackend
 import com.paymentslab.core.protocol.ChargeInstrumentRequest
 import com.paymentslab.core.protocol.InstrumentChargeResponse
 import com.paymentslab.core.protocol.SaveInstrumentRequest
 import com.paymentslab.core.protocol.SavedInstrumentDto
 import com.paymentslab.core.protocol.SavedInstrumentsResponse
+import com.siddharth.kmp.common.AppLog
+import com.siddharth.kmp.paymentsapi.InstrumentCharge
+import com.siddharth.kmp.paymentsapi.Money
+import com.siddharth.kmp.paymentsapi.PaymentApiConfig
+import com.siddharth.kmp.paymentsapi.SavedInstrument
+import com.siddharth.kmp.paymentsapi.VaultBackend
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -86,12 +86,12 @@ class KtorVaultBackend(
         block: () -> T,
     ): T =
         try {
-            AppLog.d(TAG, "-> $label")
-            block().also { AppLog.d(TAG, "<- $label ok") }
+            AppLog.d("-> $label", tag = TAG)
+            block().also { AppLog.d("<- $label ok", tag = TAG) }
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            AppLog.e("x $label failed: ${t.message}", t, tag = TAG)
             throw PaymentNetworkException("Vault backend call failed: $label (${t.message})", t)
         }
 

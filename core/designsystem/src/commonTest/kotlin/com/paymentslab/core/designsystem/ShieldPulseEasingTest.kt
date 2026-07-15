@@ -1,5 +1,8 @@
 package com.paymentslab.core.designsystem
 
+import com.siddharth.kmp.common.easeInQuart
+import com.siddharth.kmp.common.easeOutBack
+import com.siddharth.kmp.common.easeOutCubic
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertTrue

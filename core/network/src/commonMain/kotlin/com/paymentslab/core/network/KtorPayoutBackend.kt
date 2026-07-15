@@ -1,13 +1,13 @@
 package com.paymentslab.core.network
 
-import com.paymentslab.core.common.AppLog
+import com.paymentslab.core.protocol.InitiatePayoutRequest
+import com.paymentslab.core.protocol.PayoutResponse
+import com.siddharth.kmp.common.AppLog
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
 import com.siddharth.kmp.paymentsapi.PaymentApiConfig
 import com.siddharth.kmp.paymentsapi.PayoutBackend
 import com.siddharth.kmp.paymentsapi.PayoutSnapshot
-import com.paymentslab.core.protocol.InitiatePayoutRequest
-import com.paymentslab.core.protocol.PayoutResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -62,12 +62,12 @@ class KtorPayoutBackend(
         block: () -> T,
     ): T =
         try {
-            AppLog.d(TAG, "-> $label")
-            block().also { AppLog.d(TAG, "<- $label ok") }
+            AppLog.d("-> $label", tag = TAG)
+            block().also { AppLog.d("<- $label ok", tag = TAG) }
         } catch (ce: CancellationException) {
             throw ce
         } catch (t: Throwable) {
-            AppLog.e(TAG, "x $label failed: ${t.message}", t)
+            AppLog.e("x $label failed: ${t.message}", t, tag = TAG)
             throw PaymentNetworkException("Payout backend call failed: $label (${t.message})", t)
         }
 

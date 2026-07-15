@@ -11,8 +11,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.orchestration.PaymentOrchestrator
+import com.siddharth.kmp.common.AppLog
 import java.util.concurrent.TimeUnit
 
 /**
@@ -33,10 +33,10 @@ class PaymentReconciliationWorker(
     override suspend fun doWork(): Result =
         try {
             val recovered = orchestrator.recoverPending()
-            AppLog.i(TAG, "reconciled ${recovered.size} pending payment(s)")
+            AppLog.i("reconciled ${recovered.size} pending payment(s)", tag = TAG)
             Result.success()
         } catch (t: Throwable) {
-            AppLog.w(TAG, "reconciliation failed; WorkManager will retry with backoff", t)
+            AppLog.w("reconciliation failed; WorkManager will retry with backoff", t, tag = TAG)
             Result.retry()
         }
 

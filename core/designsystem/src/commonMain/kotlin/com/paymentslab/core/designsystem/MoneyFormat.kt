@@ -1,5 +1,6 @@
 package com.paymentslab.core.designsystem
 
+import com.siddharth.kmp.common.minorToDecimalString
 import com.siddharth.kmp.paymentsapi.Money
 
 /**
@@ -13,8 +14,5 @@ fun Money.format(): String {
             "USD" -> "$"
             else -> "$currency "
         }
-    val whole = amountMinor / 100
-    val frac = (amountMinor % 100).toInt()
-    val fracStr = if (frac < 10) "0$frac" else "$frac"
-    return "$symbol$whole.$fracStr"
+    return "$symbol${amountMinor.minorToDecimalString()}"
 }

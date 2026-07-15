@@ -3,6 +3,7 @@ package com.paymentslab.backend
 import com.paymentslab.core.protocol.CatalogItemDto
 import com.paymentslab.core.protocol.PaymentStatusDto
 import com.paymentslab.core.protocol.VerifyRequest
+import com.siddharth.kmp.common.minorToDecimalString
 
 /**
  * Razorpay adapter.
@@ -83,7 +84,7 @@ class UpiIntentAdapter(
         item: CatalogItemDto,
     ): Map<String, String> {
         // UPI expects a major-unit decimal amount (e.g. "149.00").
-        val amountMajor = "%.2f".format(item.amountMinor / 100.0)
+        val amountMajor = item.amountMinor.minorToDecimalString()
         return mapOf(
             "pa" to payeeVpa,
             "pn" to payeeName,

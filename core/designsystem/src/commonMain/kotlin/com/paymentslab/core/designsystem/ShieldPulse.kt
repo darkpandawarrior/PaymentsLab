@@ -15,30 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-
-// ─────────────────────────── Easing helpers (ported from Kursi's Primitives.kt) ────────────────
-
-internal fun lerp(
-    a: Float,
-    b: Float,
-    t: Float,
-): Float = a + (b - a) * t.coerceIn(0f, 1f)
-
-/** EaseInQuart — sharp initial acceleration. */
-internal fun easeInQuart(t: Float): Float = t * t * t * t
-
-/** EaseOutCubic — smooth deceleration. */
-internal fun easeOutCubic(t: Float): Float {
-    val c = t - 1f
-    return 1f + c * c * c
-}
-
-/** EaseOutBack — slight overshoot settle. s=1.70158, same constant Kursi uses. */
-internal fun easeOutBack(t: Float): Float {
-    val s = 1.70158f
-    val c = t - 1f
-    return c * c * ((s + 1f) * c + s) + 1f
-}
+import com.siddharth.kmp.common.easeInQuart
+import com.siddharth.kmp.common.easeOutBack
+import com.siddharth.kmp.common.lerp
 
 /**
  * A brief shield icon draw-in-and-settle, played once on mount. Visual reassurance that a

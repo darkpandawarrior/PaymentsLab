@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import com.siddharth.kmp.common.minorToDecimalString
 
 /**
  * Counts up from zero to [amountMinor] on first composition (and again if the amount changes) — the
@@ -51,8 +52,5 @@ internal fun formatMoney(
             "GBP" -> "£"
             else -> "$currency "
         }
-    val major = amountMinor / 100
-    val fraction = (amountMinor % 100).let { if (it < 0) -it else it }
-    val fractionStr = if (fraction < 10) "0$fraction" else "$fraction"
-    return "$symbol$major.$fractionStr"
+    return "$symbol${amountMinor.minorToDecimalString()}"
 }

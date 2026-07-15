@@ -1,5 +1,13 @@
 package com.paymentslab.core.network
 
+import com.paymentslab.core.protocol.CreateOrderRequest
+import com.paymentslab.core.protocol.OrderResponse
+import com.paymentslab.core.protocol.PaymentStatusDto
+import com.paymentslab.core.protocol.PaymentStatusResponse
+import com.paymentslab.core.protocol.PayoutResponse
+import com.paymentslab.core.protocol.PayoutStatusDto
+import com.paymentslab.core.protocol.VerifyRequest
+import com.paymentslab.core.protocol.VerifyResponse
 import com.siddharth.kmp.paymentsapi.CreatedOrder
 import com.siddharth.kmp.paymentsapi.GatewayId
 import com.siddharth.kmp.paymentsapi.Money
@@ -9,14 +17,6 @@ import com.siddharth.kmp.paymentsapi.PaymentStatus
 import com.siddharth.kmp.paymentsapi.PayoutSnapshot
 import com.siddharth.kmp.paymentsapi.PayoutStatus
 import com.siddharth.kmp.paymentsapi.VerificationRequest
-import com.paymentslab.core.protocol.CreateOrderRequest
-import com.paymentslab.core.protocol.OrderResponse
-import com.paymentslab.core.protocol.PaymentStatusDto
-import com.paymentslab.core.protocol.PaymentStatusResponse
-import com.paymentslab.core.protocol.PayoutResponse
-import com.paymentslab.core.protocol.PayoutStatusDto
-import com.paymentslab.core.protocol.VerifyRequest
-import com.paymentslab.core.protocol.VerifyResponse
 
 // Pure, side-effect-free translation between the `core:protocol` wire DTOs and the
 // `core:payments-api` domain types. This is the mapping boundary the whole architecture leans on:

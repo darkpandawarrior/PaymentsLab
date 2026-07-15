@@ -10,10 +10,10 @@ import androidx.compose.runtime.LaunchedEffect
 import com.cashfree.pg.api.CFPaymentGatewayService
 import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback
 import com.cashfree.pg.core.api.utils.CFErrorResponse
-import com.paymentslab.core.common.AppLog
 import com.paymentslab.core.designsystem.PaymentsLabTheme
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
+import com.siddharth.kmp.common.AppLog
 import com.siddharth.kmp.provider.cashfree.CashfreeCheckoutRelay
 import com.siddharth.kmp.provider.razorpay.RazorpayCallbackRelay
 import com.siddharth.kmp.provider.razorpay.RazorpayCallbackResult
@@ -62,7 +62,7 @@ class MainActivity :
 
         // Cashfree re-attaches its callback on recreation, so this must run in onCreate.
         runCatching { CFPaymentGatewayService.getInstance().setCheckoutCallback(this) }
-            .onFailure { AppLog.w(TAG, "Cashfree callback wiring failed", it) }
+            .onFailure { AppLog.w("Cashfree callback wiring failed", it, tag = TAG) }
 
         val host = PaymentHostController(this)
 
