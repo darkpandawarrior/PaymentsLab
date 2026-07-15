@@ -4,22 +4,30 @@
 
 ### An Integration Lab for the Android payments ecosystem — every gateway behind one abstraction, with a live look at what actually happens on each transaction.
 
+A Kotlin Multiplatform payments app that runs real flows against seven native gateway SDKs and
+dozens more behind two generic archetypes — all through one `PaymentGateway` contract. A companion
+Ktor backend owns order creation, real HMAC signature verification and webhook reconciliation,
+because a client-side `Success` is only ever a hint.
+
 [![CI](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
+![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-3DDC84)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
 <!-- AUTOGEN:badge -->
 ![Modules](https://img.shields.io/badge/modules-39-success)
 <!-- /AUTOGEN:badge -->
 
-[**Portfolio**](https://cv-siddharth.vercel.app/) · [**Mileway** (sibling KMP project)](https://github.com/darkpandawarrior/Mileway) · built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
+**[Highlights](#highlights)** · **[Screens & flows](#screens--flows)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
+
+**Portfolio:** [cv-siddharth.vercel.app](https://cv-siddharth.vercel.app/) &nbsp;·&nbsp; **Sibling project:** [Mileway](https://github.com/darkpandawarrior/Mileway) (offline-first mileage/expense) &nbsp;·&nbsp; built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
 
 </div>
 
 ---
 
 <details>
-<summary><b>Contents</b></summary>
+<summary><b>Table of contents</b></summary>
 
 - [Why PaymentsLab](#why-paymentslab)
 - [The one idea worth stealing](#the-one-idea-worth-stealing)
