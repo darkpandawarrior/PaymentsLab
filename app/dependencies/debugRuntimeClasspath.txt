@@ -206,8 +206,8 @@ com.google.guava:listenablefuture:1.0
 com.jakewharton:disklrucache:2.0.2
 com.nimbusds:nimbus-jose-jwt:10.6
 com.razorpay:checkout:1.6.41
-com.razorpay:core:1.0.16
-com.razorpay:standard-core:1.7.15
+com.razorpay:core:1.0.17
+com.razorpay:standard-core:1.7.16
 com.squareup.android:socket-factory:20240919.170443.cbe4fe6
 com.squareup.android:truststore:20240919.170443.cbe4fe6
 com.squareup.moshi:moshi-adapters:1.15.1
