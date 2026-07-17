@@ -60,20 +60,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p secrets
-          if [ -n "${KEYSTORE_B64:-}" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > secrets/release.keystore
+          if [ -n "${ANDROID_KEYSTORE_B64:-}" ]; then
+            echo "$ANDROID_KEYSTORE_B64" | base64 -d > secrets/release.keystore
             {
               echo "RELEASE_STORE_FILE=$PWD/secrets/release.keystore"
-              echo "RELEASE_STORE_PASSWORD=${KEYSTORE_PASSWORD:-}"
-              echo "RELEASE_KEY_ALIAS=${KEY_ALIAS:-paymentslab}"
-              echo "RELEASE_KEY_PASSWORD=${KEY_PASSWORD:-}"
+              echo "RELEASE_STORE_PASSWORD=${ANDROID_KEYSTORE_PASSWORD:-}"
+              echo "RELEASE_KEY_ALIAS=${ANDROID_KEY_ALIAS:-paymentslab}"
+              echo "RELEASE_KEY_PASSWORD=${ANDROID_KEY_PASSWORD:-}"
             } >> "$GITHUB_ENV"
           fi
         env:
-          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: Build release APK
         if: env.HAS_SECRET == 'true'
