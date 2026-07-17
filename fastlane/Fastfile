@@ -1,7 +1,9 @@
-# Fastlane for PaymentsLab. Versioning is single-source (repo-root VERSION + BUILD_NUMBER); the app's
-# build.gradle.kts reads them. Play deploy lanes below build against a real signingConfig
-# (app/build.gradle.kts reads keystore.properties or RELEASE_* env vars) but stay no-ops until a
-# real keystore + PLAYSTORE_CREDS_B64 service-account secret are configured in CI.
+# Fastlane for PaymentsLab. Versioning is single-source (repo-root VERSION + BUILD_NUMBER +
+# MILESTONE files, derived by scripts/version.sh into MARKETING/BUILDCODE/FINGERPRINT); the app's
+# build.gradle.kts reads them the same way. Play deploy lanes below build against a real
+# signingConfig (app/build.gradle.kts reads keystore.properties or RELEASE_* env vars) but stay
+# no-ops until a real keystore + PLAYSTORE_CREDS_B64 service-account secret are configured in CI.
+# See docs/RELEASE.md.
 
 default_platform(:android)
 
@@ -24,15 +26,10 @@ platform :android do
     gradle(task: ":app:recordRoborazziDebug")
   end
 
-  desc "Bump the build number (and optionally the semver: `fastlane bump version:1.1.0`)"
+  desc "Bump the release milestone (fastlane bump) or the semver bookkeeping file (fastlane bump version:1.1.0). Thin wrapper around scripts/bump_version.sh — see docs/RELEASE.md."
   lane :bump do |options|
-    build = File.read(BUILD_NUMBER_FILE).strip.to_i + 1
-    File.write(BUILD_NUMBER_FILE, "#{build}\n")
-    if options[:version]
-      File.write(VERSION_FILE, "#{options[:version]}\n")
-    end
-    version = File.read(VERSION_FILE).strip
-    UI.success("Bumped to #{version} (build #{build})")
+    args = options[:version] ? ["--version", options[:version]] : ["--milestone"]
+    sh("../scripts/bump_version.sh", *args)
   end
 
   desc "Build a release AAB (unsigned unless a keystore is configured)"
@@ -48,8 +45,10 @@ platform :android do
     ENV["PLAY_STORE_KEY_FILE_PATH"] || "../secrets/play-service-account.json"
   end
 
+  # BUILDCODE (the real versionCode Gradle stamps into the AAB) — computed by scripts/version.sh,
+  # same as app/build.gradle.kts, so the changelog filename always matches the shipped versionCode.
   def current_version_code
-    File.read(BUILD_NUMBER_FILE).strip.to_i
+    `../scripts/version.sh`.match(/^BUILDCODE=(\d+)/)[1].to_i
   end
 
   desc "Generate fastlane/metadata changelog from git commits for the current versionCode"

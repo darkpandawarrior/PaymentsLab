@@ -31,15 +31,26 @@ dependencyGuard {
     configuration("debugRuntimeClasspath")
 }
 
-// Single-source versioning: VERSION (semver) + BUILD_NUMBER (monotonic) at the repo root, bumped by
-// `fastlane bump` and read here so versionName/versionCode never drift.
-val appVersionName = rootProject.file("VERSION").readText().trim()
-val appBuildNumber =
-    rootProject
-        .file("BUILD_NUMBER")
-        .readText()
-        .trim()
-        .toInt()
+// Three-tier versioning (MARKETING/BUILDCODE/FINGERPRINT) — single source of truth is
+// scripts/version.sh, which derives all three from the repo-root VERSION/BUILD_NUMBER/MILESTONE
+// files + live git state. Shared with CI's github-release.yml iOS job and scripts/bump_version.sh
+// so nothing is ever hand-typed twice. See docs/RELEASE.md.
+val versionStamp: Map<String, String> =
+    providers
+        .exec {
+            commandLine(rootProject.file("scripts/version.sh").absolutePath)
+        }.standardOutput.asText.get()
+        .lineSequence()
+        .filter { it.contains('=') }
+        .associate { it.substringBefore('=') to it.substringAfter('=') }
+
+fun readVersionName(): String = versionStamp.getValue("MARKETING")
+
+fun readFingerprint(): String = versionStamp.getValue("FINGERPRINT")
+
+val appVersionName = readVersionName()
+val appBuildNumber = versionStamp.getValue("BUILDCODE").toInt()
+val appFingerprint = readFingerprint()
 
 android {
     namespace = "com.paymentslab.app"
@@ -58,6 +69,7 @@ android {
         targetSdk = 36
         versionCode = appBuildNumber
         versionName = appVersionName
+        buildConfigField("String", "FINGERPRINT", "\"$appFingerprint\"")
 
         // VAPT bypass flags (common VAPT-testing bypass pattern). Default false = full protection; a
         // dedicated VAPT/compliance test variant flips them so pentesters can run on a rooted/hooked
@@ -94,6 +106,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Debug installs need to be told apart at a glance (multiple CI builds a day); release
+            // keeps the bare MARKETING versionName for store listings.
+            versionNameSuffix = "-$appFingerprint"
+        }
+
         release {
             isMinifyEnabled = !fdroidBuild
             isShrinkResources = !fdroidBuild
