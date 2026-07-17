@@ -1,20 +1,23 @@
-name: Release
+name: Release verification build
 
-# Tag a commit `vX.Y.Z` to cut a release: runs the full gate, builds the release APK, and publishes
-# a GitHub Release with the artifact. The APK is UNSIGNED — a public sandbox repo ships no keystore;
-# add a signing config + secret to sign for real distribution (see fastlane/Fastfile).
+# Manual pre-release check: runs the full gate + builds the release APK + archives the R8 mapping,
+# without publishing anything. Previously this ALSO auto-published a GitHub Release on every `v*`
+# tag push (softprops/action-gh-release) — that raced with github-release.yml's `gh release
+# create/edit` on the exact same tag trigger (duplicate/overwritten release notes & assets,
+# nondeterministic which one won). github-release.yml is now the single tag-triggered publisher
+# (three-tier-versioning-aware, --continue build, iOS IPA); this workflow stays a manual,
+# publish-nothing sanity check you can run before cutting a tag. The APK is UNSIGNED unless a
+# keystore secret is configured (see docs/RELEASE.md, fastlane/Fastfile).
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
-    name: Build & publish release
+    name: Build & verify release APK
     runs-on: ubuntu-latest
     env:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -46,8 +49,15 @@ jobs:
       - name: Verification gate
         run: ./gradlew fastGate
 
-      - name: Build release APK (unsigned, R8-minified)
+      - name: Build release APK (unsigned unless a keystore secret is configured, R8-minified)
         run: ./gradlew :app:assembleRelease
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: warn
 
       # The R8 mapping deobfuscates release crash stack traces — archive it per release (a real
       # deployment uploads this to Crashlytics/Sentry).
@@ -57,17 +67,3 @@ jobs:
           name: r8-mapping
           path: app/build/outputs/mapping/release/mapping.txt
           if-no-files-found: warn
-
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          files: |
-            app/build/outputs/apk/release/*.apk
-            app/build/outputs/mapping/release/mapping.txt
-          body: |
-            Automated release from tag `${{ github.ref_name }}`.
-
-            > The attached APK is **unsigned** (this sandbox repo ships no keystore). Sign it, or add a
-            > signing config + `PLAY_SERVICE_ACCOUNT_JSON` secret and use the Fastlane Play lane, to
-            > distribute.
