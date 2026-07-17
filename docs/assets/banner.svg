@@ -1,17 +1,24 @@
-<svg width="900" height="170" viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PaymentsLab — an integration lab for the Android payments ecosystem">
+<svg width="900" height="170" viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pl-title pl-desc">
+  <title id="pl-title">PaymentsLab</title>
+  <desc id="pl-desc">An integration lab for the Android payments ecosystem — a client hint travels to the server, which confirms with a shield of verified truth.</desc>
   <defs>
     <linearGradient id="pl-grad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#7C3AED"/>
       <stop offset="100%" stop-color="#EC4899"/>
     </linearGradient>
+    <linearGradient id="pl-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
   </defs>
+
+  <rect x="1" y="1" width="898" height="168" rx="16" fill="url(#pl-bg)" stroke="#30363d" stroke-width="1"/>
 
   <text x="450" y="80" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="url(#pl-grad)">
     PaymentsLab
-    <animate attributeName="opacity" values="0;1" dur="0.9s" begin="0s" fill="freeze"/>
   </text>
 
-  <!-- client -> server verification: a packet travels from client to server, then a shield-pulse confirms -->
+  <!-- client -> server verification: a hint travels from client to server, confirmed by a shield -->
   <line x1="120" y1="122" x2="780" y2="122" stroke="url(#pl-grad)" stroke-width="2" opacity="0.35"/>
 
   <rect x="100" y="108" width="40" height="28" rx="4" fill="none" stroke="#EC4899" stroke-width="2"/>
@@ -20,16 +27,11 @@
   <rect x="760" y="108" width="40" height="28" rx="4" fill="none" stroke="#7C3AED" stroke-width="2"/>
   <text x="780" y="127" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#7C3AED">S</text>
 
-  <circle r="5" fill="#EC4899">
-    <animateMotion dur="2.2s" repeatCount="indefinite" path="M 140 122 L 760 122"/>
-    <animate attributeName="opacity" values="1;1;0" keyTimes="0;0.85;1" dur="2.2s" repeatCount="indefinite"/>
-  </circle>
+  <circle id="pl-packet" cx="760" cy="122" r="5" fill="#EC4899"/>
 
-  <!-- shield-pulse confirmation at the server, timed to the packet's arrival -->
-  <path d="M 780 106 L 792 111 L 792 122 C 792 131 786 138 780 141 C 774 138 768 131 768 122 L 768 111 Z"
-        fill="none" stroke="#7C3AED" stroke-width="2" opacity="0">
-    <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.8;0.92;1" dur="2.2s" repeatCount="indefinite"/>
-  </path>
+  <!-- shield confirmation at the server -->
+  <path id="pl-shield" d="M 780 106 L 792 111 L 792 122 C 792 131 786 138 780 141 C 774 138 768 131 768 122 L 768 111 Z"
+        fill="none" stroke="#7C3AED" stroke-width="2"/>
 
   <text x="450" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="14" letter-spacing="2" fill="#94a3b8">
     A CLIENT SUCCESS IS A HINT — THE SERVER IS TRUTH

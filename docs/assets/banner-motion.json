@@ -1,0 +1,20 @@
+{
+  "width": 900,
+  "fps": 24,
+  "duration": 4.5,
+  "colors": 192,
+  "dither": "none",
+  "clip_to_base_alpha": true,
+  "layers": [
+    {
+      "id": "pl-packet",
+      "enter": {"start": 0.3, "end": 1.4, "from": [-620, 0]},
+      "exit": {"start": 3.4, "end": 4.0, "to": [0, 0]}
+    },
+    {
+      "id": "pl-shield",
+      "enter": {"start": 1.3, "end": 1.7, "from": [0, 0]},
+      "exit": {"start": 3.6, "end": 4.3, "to": [0, -4]}
+    }
+  ]
+}
