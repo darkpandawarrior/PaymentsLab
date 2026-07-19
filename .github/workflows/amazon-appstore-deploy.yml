@@ -44,10 +44,6 @@ jobs:
         if: env.HAS_SECRET == 'true'
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK 37 platform & build-tools
-        if: env.HAS_SECRET == 'true'
-        run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
-
       - run: chmod +x ./gradlew
         if: env.HAS_SECRET == 'true'
 

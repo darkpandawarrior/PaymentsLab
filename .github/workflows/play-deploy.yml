@@ -48,9 +48,6 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK 37 platform & build-tools
-        run: yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || true
-
       - name: Set up Ruby (fastlane)
         uses: ruby/setup-ruby@v1
         with:
