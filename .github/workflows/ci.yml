@@ -51,13 +51,6 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # compileSdk 37 + build-tools 37 (bleeding-edge, matching AGP 9.2). If a fresh runner image
-      # lacks them, install explicitly. Adjust the versions/channel here if a run reports them missing.
-      - name: Install SDK 37 platform & build-tools
-        run: |
-          yes | sdkmanager "platforms;android-37" "build-tools;37.0.0" >/dev/null || \
-            echo "::warning::Could not install android-37 from the default channel — the runner image may need a newer SDK or the canary channel."
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
