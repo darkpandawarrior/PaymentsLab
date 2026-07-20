@@ -8,6 +8,11 @@ kotlin {
 
     jvm()
 
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     android {
         namespace = "com.paymentslab.core.common"
         compileSdk = 37
