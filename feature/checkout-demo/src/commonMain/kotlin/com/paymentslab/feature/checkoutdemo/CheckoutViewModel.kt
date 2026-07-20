@@ -67,7 +67,7 @@ private val CheckoutTimelineCopy =
             ),
     )
 
-/** A gateway the demo can actually run — only SANDBOX_READY providers are offered. */
+/** A gateway the demo can actually run — by default only SANDBOX_READY providers are offered. */
 @Immutable
 data class CheckoutGateway(
     val id: GatewayId,
@@ -103,11 +103,14 @@ data class CheckoutUiState(
 class CheckoutViewModel(
     private val flowRunner: PaymentFlowRunner,
     registry: PaymentGatewayRegistry,
+    // SANDBOX_READY by default (real sandbox keys); the web preview widens to MOCK_MODE, where the
+    // whole fleet is simulated anyway.
+    offeredStatuses: Set<GatewayStatus> = setOf(GatewayStatus.SANDBOX_READY),
 ) : StateViewModel<CheckoutUiState>(
         CheckoutUiState(
             gateways =
                 registry.gateways
-                    .filter { it.meta.status == GatewayStatus.SANDBOX_READY }
+                    .filter { it.meta.status in offeredStatuses }
                     .map { CheckoutGateway(it.id, it.meta.displayName) }
                     .toImmutableList(),
         ),

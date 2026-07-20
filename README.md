@@ -12,10 +12,10 @@ because a client-side `Success` is only ever a hint.
 [![CI](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
-![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-3DDC84)
+![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-3DDC84)
 ![Ktor](https://img.shields.io/badge/Ktor-3.5.1-087CFA?logo=ktor&logoColor=white)
 <!-- AUTOGEN:badge -->
-![Modules](https://img.shields.io/badge/modules-39-success)
+![Modules](https://img.shields.io/badge/modules-40-success)
 <!-- /AUTOGEN:badge -->
 
 **[Highlights](#highlights)** · **[Screens & flows](#screens--flows)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
@@ -52,7 +52,7 @@ because a client-side `Success` is only ever a hint.
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **39-module** KMP architecture: **14 local** (7 core · 4 feature · 3 app/iOS/backend) + **25 composed** via `includeBuild(external/kmp-toolkit)` (6 shared core · 19 payment-provider gateways), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **40-module** KMP architecture: **15 local** (7 core · 4 feature · 4 app/iOS/backend) + **25 composed** via `includeBuild(external/kmp-toolkit)` (6 shared core · 19 payment-provider gateways), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why PaymentsLab
@@ -503,6 +503,25 @@ cd PaymentsLab
 # 2. Build & install the app (points at 10.0.2.2:8080 from the emulator)
 ./gradlew :app:installDebug
 ```
+
+### Web preview (wasmJs, MOCK_MODE)
+
+The gateway catalog + explained-checkout demo also run in the browser — `:web` is a
+Kotlin/Wasm Compose shell over the same feature modules, orchestrator FSM and hosted-webview
+archetype, with in-memory `PaymentBackend`/`PendingPaymentJournal` fakes instead of `:backend`
+(so everything is `MOCK_MODE` by construction — no keys, no server). This build is what the
+portfolio site embeds as `public/paymentslab-app/` (same packaging as Kursi's `cmp-web`).
+
+```bash
+# Dev loop with hot reload
+./gradlew :web:wasmJsBrowserDevelopmentRun
+
+# Production dist → web/build/dist/wasmJs/productionExecutable/
+./gradlew :web:wasmJsBrowserDistribution
+```
+
+Native-SDK archetype-A providers (Stripe/Razorpay/Cashfree/…) are Android/iOS-only by
+construction and are excluded from the wasm target; Room-backed History likewise.
 
 Sandbox credentials are read from environment variables (see `backend/.env.example`); the app only
 ever ships publishable keys, never secrets. Real end-to-end payment execution needs a device plus

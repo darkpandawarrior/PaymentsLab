@@ -21,11 +21,37 @@ plugins {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    // PREFER_SETTINGS (not FAIL_ON_PROJECT_REPOS): the Kotlin/Wasm Node.js toolchain setup plugin
+    // adds a nodejs distribution repo programmatically at project-level; FAIL_ON_PROJECT_REPOS
+    // rejects that and breaks :web. PREFER_SETTINGS still uses settings repos first. Mirrors Kursi.
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
+        // Node.js / Yarn / Binaryen distributions for the Kotlin/Wasm browser toolchain (:web) —
+        // ivy layouts ported from Kursi's settings.gradle.kts, where they're build-proven.
+        ivy {
+            name = "Node.js Distributions"
+            url = uri("https://nodejs.org/dist")
+            patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("org.nodejs", "node") }
+        }
+        ivy {
+            name = "Yarn Distributions"
+            url = uri("https://github.com/yarnpkg/yarn/releases/download")
+            patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("com.yarnpkg", "yarn") }
+        }
+        ivy {
+            name = "Binaryen Distributions"
+            url = uri("https://github.com/WebAssembly/binaryen/releases/download")
+            patternLayout { artifact("version_[revision]/[artifact]-version_[revision]-[classifier].[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("com.github.webassembly", "binaryen") }
+        }
         // Cashfree nextgen SDK (com.cashfree.pg:api / :ui) is published only to Cashfree's own repo.
         maven {
             url = uri("https://maven.cashfree.com/release")
@@ -116,6 +142,9 @@ include(":feature:home")
 
 // ── iOS (B8) ─────────────────────────────────────────────────────────────────
 include(":ios:shared")
+
+// ── Web preview (wasmJs browser shell; MOCK_MODE, embedded by cv-siddharth) ──
+include(":web")
 
 // ── App + backend ───────────────────────────────────────────────────────────
 include(":app")

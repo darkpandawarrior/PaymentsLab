@@ -3,6 +3,11 @@ plugins {
 }
 
 kotlin {
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+    }
+
     android {
         namespace = "com.paymentslab.feature.lab"
         compileSdk = 37
