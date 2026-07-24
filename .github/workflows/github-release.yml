@@ -75,7 +75,7 @@ jobs:
       - name: Build artifacts
         run: |
           set -uo pipefail
-          cmd="${RELEASE_BUILD_CMD:-assembleDebug assembleRelease}"
+          cmd="${RELEASE_BUILD_CMD:-assembleRelease}"
           # --continue: one variant failing (e.g. a lint/dependency-guard gate that only applies to one
           # flavor) must not discard artifacts the other requested tasks already produced. There is no
           # fallback to a single debug-only task on failure anymore — that used to silently mask every
