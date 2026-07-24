@@ -67,6 +67,7 @@ android {
         applicationId = "com.paymentslab.app"
         minSdk = 24
         targetSdk = 36
+        ndk { abiFilters += setOf("arm64-v8a", "armeabi-v7a") } // drop emulator-only x86/x86_64
         versionCode = appBuildNumber
         versionName = appVersionName
         buildConfigField("String", "FINGERPRINT", "\"$appFingerprint\"")
