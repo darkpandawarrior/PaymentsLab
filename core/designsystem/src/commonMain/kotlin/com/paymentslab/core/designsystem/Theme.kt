@@ -112,6 +112,7 @@ private var curatedLogosRegistered = false
 @Composable
 fun PaymentsLabTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    displayFontFamily: androidx.compose.ui.text.font.FontFamily? = null,
     content: @Composable () -> Unit,
 ) {
     if (!curatedLogosRegistered) {
@@ -120,7 +121,7 @@ fun PaymentsLabTheme(
     }
     MaterialTheme(
         colorScheme = if (darkTheme) PaymentsLabDarkColors else PaymentsLabLightColors,
-        typography = rememberPaymentsLabTypography(),
+        typography = rememberPaymentsLabTypography(displayFontFamily),
         content = content,
     )
 }
