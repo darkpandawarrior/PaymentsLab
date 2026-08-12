@@ -485,6 +485,15 @@ class ScreenshotCatalogTest {
         }
 
     // ── CheckoutScreen (redesign) — a selected product/gateway, floating-elevation selection ───
+    /**
+     * The three checkout frames are the site's comparison set, so they carry a screen qualifier the
+     * other captures do not. Robolectric's default screen is 320x470 (aspect 0.68) while the
+     * portfolio's compare frame is 420x560 (aspect 0.75) with `object-cover object-top` — a 0.68
+     * capture loses its bottom 9%, which is exactly where the settled verdict banner sits. 360x480
+     * matches the frame's aspect exactly (nothing cropped) and matches the 360dp Surface these
+     * screens declare, so the right edge stops being clipped by 40dp too.
+     */
+    @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w360dp-h480dp-mdpi")
     @Test
     fun checkoutScreen_orderSummary() =
         snapshotScreen("checkout_screen_order_summary") {
@@ -522,9 +531,18 @@ class ScreenshotCatalogTest {
             .map { it.copy(state = StepState.DONE) }
             .toImmutableList()
 
+    /**
+     * The three checkout frames are the site's comparison set, so they carry a screen qualifier the
+     * other captures do not. Robolectric's default screen is 320x470 (aspect 0.68) while the
+     * portfolio's compare frame is 420x560 (aspect 0.75) with `object-cover object-top` — a 0.68
+     * capture loses its bottom 9%, which is exactly where the settled verdict banner sits. 360x480
+     * matches the frame's aspect exactly (nothing cropped) and matches the 360dp Surface these
+     * screens declare, so the right edge stops being clipped by 40dp too.
+     */
+    @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w360dp-h480dp-mdpi")
     @Test
     fun checkoutScreen_paying() =
-        snapshotScreen("checkout_screen_paying", reducedMotion = true, scrollTo = "What's happening") {
+        snapshotScreen("checkout_screen_paying", reducedMotion = true, scrollTo = "awaiting server verdict") {
             CheckoutScreen(
                 state = checkoutStateBase().copy(steps = sampleTimeline(), isRunning = true),
                 onSelectProduct = {},
@@ -533,9 +551,18 @@ class ScreenshotCatalogTest {
             )
         }
 
+    /**
+     * The three checkout frames are the site's comparison set, so they carry a screen qualifier the
+     * other captures do not. Robolectric's default screen is 320x470 (aspect 0.68) while the
+     * portfolio's compare frame is 420x560 (aspect 0.75) with `object-cover object-top` — a 0.68
+     * capture loses its bottom 9%, which is exactly where the settled verdict banner sits. 360x480
+     * matches the frame's aspect exactly (nothing cropped) and matches the 360dp Surface these
+     * screens declare, so the right edge stops being clipped by 40dp too.
+     */
+    @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w360dp-h480dp-mdpi")
     @Test
     fun checkoutScreen_settledSuccess() =
-        snapshotScreen("checkout_screen_settled_success", reducedMotion = true, scrollTo = "What's happening") {
+        snapshotScreen("checkout_screen_settled_success", reducedMotion = true, scrollTo = "Server-authoritative") {
             CheckoutScreen(
                 state =
                     checkoutStateBase().copy(
