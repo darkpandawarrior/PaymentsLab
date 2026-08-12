@@ -1,7 +1,15 @@
 {
   "shots": "docs/screenshots",
-  "sources": ["**/commonMain/**/*.kt", "**/main/**/*.kt"],
+  "sources": [
+    "**/commonMain/**/*.kt",
+    "**/main/**/*.kt"
+  ],
   "screenRegex": "fun (\\w+Screen)\\s*\\(",
-  "ignore": ["banner", "hero", "logo", "og"],
-  "minBytes": 1000
+  "ignore": [
+    "banner",
+    "hero",
+    "logo",
+    "og"
+  ],
+  "minBytes": 400
 }

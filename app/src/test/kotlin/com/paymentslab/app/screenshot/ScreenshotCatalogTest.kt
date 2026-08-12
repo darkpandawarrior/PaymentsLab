@@ -20,6 +20,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +68,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import org.junit.Rule
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -107,9 +110,40 @@ class ScreenshotCatalogTest {
     }
 
     /** For a full screen (its own Scaffold/topbar/padding) rather than an isolated component. */
+    companion object {
+        /**
+         * Record only when explicitly asked, via the ENV VAR — a Gradle property does not reach a
+         * forked test JVM.
+         *
+         * There was no gate here at all, so `captureRoboImage` never wrote and these captures had
+         * not changed since 9 July. The tests passed the whole time: verifying an image against
+         * itself always does. Three checkout states rendering byte-identical went unnoticed for a
+         * month for exactly this reason — re-recording them was a no-op.
+         *
+         *   ROBORAZZI_RECORD=true ./gradlew :app:testDebugUnitTest
+         */
+        @JvmStatic
+        @BeforeClass
+        fun enableRecordingWhenAsked() {
+            if (System.getenv("ROBORAZZI_RECORD") == "true") {
+                System.setProperty("roborazzi.test.record", "true")
+            }
+        }
+    }
+
     private fun snapshotScreen(
         name: String,
         reducedMotion: Boolean = false,
+        /**
+         * Text to scroll into view before capturing.
+         *
+         * CheckoutScreen puts its pay button, step timeline and final status inside a
+         * verticalScroll, all below the ~470px the root capture sees. So three tests that passed
+         * genuinely different state — isRunning, steps, finalStatus — produced byte-identical
+         * images, and the site advertised three checkout states while showing one screenshot three
+         * times. Nothing failed; the states were simply never in frame.
+         */
+        scrollTo: String? = null,
         content: @Composable () -> Unit,
     ) {
         compose.setContent {
@@ -118,6 +152,10 @@ class ScreenshotCatalogTest {
                     Surface(modifier = Modifier.width(360.dp).height(720.dp)) { content() }
                 }
             }
+        }
+        if (scrollTo != null) {
+            compose.onNodeWithText(scrollTo, substring = true).performScrollTo()
+            compose.waitForIdle()
         }
         compose.onRoot().captureRoboImage("../docs/screenshots/$name.png")
     }
@@ -486,7 +524,7 @@ class ScreenshotCatalogTest {
 
     @Test
     fun checkoutScreen_paying() =
-        snapshotScreen("checkout_screen_paying", reducedMotion = true) {
+        snapshotScreen("checkout_screen_paying", reducedMotion = true, scrollTo = "What's happening") {
             CheckoutScreen(
                 state = checkoutStateBase().copy(steps = sampleTimeline(), isRunning = true),
                 onSelectProduct = {},
@@ -497,7 +535,7 @@ class ScreenshotCatalogTest {
 
     @Test
     fun checkoutScreen_settledSuccess() =
-        snapshotScreen("checkout_screen_settled_success", reducedMotion = true) {
+        snapshotScreen("checkout_screen_settled_success", reducedMotion = true, scrollTo = "What's happening") {
             CheckoutScreen(
                 state =
                     checkoutStateBase().copy(
