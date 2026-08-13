@@ -3,6 +3,10 @@ plugins {
 }
 
 kotlin {
+    // Desktop/JVM target: gives PaymentsLab's UI a Compose Hot Reload canvas so a UI
+    // change no longer needs an emulator. Mirrors :core:common, which already had one.
+    jvm()
+
     android {
         namespace = "com.paymentslab.feature.history"
         compileSdk = 37
