@@ -14,7 +14,7 @@ pluginManagement {
     }
 }
 
-// Resolves Java toolchains (incl. the JDK 17 daemon criteria in gradle/gradle-daemon-jvm.properties):
+// Resolves Java toolchains (incl. the JDK 21 daemon criteria in gradle/gradle-daemon-jvm.properties):
 // detects an installed matching JDK, and can provision one if absent.
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
@@ -148,4 +148,7 @@ include(":web")
 
 // ── App + backend ───────────────────────────────────────────────────────────
 include(":app")
+// Compose Desktop canvas for the design system — exists for the hot-reload dev loop, not for
+// distribution. See desktopApp/build.gradle.kts for why it is scoped to :core:designsystem.
+include(":desktopApp")
 include(":backend")
