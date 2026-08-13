@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/darkpandawarrior/Repos/Mileway/gradle/**)",
+      "Read(//Users/darkpandawarrior/Repos/Mileway/**)",
+      "Read(//Users/darkpandawarrior/Repos/Mileway/gradle/wrapper/**)",
+      "Read(//Users/darkpandawarrior/Repos/Android/Random/Kursi/**)"
+    ]
+  }
+}

@@ -43,3 +43,7 @@ vendor/bundle/
 
 # AI-agent planning artifacts (not for public repo)
 docs/superpowers/
+
+# Code knowledge graph (graphify). Derived, rebuildable, and large; it also mirrors every
+# symbol name in the repo, so it is never committed. Rebuild: node ~/Tools/DevTools/AgentHarness/scripts/graph.mjs build
+graphify-out/

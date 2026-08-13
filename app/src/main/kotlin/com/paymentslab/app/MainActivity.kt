@@ -67,7 +67,7 @@ class MainActivity :
         val host = PaymentHostController(this)
 
         setContent {
-            PaymentsLabTheme {
+            PaymentsLabTheme(displayFontFamily = SpaceGrotesk) {
                 // Stripe's PaymentSheet must be created in Compose scope (it registers an
                 // ActivityResultLauncher before STARTED); route its result into the provider bridge.
                 val paymentSheet = rememberPaymentSheet { result -> stripeHost.onResult(result) }
