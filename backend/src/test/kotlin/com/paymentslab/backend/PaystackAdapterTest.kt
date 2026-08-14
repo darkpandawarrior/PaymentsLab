@@ -71,7 +71,9 @@ class PaystackAdapterTest {
                             assertEquals("Bearer sk_test_abc", request.headers[HttpHeaders.Authorization])
                             respond(
                                 content =
-                                    """{"status":true,"message":"ok","data":{"authorization_url":"https://checkout.paystack.com/abc123","access_code":"abc123","reference":"order_1"}}""",
+                                    """{"status":true,"message":"ok","data":{""" +
+                                        """"authorization_url":"https://checkout.paystack.com/abc123",""" +
+                                        """"access_code":"abc123","reference":"order_1"}}""",
                                 status = HttpStatusCode.OK,
                                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
                             )

@@ -67,16 +67,15 @@ subprojects {
         config.setFrom(rootProject.files("config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
         baseline = file("detekt-baseline.xml")
-        // detekt's default `detekt` task only scans src/main; KMP modules use commonMain/androidMain,
-        // so point it at every source root we use (missing dirs are ignored).
-        source.setFrom(
-            "src/commonMain/kotlin",
-            "src/androidMain/kotlin",
-            "src/jvmMain/kotlin",
-            "src/iosMain/kotlin",
-            "src/main/kotlin",
-            "src/main/java",
-        )
+        // detekt's default `detekt` task only scans src/main, which misses KMP entirely — hence
+        // pointing it elsewhere. But the enumerated list this replaced omitted wasmJsMain, so
+        // :web's production code was never scanned: a `// TODO:` in web/src/wasmJsMain passed clean.
+        //
+        // A list cannot hold. Adding a target adds a source set, and nothing fails when the list is
+        // not updated to match — coverage shrinks silently while the build stays green. `src` covers
+        // what exists now and what gets added later; the ktlint filter above already drops build/,
+        // and detekt only reads .kt.
+        source.setFrom(layout.projectDirectory.dir("src"))
     }
     tasks.withType<dev.detekt.gradle.Detekt>().configureEach { jvmTarget = "21" }
     tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach { jvmTarget = "21" }
