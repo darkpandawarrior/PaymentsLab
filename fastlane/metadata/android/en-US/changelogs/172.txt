@@ -1,9 +1,0 @@
-Release APK now ships arm64-v8a and armeabi-v7a only, so the download is smaller. Emulator-only x86/x86_64 slices are gone.
-
-Debug builds are no longer part of the release pipeline, only the signed release APK ships.
-
-Added the GPL-3.0-or-later LICENSE file. Source was already open, the licence text is now explicit in the repo.
-
-Toolchain bump: AGP alpha08, Kotlin 2.4.20-RC, Compose Multiplatform rc01.
-
-Fixed detekt to scan every source set instead of a fixed list of six, so new modules get linted automatically.
