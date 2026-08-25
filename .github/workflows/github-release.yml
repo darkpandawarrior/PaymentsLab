@@ -5,9 +5,9 @@
 # creates/updates the SAME GitHub Release object (idempotent gh release create/edit), attaches every
 # built variant under meaningful names, and adds the iOS artifact release.yml doesn't produce.
 #
-# Changelog source = commit messages between the previous tag and this one. Commit messages are
-# guard-clean (the pre-commit no-reference-leak hook blocks reference terms), so the changelog is
-# leak-safe by construction. If a RELEASE_SCRUBLIST_B64 secret is set, it's applied as a second layer.
+# Changelog source = commit messages between the previous tag and this one. This repo is public, so
+# a RELEASE_SCRUBLIST_B64 secret is required and applied as a leak gate before publishing — a missing
+# secret fails the run rather than silently publishing unscrubbed notes.
 name: GitHub Release
 on:
   push:
@@ -47,13 +47,17 @@ jobs:
             range="${prev:+$prev..}$cur"
             git log --no-merges --pretty='- %s' "$range" > CHANGELOG_BODY.md
           fi
-          # Optional second-layer scrub if the secret is set (commits + CHANGELOG are already guard-clean).
+          # Leak gate. These notes go to a PUBLIC release, so refuse to publish rather than
+          # silently skip the check when the scrublist secret isn't configured.
           if [ -n "${RELEASE_SCRUBLIST_B64:-}" ]; then
             echo "$RELEASE_SCRUBLIST_B64" | base64 -d > /tmp/scrublist.txt
             pat="$(grep -vE '^\s*#|^\s*$' /tmp/scrublist.txt | paste -sd'|' -)"
             if [ -n "$pat" ] && grep -Eiq "$pat" CHANGELOG_BODY.md; then
               echo "::error::release notes match a scrublist term — refusing to publish"; exit 1
             fi
+          else
+            echo "::error::RELEASE_SCRUBLIST_B64 is not set; this repo is public and must not publish unscrubbed notes"
+            exit 1
           fi
           echo "prev=$prev" >> "$GITHUB_OUTPUT"
         env:
