@@ -114,8 +114,17 @@ android {
         }
 
         release {
-            isMinifyEnabled = !fdroidBuild
-            isShrinkResources = !fdroidBuild
+            // The -Pfdroid flag disabled R8 so F-Droid's build server could rebuild from
+            // source and byte-compare. That never applied to PaymentsLab: it bundles the
+            // Razorpay, Cashfree, Stripe and Play Wallet SDKs, which are the point of the
+            // app, so it is permanently ineligible for official fdroiddata and reaches
+            // F-Droid only as a prebuilt Binaries entry nobody re-builds.
+            //
+            // Re-applied after the kmp-toolkit bump in d57cbc0 silently reverted it: that
+            // branch was cut from an older main and carried this file along, so merging it
+            // undid a landed fix. The published APK went 32.6MB back to 39.3MB.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
