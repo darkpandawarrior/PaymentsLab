@@ -13,7 +13,15 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 milestone="$(tr -d '[:space:]' < MILESTONE)"
 build_number_base="$(tr -d '[:space:]' < BUILD_NUMBER)"
+# A shallow clone reports 1 commit, so versionCode silently becomes 2. That is exactly what
+# shipped: every APK published to F-Droid carried versionCode 2, so no client could ever offer
+# an upgrade. actions/checkout defaults to fetch-depth 1. Refuse rather than guess.
 commit_count="$(git rev-list --count HEAD)"
+if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+  echo "error: shallow clone. git rev-list reports $commit_count commits, so versionCode would" >&2
+  echo "       be $((commit_count + 1)). Set \`fetch-depth: 0\` on actions/checkout." >&2
+  exit 1
+fi
 
 year="$(date +%Y)"
 month_padded="$(date +%m)"
