@@ -30,7 +30,7 @@ AntiFeatures:
 # uploads each variant as dist/PaymentsLab-<tag>-<variant>.apk (see the workflow's "Build artifacts"
 # step: `cp "$apk" "dist/PaymentsLab-${tag}-${variant}.apk"`, variant stripped of the app- prefix from
 # app-release.apk). The release variant lands as PaymentsLab-<tag>-release.apk.
-Binaries: https://github.com/darkpandawarrior/PaymentsLab/releases/download/%v/PaymentsLab-%v-release.apk
+Binaries: https://github.com/darkpandawarrior/PaymentsLab/releases/download/%v/PaymentsLab-%v.apk
 
 # Real signing cert fingerprint (SHA-256, lowercase hex, no colons) for the release key configured
 # via ANDROID_KEYSTORE_B64 in CI. F-Droid refuses to publish an update whose APK doesn't match this.
