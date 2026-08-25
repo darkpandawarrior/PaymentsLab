@@ -62,11 +62,53 @@ jobs:
       - run: chmod +x ./gradlew
         if: env.HAS_SECRET == 'true'
 
+      - name: Materialize signing secrets
+        if: env.HAS_SECRET == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p secrets
+          if [ -n "${ANDROID_KEYSTORE_B64:-}" ]; then
+            echo "$ANDROID_KEYSTORE_B64" | base64 -d > secrets/release.keystore
+            {
+              echo "RELEASE_STORE_FILE=$PWD/secrets/release.keystore"
+              echo "RELEASE_STORE_PASSWORD=${ANDROID_KEYSTORE_PASSWORD:-}"
+              echo "RELEASE_KEY_ALIAS=${ANDROID_KEY_ALIAS:-paymentslab}"
+              echo "RELEASE_KEY_PASSWORD=${ANDROID_KEY_PASSWORD:-}"
+            } >> "$GITHUB_ENV"
+          fi
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
       # Requires a signingConfig on :app (see fastlane/Fastfile's deploy_internal comments) —
       # otherwise Indus Appstore will reject the unsigned bundle.
       - name: Build release AAB
         if: env.HAS_SECRET == 'true'
         run: ./gradlew :app:bundleRelease
+
+      # Do not trust hasReleaseSigning in app/build.gradle.kts — it silently falls back to the
+      # DEBUG signingConfig when no release signing is configured, so a build can "succeed" while
+      # actually being debug-signed. Check the artifact itself before it ever reaches a real store.
+      - name: Verify release signer is not the debug cert
+        if: env.HAS_SECRET == 'true'
+        run: |
+          set -euo pipefail
+          aab="app/build/outputs/bundle/release/app-release.aab"
+          workdir="$(mktemp -d)"
+          unzip -q "$aab" -d "$workdir"
+          cert_file="$(find "$workdir/META-INF" -maxdepth 1 \( -name '*.RSA' -o -name '*.DSA' -o -name '*.EC' \) | head -1)"
+          if [ -z "$cert_file" ]; then
+            echo "::error::No signer certificate found in $aab — refusing to submit an unsigned bundle."
+            exit 1
+          fi
+          subject="$(keytool -printcert -file "$cert_file" | sed -n 's/^Owner: //p')"
+          echo "Signer: $subject"
+          if echo "$subject" | grep -qi 'CN=Android Debug'; then
+            echo "::error::$aab is signed with the well-known Android debug certificate (CN=Android Debug). Refusing to submit a debug-signed build to Indus Appstore. Check that ANDROID_KEYSTORE_B64/ANDROID_KEYSTORE_PASSWORD/ANDROID_KEY_ALIAS/ANDROID_KEY_PASSWORD are set correctly."
+            exit 1
+          fi
 
       - name: Deploy to Indus Appstore
         if: env.HAS_SECRET == 'true'
