@@ -1,0 +1,49 @@
+# F-Droid metadata for PaymentsLab.
+#
+# This app bundles proprietary payment gateway SDKs (Razorpay, Cashfree, Stripe, Google Play
+# Services Wallet) behind a single PaymentGateway abstraction, on purpose: the whole point of the
+# app is demonstrating integration with real-world gateway SDKs, not shipping a free-software-only
+# artifact. Hence AntiFeatures: NonFreeDep + NonFreeNet below. See fastlane full_description.txt
+# for the user-facing version of this same disclosure.
+
+Categories:
+  - Money
+  - Development
+
+License: GPL-3.0-or-later
+
+AuthorName: Siddharth Pandalai
+
+SourceCode: https://github.com/darkpandawarrior/PaymentsLab
+IssueTracker: https://github.com/darkpandawarrior/PaymentsLab/issues
+
+RepoType: git
+Repo: https://github.com/darkpandawarrior/PaymentsLab
+
+# Bundled proprietary gateway SDKs + their proprietary payment-network backends. Both flags apply:
+# NonFreeDep for the SDKs themselves, NonFreeNet for the closed networks they talk to.
+AntiFeatures:
+  - NonFreeDep
+  - NonFreeNet
+
+# github-release.yml (tag push on v*) builds via `RELEASE_BUILD_CMD` (default assembleRelease) and
+# uploads each variant as dist/PaymentsLab-<tag>-<variant>.apk (see the workflow's "Build artifacts"
+# step: `cp "$apk" "dist/PaymentsLab-${tag}-${variant}.apk"`, variant stripped of the app- prefix from
+# app-release.apk). The release variant lands as PaymentsLab-<tag>-release.apk.
+Binaries: https://github.com/darkpandawarrior/PaymentsLab/releases/download/%v/PaymentsLab-%v-release.apk
+
+# Real signing cert fingerprint (SHA-256, lowercase hex, no colons) for the release key configured
+# via ANDROID_KEYSTORE_B64 in CI. F-Droid refuses to publish an update whose APK doesn't match this.
+AllowedAPKSigningKeys: e3cd9ed25baaa6db5501621a2a7399edc0878022f9b64b5d95446db0348dd19c
+
+AutoUpdateMode: Version
+# Real tags look like v2026.07.30.1.153 (v + FINGERPRINT = YYYY.0M.0W.MILESTONE.commitCount, see
+# scripts/version.sh). A naive ^v[0-9.]+$ also matches, but this is exact to the real 5-field shape
+# so a malformed or unrelated v-tag never gets picked up as a release.
+UpdateCheckMode: Tags ^v\d{4}\.\d{2}\.\d{2}\.\d+\.\d+$
+
+# Matches the latest real tag, v2026.07.30.1.153: MARKETING = YYYY.M.MILESTONE = 2026.7.1 (the bare
+# versionName release builds ship, see app/build.gradle.kts buildTypes.release, no fingerprint
+# suffix, that is debug-only. versionCode = BUILD_NUMBER(1) + commit count at that tag (153) = 154.
+CurrentVersion: 2026.7.1
+CurrentVersionCode: 154

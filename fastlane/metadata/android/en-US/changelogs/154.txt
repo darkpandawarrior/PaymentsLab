@@ -1,0 +1,9 @@
+First tagged release (v2026.07.30.1.153).
+
+Seven native gateway SDKs behind one PaymentGateway contract: Razorpay, Cashfree, Stripe, Google Pay, Square, Omise, and a raw UPI intent flow, plus generic hosted-webview and mobile-money archetypes covering the rest of the catalog.
+
+Backend does real HMAC request signing and webhook signature verification, so the client never holds a raw API secret.
+
+Journal-first payment writes: the pending row is written to Room before the gateway SDK opens its checkout UI, so a process kill mid-payment reconciles against the server on next launch instead of silently losing the record.
+
+Added a wasmJs browser preview target (mock mode) for trying the shared UI without an Android device.
