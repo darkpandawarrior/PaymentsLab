@@ -20,7 +20,7 @@ because a client-side `Success` is only ever a hint.
 
 **[Highlights](#highlights)** · **[Screens & flows](#screens--flows)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
-**Portfolio:** [cv-siddharth.vercel.app](https://cv-siddharth.vercel.app/) &nbsp;·&nbsp; **Sibling project:** [Mileway](https://github.com/darkpandawarrior/Mileway) (offline-first mileage/expense) &nbsp;·&nbsp; built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
+**Case study:** [PaymentsLab](https://cv-siddharth.vercel.app/project/paymentslab) &nbsp;·&nbsp; **Sibling project:** [Mileway](https://github.com/darkpandawarrior/Mileway) (offline-first mileage/expense) &nbsp;·&nbsp; built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
 
 </div>
 
