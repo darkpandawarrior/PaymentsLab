@@ -35,7 +35,7 @@ badge="<!-- AUTOGEN:badge -->
 <!-- /AUTOGEN:badge -->"
 
 stats="<!-- AUTOGEN:stats -->
-> **At a glance** — **${grand_total}-module** KMP architecture: **${local_total} local** (${local_cores} core · ${local_features} feature · ${local_other} app/iOS/backend) + **${composed_total} composed** via \`includeBuild(external/kmp-toolkit)\` (${composed_cores} shared core · ${composed_providers} payment-provider gateways), **${shots}** deterministic Roborazzi screenshots. *Numbers auto-generated from \`settings.gradle.kts\` by \`scripts/gen-readme.sh\`.*
+> **At a glance**, **${grand_total}-module** KMP architecture: **${local_total} local** (${local_cores} core · ${local_features} feature · ${local_other} app/iOS/backend) + **${composed_total} composed** via \`includeBuild(external/kmp-toolkit)\` (${composed_cores} shared core · ${composed_providers} payment-provider gateways), **${shots}** deterministic Roborazzi screenshots. *Numbers auto-generated from \`settings.gradle.kts\` by \`scripts/gen-readme.sh\`.*
 <!-- /AUTOGEN:stats -->"
 
 replace_block() {   # $1=tag  $2=replacement (marker lines included)
