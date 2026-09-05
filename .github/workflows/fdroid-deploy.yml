@@ -59,7 +59,7 @@ jobs:
           set -euo pipefail
           BUILD_TOOLS="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
           UNSIGNED="$(find app/build/outputs/apk/release -name '*.apk' | head -1)"
-          OUT="PaymentsLab-${{ github.event.inputs.tag }}.apk"
+          OUT="PaymentsLab-KMP-${{ github.event.inputs.tag }}.apk"
           "$BUILD_TOOLS/apksigner" sign \
             --ks "${RUNNER_TEMP}/release.keystore" \
             --ks-pass "pass:${ANDROID_KEYSTORE_PASSWORD}" \
@@ -78,7 +78,7 @@ jobs:
           TAG="${{ github.event.inputs.tag }}"
           gh release create "$TAG" --generate-notes || true
           gh release upload "$TAG" \
-            "PaymentsLab-$TAG.apk" \
-            "PaymentsLab-$TAG.apk.sha256" --clobber
+            "PaymentsLab-KMP-$TAG.apk" \
+            "PaymentsLab-KMP-$TAG.apk.sha256" --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

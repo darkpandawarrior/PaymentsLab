@@ -31,7 +31,7 @@ gradlePlugin {
     plugins {
         // kmpLibrary / kmpCompose / cmpFeature / androidApplication / test are now provided by the
         // shared `external/kmp-build-logic` composite build (plugin ids `shared.*`). Only the two
-        // PaymentsLab-specific plugins that are out of the shared repo's scope stay registered here:
+        // PaymentsLab-KMP-specific plugins that are out of the shared repo's scope stay registered here:
         // androidProvider (Android-only gateway SDK modules) and androidLibrary (core:security).
         register("androidProvider") {
             id = "paymentslab.android.provider"

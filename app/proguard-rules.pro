@@ -1,4 +1,4 @@
-# R8 / ProGuard rules for PaymentsLab release builds. Payment SDKs, kotlinx-serialization, and the
+# R8 / ProGuard rules for PaymentsLab-KMP release builds. Payment SDKs, kotlinx-serialization, and the
 # Activity-callback bridges use reflection — renaming their classes/members silently breaks payments,
 # so they are kept explicitly.
 

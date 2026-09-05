@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.gif" alt="PaymentsLab, an integration lab for the Android payments ecosystem" width="700"/>
+<img src="docs/assets/banner.gif" alt="PaymentsLab-KMP, an integration lab for the Android payments ecosystem" width="700"/>
 
 ### An Integration Lab for the Android payments ecosystem, every gateway behind one abstraction, with a live look at what actually happens on each transaction.
 
@@ -9,7 +9,7 @@ dozens more behind two generic archetypes, all through one `PaymentGateway` cont
 Ktor backend owns order creation, real HMAC signature verification and webhook reconciliation,
 because a client-side `Success` is only ever a hint.
 
-[![CI](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab/actions/workflows/ci.yml)
+[![CI](https://github.com/darkpandawarrior/PaymentsLab-KMP/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/PaymentsLab-KMP/actions/workflows/ci.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--RC-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20MP-1.12.0--rc01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-3DDC84)
@@ -20,7 +20,7 @@ because a client-side `Success` is only ever a hint.
 
 **[Highlights](#highlights)** · **[Screens & flows](#screens--flows)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
-**Case study:** [PaymentsLab](https://cv-siddharth.vercel.app/project/paymentslab) &nbsp;·&nbsp; **Sibling project:** [Mileway](https://github.com/darkpandawarrior/Mileway) (offline-first mileage/expense) &nbsp;·&nbsp; built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
+**Case study:** [PaymentsLab-KMP](https://cv-siddharth.vercel.app/project/paymentslab) &nbsp;·&nbsp; **Sibling project:** [Doori](https://github.com/darkpandawarrior/Doori) (offline-first mileage/expense) &nbsp;·&nbsp; built on the shared **`kmp-build-logic`** convention plugins + **`kmp-mvi-core`** MVI runtime (see [Shared infrastructure](#shared-infrastructure))
 
 </div>
 
@@ -29,7 +29,7 @@ because a client-side `Success` is only ever a hint.
 <details>
 <summary><b>Table of contents</b></summary>
 
-- [Why PaymentsLab](#why-paymentslab)
+- [Why PaymentsLab-KMP](#why-paymentslab-kmp)
 - [The one idea worth stealing](#the-one-idea-worth-stealing)
 - [Highlights](#highlights)
 - [Engineering decisions (the *why*)](#engineering-decisions-the-why)
@@ -55,14 +55,14 @@ because a client-side `Success` is only ever a hint.
 > **At a glance**, **40-module** KMP architecture: **15 local** (7 core · 4 feature · 4 app/iOS/backend) + **25 composed** via `includeBuild(external/kmp-toolkit)` (6 shared core · 19 payment-provider gateways), **26** deterministic Roborazzi screenshots. *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
-## Why PaymentsLab
+## Why PaymentsLab-KMP
 
 Payments is the hardest integration surface on Android: every gateway ships a different SDK, most of
 them are Activity-callback-era, the client can lie about the outcome, and the interesting logic
 (signatures, webhooks, idempotency, recovery) lives on the server. That makes it a perfect subject
 for a **systems** showcase rather than a UI one.
 
-PaymentsLab runs, and **step-by-step visualizes**: real payment flows across multiple providers,
+PaymentsLab-KMP runs, and **step-by-step visualizes**: real payment flows across multiple providers,
 all behind a single `PaymentGateway` abstraction, backed by a small Ktor server that does the order
 creation, signature verification and webhook reconciliation a real integration requires.
 
@@ -449,9 +449,9 @@ discipline, and every one is `MOCK_MODE`-honest until real keys are configured.
 
 ## Shared infrastructure
 
-PaymentsLab doesn't vendor its build and MVI plumbing, it consumes two standalone repositories as
+PaymentsLab-KMP doesn't vendor its build and MVI plumbing, it consumes two standalone repositories as
 Gradle [included builds](https://docs.gradle.org/current/userguide/composite_builds.html), the same
-way [Mileway](https://github.com/darkpandawarrior/Mileway) does. Composite builds mean these aren't
+way [Doori](https://github.com/darkpandawarrior/Doori) does. Composite builds mean these aren't
 copy-pasted boilerplate; a fix in either repo flows into every consumer.
 
 | Repo | Role here | Wired in |
@@ -494,8 +494,8 @@ locally, or match CI with `sdk use java 25-tem` / your platform's equivalent if 
 version-specific issue.
 
 ```bash
-git clone https://github.com/darkpandawarrior/PaymentsLab.git
-cd PaymentsLab
+git clone https://github.com/darkpandawarrior/PaymentsLab-KMP.git
+cd PaymentsLab-KMP
 
 # 1. Start the backend (in-memory store; sandbox/test adapters) — serves on :8080
 ./gradlew :backend:run
@@ -633,7 +633,7 @@ See [Also runs on iOS](#also-runs-on-ios) above for the details and a real Simul
 
 <sub>
 <a href="https://cv-siddharth.vercel.app/">Portfolio</a> ·
-<a href="https://github.com/darkpandawarrior/Mileway">Mileway, sibling KMP app (offline-first mileage/expense)</a> ·
+<a href="https://github.com/darkpandawarrior/Doori">Doori, sibling KMP app (offline-first mileage/expense)</a> ·
 Shared infra: <code>kmp-build-logic</code> · <code>kmp-mvi-core</code>
 </sub>
 </div>

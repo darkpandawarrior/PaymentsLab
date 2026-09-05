@@ -1,6 +1,6 @@
 # Security posture
 
-PaymentsLab treats security as **defense in depth**, with a clear-eyed view of what each layer buys.
+PaymentsLab-KMP treats security as **defense in depth**, with a clear-eyed view of what each layer buys.
 The single most important idea comes first:
 
 > **The authoritative security is server-side.** A payment is only trusted after the backend verifies

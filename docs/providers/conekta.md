@@ -13,7 +13,7 @@ hosted-checkout config every other MOCK_MODE gateway uses.
 
 Separately, the plan tracks a **Conekta Elements** KMP-native showcase (commonMain card
 tokenization + AES/RSA + a CMP UI) as a Tier-1 architecture proof — that work demonstrates
-PaymentsLab's "commonMain payment logic" thesis and is **not** what this entry represents. See
+PaymentsLab-KMP's "commonMain payment logic" thesis and is **not** what this entry represents. See
 `research-notes.md` for that track's status; this `conekta` gateway id is the plain hosted-checkout
 fallback only.
 

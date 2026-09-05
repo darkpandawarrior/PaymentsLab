@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 
 /**
- * The standard screen chrome for a PaymentsLab lab: a Material3 [Scaffold] with a top app bar.
+ * The standard screen chrome for a PaymentsLab-KMP lab: a Material3 [Scaffold] with a top app bar.
  * A back arrow is shown only when [onBack] is provided. Content receives the scaffold's inner
  * [PaddingValues] so callers can honour insets and the app-bar height.
  */
