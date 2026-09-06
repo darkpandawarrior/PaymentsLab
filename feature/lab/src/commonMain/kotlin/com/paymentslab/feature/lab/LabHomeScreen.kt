@@ -50,7 +50,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun LabHomeRoot(
     onOpenProvider: (GatewayId) -> Unit,
-    onOpenSettings: () -> Unit = {},
+    onOpenSettings: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     viewModel: LabHomeViewModel = koinViewModel(),
 ) {
@@ -72,7 +72,7 @@ fun LabHomeRoot(
 fun LabHomeScreen(
     state: LabHomeUiState,
     onOpenProvider: (GatewayId) -> Unit,
-    onOpenSettings: () -> Unit = {},
+    onOpenSettings: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     onSearchQueryChange: (String) -> Unit = {},
     onToggleStatusFilter: (GatewayStatusUi) -> Unit = {},
@@ -85,8 +85,13 @@ fun LabHomeScreen(
     LabScaffold(
         title = "Integration Lab",
         actions = {
-            IconButton(onClick = onOpenSettings) {
-                Icon(Icons.Filled.Settings, contentDescription = "AI settings")
+            // Only Android wires a real onOpenSettings today (AiSettingsViewModel needs
+            // ModelManager/OnDeviceLlm/SecureKeyStore, unbound on iOS/web) — render the gear
+            // only where it does something, rather than showing dead chrome everywhere.
+            if (onOpenSettings != null) {
+                IconButton(onClick = onOpenSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = "AI settings")
+                }
             }
         },
     ) { padding ->

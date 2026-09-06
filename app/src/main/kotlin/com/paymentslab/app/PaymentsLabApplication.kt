@@ -11,6 +11,7 @@ import com.paymentslab.core.orchestration.di.orchestrationModule
 import com.paymentslab.feature.checkoutdemo.di.checkoutDemoModule
 import com.paymentslab.feature.history.di.historyModule
 import com.paymentslab.feature.home.di.homeModule
+import com.paymentslab.feature.lab.di.labAiModule
 import com.paymentslab.feature.lab.di.labModule
 import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.common.NapierCrashReporter
@@ -180,6 +181,7 @@ class PaymentsLabApplication :
                 ),
                 // features
                 labModule,
+                labAiModule,
                 historyModule,
                 checkoutDemoModule,
                 homeModule,
