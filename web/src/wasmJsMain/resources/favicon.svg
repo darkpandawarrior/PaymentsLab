@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" style="color:#0A0D0C">
+<g stroke-linecap="round" stroke-linejoin="round">
+  <line x1="6.67" y1="6.67" x2="6.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="10.67" y1="6.67" x2="10.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="14.67" y1="6.67" x2="14.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="18.67" y1="6.67" x2="18.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="22.67" y1="6.67" x2="22.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="26.67" y1="6.67" x2="26.67" y2="14.67" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <line x1="5.33" y1="17.33" x2="26.67" y2="17.33" stroke="currentColor" stroke-width="2.67" fill="none"/>
+  <line x1="16" y1="17.33" x2="16" y2="25.33" stroke="currentColor" stroke-width="2.67" fill="none"/>
+  <line x1="5.33" y1="20" x2="26.67" y2="20" stroke="currentColor" stroke-width="1.33" fill="none"/>
+  <circle cx="16" cy="25.33" r="2" fill="currentColor" stroke="none"/>
+</g>
+</svg>
