@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
- * PaymentsLab visual identity — a modern fintech palette.
+ * PaymentsLab-KMP visual identity — a modern fintech palette.
  *
  * Primary is a deep indigo/violet ("Ledger Indigo"), the trustworthy anchor colour of the
  * app; secondary is an electric teal ("Settlement Teal") used for interactive accents.
@@ -106,7 +106,7 @@ private val PaymentsLabDarkColors =
 private var curatedLogosRegistered = false
 
 /**
- * Root theme for every PaymentsLab surface. Wraps content in a Material3 theme using the
+ * Root theme for every PaymentsLab-KMP surface. Wraps content in a Material3 theme using the
  * fintech palette, resolving light/dark automatically from the system by default.
  */
 @Composable

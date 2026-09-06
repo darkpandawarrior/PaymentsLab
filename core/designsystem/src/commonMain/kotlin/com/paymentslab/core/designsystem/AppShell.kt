@@ -25,7 +25,7 @@ data class AppShellDestination(
 )
 
 /**
- * PaymentsLab's shared app chrome: a bottom [NavigationBar] over [destinations] plus a center
+ * PaymentsLab-KMP's shared app chrome: a bottom [NavigationBar] over [destinations] plus a center
  * "Pay" [FloatingActionButton] that launches Checkout. Shared `commonMain` composable so Android
  * and iOS render pixel-identical nav UI — each platform supplies its own back-stack mechanism via
  * [selectedRoute]/[onSelectDestination]/[onFabClick] and renders its own [content] for the current

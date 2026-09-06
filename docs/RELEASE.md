@@ -44,8 +44,8 @@ git tag "$tag" && git push origin "$tag"
 
 Pushing the tag triggers `.github/workflows/github-release.yml`: it verifies the tag matches the
 live FINGERPRINT, builds every task in the `RELEASE_BUILD_CMD` repo variable (default
-`assembleDebug assembleRelease` — PaymentsLab has no product flavors), attaches every APK produced
-(named `PaymentsLab-<tag>-<variant>.apk`, `-unsigned` included if no keystore secret is
+`assembleDebug assembleRelease` — PaymentsLab-KMP has no product flavors), attaches every APK produced
+(named `PaymentsLab-KMP-<tag>-<variant>.apk`, `-unsigned` included if no keystore secret is
 configured), zips `docs/screenshots` + diffs it against the previous release, creates/updates the
 GitHub Release, then (macOS job, best-effort) archives an **unsigned** iOS `.ipa`-shaped artifact
 gated on `ios/iosApp/*.xcodeproj` existing.

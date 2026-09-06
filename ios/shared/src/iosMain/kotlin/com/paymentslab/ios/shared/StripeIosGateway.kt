@@ -123,7 +123,7 @@ class StripeIosGateway(
         )
 
     private companion object {
-        const val MERCHANT_DISPLAY_NAME = "PaymentsLab"
+        const val MERCHANT_DISPLAY_NAME = "PaymentsLab-KMP"
         const val KEY_CLIENT_SECRET = "client_secret"
         const val KEY_PUBLISHABLE_KEY = "publishable_key"
     }

@@ -24,7 +24,7 @@ final class RazorpayCheckoutHostImpl: NSObject, RazorpayCheckoutHost, RazorpayPa
             "order_id": orderId,
             "amount": amountMinor,
             "currency": currency,
-            "name": "PaymentsLab",
+            "name": "PaymentsLab-KMP",
         ]
 
         guard

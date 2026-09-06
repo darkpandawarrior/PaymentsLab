@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
  * Semantic status tones shared by [StepTimeline] and [GatewayStatusBadge].
  *
  * These are theme-independent so previews and non-composable code can reach them; they are
- * tuned to read AA on both the light and dark PaymentsLab surfaces.
+ * tuned to read AA on both the light and dark PaymentsLab-KMP surfaces.
  */
 internal object StatusColors {
     val Success = Color(0xFF1E9E6A) // settlement done / sandbox ready

@@ -19,7 +19,7 @@
     <application
         android:name=".PaymentsLabApplication"
         android:allowBackup="false"
-        android:label="PaymentsLab"
+        android:label="PaymentsLab-KMP"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.PaymentsLab"><!-- cleartext scoped to the dev backend in network_security_config, not app-wide -->

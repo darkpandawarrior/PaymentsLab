@@ -5,7 +5,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 
 /**
- * Space Grotesk — PaymentsLab's display typeface (OFL-licensed, bundled), as a plain Android font
+ * Space Grotesk — PaymentsLab-KMP's display typeface (OFL-licensed, bundled), as a plain Android font
  * resource rather than a Compose Multiplatform resource.
  *
  * It lives in the Android app rather than in `core:designsystem` for two reasons, and the first is

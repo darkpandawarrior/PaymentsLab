@@ -5,7 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.ui.unit.dp
 
 /**
- * Single source of truth for spacing, corner radii and elevation across PaymentsLab.
+ * Single source of truth for spacing, corner radii and elevation across PaymentsLab-KMP.
  *
  * Every composable in the design system consumes these tokens instead of hard-coded dp
  * values so the whole app shares one visual rhythm. The scale is a 4dp grid.

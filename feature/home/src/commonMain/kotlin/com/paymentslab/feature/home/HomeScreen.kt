@@ -57,7 +57,7 @@ fun HomeScreen(
     onOpenActivity: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LabScaffold(title = "PaymentsLab") { padding ->
+    LabScaffold(title = "PaymentsLab-KMP") { padding ->
         LazyColumn(
             modifier =
                 modifier

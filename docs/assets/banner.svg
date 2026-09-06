@@ -1,5 +1,5 @@
 <svg width="900" height="170" viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="pl-title pl-desc">
-  <title id="pl-title">PaymentsLab</title>
+  <title id="pl-title">PaymentsLab-KMP</title>
   <desc id="pl-desc">An integration lab for the Android payments ecosystem — a client hint travels to the server, which confirms with a shield of verified truth.</desc>
   <defs>
     <linearGradient id="pl-grad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -15,7 +15,7 @@
   <rect x="1" y="1" width="898" height="168" rx="16" fill="url(#pl-bg)" stroke="#30363d" stroke-width="1"/>
 
   <text x="450" y="80" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="url(#pl-grad)">
-    PaymentsLab
+    PaymentsLab-KMP
   </text>
 
   <!-- client -> server verification: a hint travels from client to server, confirmed by a shield -->

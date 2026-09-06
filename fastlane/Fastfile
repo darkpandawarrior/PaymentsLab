@@ -1,4 +1,4 @@
-# Fastlane for PaymentsLab. Versioning is single-source (repo-root VERSION + BUILD_NUMBER +
+# Fastlane for PaymentsLab-KMP. Versioning is single-source (repo-root VERSION + BUILD_NUMBER +
 # MILESTONE files, derived by scripts/version.sh into MARKETING/BUILDCODE/FINGERPRINT); the app's
 # build.gradle.kts reads them the same way. Play deploy lanes below build against a real
 # signingConfig (app/build.gradle.kts reads keystore.properties or RELEASE_* env vars) but stay

@@ -93,7 +93,7 @@ fun Application.module(config: ServerConfig = ServerConfig.fromEnv()) {
                 ),
                 UpiIntentAdapter(
                     payeeVpa = "paymentslab@upi",
-                    payeeName = "PaymentsLab",
+                    payeeName = "PaymentsLab-KMP",
                     merchantCategoryCode = "5411",
                 ),
                 StripeAdapter(publishableKey = config.stripePublishableKey, secret = config.stripeSecret),

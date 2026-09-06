@@ -1,4 +1,4 @@
-# F-Droid metadata for PaymentsLab.
+# F-Droid metadata for PaymentsLab-KMP.
 #
 # This app bundles proprietary payment gateway SDKs (Razorpay, Cashfree, Stripe, Google Play
 # Services Wallet) behind a single PaymentGateway abstraction, on purpose: the whole point of the
@@ -14,11 +14,11 @@ License: GPL-3.0-or-later
 
 AuthorName: Siddharth Pandalai
 
-SourceCode: https://github.com/darkpandawarrior/PaymentsLab
-IssueTracker: https://github.com/darkpandawarrior/PaymentsLab/issues
+SourceCode: https://github.com/darkpandawarrior/PaymentsLab-KMP
+IssueTracker: https://github.com/darkpandawarrior/PaymentsLab-KMP/issues
 
 RepoType: git
-Repo: https://github.com/darkpandawarrior/PaymentsLab
+Repo: https://github.com/darkpandawarrior/PaymentsLab-KMP
 
 # Bundled proprietary gateway SDKs + their proprietary payment-network backends. Both flags apply:
 # NonFreeDep for the SDKs themselves, NonFreeNet for the closed networks they talk to.
@@ -27,10 +27,10 @@ AntiFeatures:
   - NonFreeNet
 
 # github-release.yml (tag push on v*) builds via `RELEASE_BUILD_CMD` (default assembleRelease) and
-# uploads each variant as dist/PaymentsLab-<tag>-<variant>.apk (see the workflow's "Build artifacts"
-# step: `cp "$apk" "dist/PaymentsLab-${tag}-${variant}.apk"`, variant stripped of the app- prefix from
-# app-release.apk). The release variant lands as PaymentsLab-<tag>-release.apk.
-Binaries: https://github.com/darkpandawarrior/PaymentsLab/releases/download/%v/PaymentsLab-%v-release.apk
+# uploads each variant as dist/PaymentsLab-KMP-<tag>-<variant>.apk (see the workflow's "Build artifacts"
+# step: `cp "$apk" "dist/PaymentsLab-KMP-${tag}-${variant}.apk"`, variant stripped of the app- prefix from
+# app-release.apk). The release variant lands as PaymentsLab-KMP-<tag>-release.apk.
+Binaries: https://github.com/darkpandawarrior/PaymentsLab-KMP/releases/download/%v/PaymentsLab-KMP-%v-release.apk
 
 # Real signing cert fingerprint (SHA-256, lowercase hex, no colons) for the release key configured
 # via ANDROID_KEYSTORE_B64 in CI. F-Droid refuses to publish an update whose APK doesn't match this.

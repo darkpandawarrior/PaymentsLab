@@ -70,7 +70,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
       - run: chmod +x ./gradlew
-      # Builds every task the repo variable RELEASE_BUILD_CMD lists (PaymentsLab has no flavors, so
+      # Builds every task the repo variable RELEASE_BUILD_CMD lists (PaymentsLab-KMP has no flavors, so
       # the default "assembleDebug assembleRelease" covers it). Release is signed with the real
       # keystore when a secret is materialized (see docs/RELEASE.md), else falls back to the debug
       # key (still an installable APK, not a raw unsigned blob — see app/build.gradle.kts
@@ -89,13 +89,13 @@ jobs:
 
           mkdir -p dist
           tag="${GITHUB_REF_NAME}"
-          # Attach APKs under meaningful names: PaymentsLab-<tag>-<flavor>-<buildType>.apk
+          # Attach APKs under meaningful names: PaymentsLab-KMP-<tag>-<flavor>-<buildType>.apk
           # (source name is app-<buildType>[-unsigned].apk; strip the "app-" prefix). Skip test APKs.
           # The `app-*.apk` wildcard already matches the `-unsigned` suffix an unsigned release
           # build emits, so no separate pattern is needed.
           while IFS= read -r apk; do
             variant="$(basename "$apk" .apk)"; variant="${variant#app-}"
-            cp "$apk" "dist/PaymentsLab-${tag}-${variant}.apk"
+            cp "$apk" "dist/PaymentsLab-KMP-${tag}-${variant}.apk"
           done < <(find . -path '*/outputs/apk/*' -name 'app-*.apk' -not -name '*androidTest*')
 
           echo "::group::Artifacts collected"; ls -la dist/ 2>/dev/null || true; echo "::endgroup::"
@@ -205,7 +205,7 @@ jobs:
         run: |
           set -uo pipefail
           # Override with the IOS_SCHEME repo variable if a repo has multiple app schemes and needs a
-          # specific one. Default: first scheme that isn't a *Tests scheme (PaymentsLab: "iosApp").
+          # specific one. Default: first scheme that isn't a *Tests scheme (PaymentsLab-KMP: "iosApp").
           scheme="${IOS_SCHEME:-}"
           if [ -z "$scheme" ]; then
             scheme="$(xcodebuild -list -project "${{ steps.detect.outputs.project }}" 2>/dev/null \
@@ -250,9 +250,9 @@ jobs:
           tag="${GITHUB_REF_NAME}"
           mkdir -p dist/Payload
           cp -R "$app" dist/Payload/
-          ( cd dist && zip -qr "PaymentsLab-${tag}-ios-unsigned.ipa" Payload )
+          ( cd dist && zip -qr "PaymentsLab-KMP-${tag}-ios-unsigned.ipa" Payload )
           rm -rf dist/Payload
-          ls -la "dist/PaymentsLab-${tag}-ios-unsigned.ipa"
+          ls -la "dist/PaymentsLab-KMP-${tag}-ios-unsigned.ipa"
       - name: Upload iOS artifact to release
         if: steps.detect.outputs.found == 'true' && steps.archive.outputs.archived == 'true'
         run: |
